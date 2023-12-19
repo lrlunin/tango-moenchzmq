@@ -9,10 +9,14 @@
 #include <vector>
 #include <thread>
 #include <tuple>
-
+#include <shared_mutex>
+#include <syncstream>
 #include <boost/lockfree/queue.hpp>
 #include <boost/pool/singleton_pool.hpp>
+#include <cmath>
+// #include "ComputationBackend.hpp"
 
+using namespace std;
 const int LENGTH = 16000;
 struct frame{
     unsigned short data[LENGTH];
@@ -27,13 +31,34 @@ struct full_data{
     metadata m;
     frame f;
 };
-void increment(int *value){
-    std::cout << "Hello from thread" << std::endl;
-    (*value)+=10;
-};
+// void ComputationBackend::compute(){
 
-class Test: public std::thread{
+// }
+// void ComputationBackend::interrupt(){
 
+// }
+class ComputationBackend{
+    public:
+        ComputationBackend():data_queue(2000){
+        };
+        vector<thread> threads;
+        boost::lockfree::queue<int> data_queue;
+    void init_threads(){
+        for (int x = 0; x<4; ++x){
+            threads.push_back(move(thread(&ComputationBackend::compute, this, x)));
+        }
+    }
+    void compute(int i){
+        osyncstream sout{cout};
+        int temp_int;  
+        while (data_queue.pop(temp_int)){
+                sout << "thread " << i+1 << ", " << temp_int << endl;
+                sout.emit();
+                //this_thread::sleep_for(0.001s);
+            };
+        sout << "thread " << i+1 << " died" << endl;
+        sout.emit();
+        };
 };
 
 int main(){
@@ -46,31 +71,42 @@ int main(){
     socket.set(zmq::sockopt::subscribe, "");
     char counter = 0;
     int value = 0;
-    std::thread t1 (increment, &value);
-    t1.join();
-    std::cout << value << std::endl;
+    ComputationBackend cb;
+    for (int x = 0; x<50000; ++x){
+            cb.data_queue.push(x);
+        }
+    cb.init_threads();
+    cin >> value;
+    // std::thread t1 (increment, &value);
+    // t1.join();
+    // std::cout << value << std::endl;
+    // std::shared_mutex mx;
+
+    // {
+    //     std::unique_lock writer {mx};
+
+    // }
+    // {
+    // std::shared_lock reader {mx};
+    // }
+    
 
     // avoid memory fragmentation with memory pool instead of call new for each new full_data
     // if even needed?...
-    typedef boost::singleton_pool<full_data, sizeof(full_data)> memory_pool;
-    std::vector<full_data*> ptr_list;
-    for (int i=0; i < 20; ++i){
-        full_data *pool_ptr = static_cast<full_data*>(memory_pool::malloc());
-        std::cout << "iter " << i << ", malloc on addr " << &pool_ptr << std::endl;
-        pool_ptr->m.bitmode = i*i;
-        pool_ptr->m.frameIndex = i*i;
-        ptr_list.push_back(pool_ptr);
+    // typedef boost::singleton_pool<full_data, sizeof(full_data)> memory_pool;
+    // std::vector<full_data*> ptr_list;
+    // for (int i=0; i < 20; ++i){
+    //     full_data *pool_ptr = static_cast<full_data*>(memory_pool::malloc());
+    //     pool_ptr->m.bitmode = i*i;
+    //     pool_ptr->m.frameIndex = i*i;
+    //     ptr_list.push_back(pool_ptr);
         
-    };
+    // };
     
-    // for (std::vector<full_data*>::reverse_iterator ptr = ptr_list.rbegin(); ptr!=ptr_list.rend(); ptr++){
-    //     std::cout << "bm: " << (*ptr)->m.bitmode << " fm " << (*ptr)->m.frameIndex << std::endl;
-    //     memory_pool::free((*ptr));
+    // for (auto ptr : ptr_list){
+    //     std::cout << "bm: " << ptr->m.bitmode << " fm " << ptr->m.frameIndex << std::endl;
+    //     memory_pool::free(ptr);
     // }
-    for (auto ptr : ptr_list){
-        std::cout << "ptr " << &ptr << ", bm: " << ptr->m.bitmode << " fm " << ptr->m.frameIndex << std::endl;
-        memory_pool::free(ptr);
-    }
 
     // while (counter < 100){
     //     zmq::message_t zmq_msg_1, zmq_msg_2;

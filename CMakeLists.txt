@@ -4,11 +4,11 @@ cmake_minimum_required(VERSION 3.14)
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 find_package(slsDetectorPackage)
-find_package(ZeroMQ REQUIRED)
+#find_package(ZeroMQ REQUIRED)
 find_package(Boost REQUIRED)
 find_package(Tango REQUIRED)
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -fno-omit-frame-pointer -fsanitize=address")
-set (CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} -fno-omit-frame-pointer -fsanitize=address")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -std=c++20 -fno-omit-frame-pointer -fsanitize=address")
+set (CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} ")
 add_subdirectory(src)
 
 #Add your executable
