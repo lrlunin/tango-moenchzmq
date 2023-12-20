@@ -13,4 +13,5 @@ set(NEXUS_SRC_FILES ${SRC_FILES}
 
 set(MOENCH_SRC_FILES ${SRC_FILES}
     ${CMAKE_CURRENT_SOURCE_DIR}/ZmqReceiverTest.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/ComputationBackend.cpp
     PARENT_SCOPE)

@@ -15,79 +15,28 @@
 #include <boost/lockfree/queue.hpp>
 #include <boost/pool/singleton_pool.hpp>
 #include <cmath>
-// #include "ComputationBackend.hpp"
+#include "ComputationBackend.hpp"
 
 using namespace std;
-const int LENGTH = 16000;
-struct frame{
-    unsigned short data[LENGTH];
-};
-
-struct metadata{
-    int bitmode;
-    int frameIndex;
-};
-struct frames_pool{};
-struct full_data{
-    metadata m;
-    frame f;
-};
-// void ComputationBackend::compute(){
-
-// }
-// void ComputationBackend::interrupt(){
-
-// }
-class ComputationBackend{
-    public:
-        ComputationBackend():data_queue(2000){
-        };
-        vector<thread> threads;
-        boost::lockfree::queue<int> data_queue;
-        condition_variable_any c_v;
-        atomic_bool sleep = true;
-        shared_mutex sm;
-    void init_threads(){
-        for (int x = 0; x<4; ++x){
-            threads.push_back(move(thread(&ComputationBackend::compute, this, x)));
-        }
-    }
-    void pause(){
-        sleep = true;
-    }
-    void resume(){
-        sleep = false;
-        c_v.notify_all();
-    }
-    void compute(int i){
-        int temp_int;
-        mutex mut;
-        while (true){
-            c_v.wait(mut, [this]{printf("waiting...\n"); return !sleep.load();});
-            while (!sleep.load() && data_queue.pop(temp_int)){
-                printf("thread %d, %d\n", i, temp_int);
-                this_thread::sleep_for(0.01s);
-            };
-            sleep = true;
-        }
-        printf("thead %d died\n", i);
-    }
-};
 
 int main(){
-    boost::lockfree::queue<full_data*> boost_queue(100);
+    
     sls::zmqHeader c;
     zmq::context_t context(1);
     zmq::socket_t socket(context, ZMQ_SUB);
     zmq::message_t payload;
     socket.connect("tcp://127.0.0.1:5555");
     socket.set(zmq::sockopt::subscribe, "");
-    char counter = 0;
-    int value = 0;
     bool flag = false;
     ComputationBackend cb;
-    for (int x = 0; x<50000; ++x){
-            cb.data_queue.push(x);
+    for (int x = 0; x<1000; ++x){
+        FullFrame *ff_ptr = static_cast<FullFrame*>(ComputationBackend::memory_pool::malloc());
+        ff_ptr->m.bitmode = 1;
+        ff_ptr->m.frameIndex = x;
+        for (auto i = 0; i < 16000; ++i){
+            ff_ptr->arr[i] = 1;
+        }
+        cb.frame_ptr_queue.push(ff_ptr);
         }
     cb.init_threads();
     while (true){
