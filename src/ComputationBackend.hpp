@@ -39,18 +39,17 @@ namespace consts{
     }()};
 }
 template <typename T = unsigned short, unsigned int V = 400 * 400>
-struct Frame{
+struct UnorderedFrame{
     T arr[V];
-    // will it work with assigning so?..
-    &T operator()(int y, int x){
+    T& operator()(int y, int x) {
         return arr[consts::reorder_map[y][x]];
     }
 };
-template <typename T = unsigned short, unsigned int = 400*400>
-struct ProcessingResult{
+template <typename T = unsigned short, unsigned int V = 400*400>
+struct OrderedFrame{
     T arr[V];
-    &T operator()(int y, int x){
-        return arr[consts::reorder_map[y][x]];
+    T& operator()(int y, int x) {
+        return arr[y*400 + x];
     }
 };
 struct Metadata{
@@ -59,7 +58,7 @@ struct Metadata{
 };
 struct FullFrame{
     Metadata m;
-    Frame<unsigned short, LENGTH> f;
+    UnorderedFrame<unsigned short, LENGTH> f;
 };
 class ComputationBackend{
 public:
@@ -68,15 +67,16 @@ public:
     void init_threads();
     void pause();
     void resume();
-    void calcPedestal(int (&arr)[LENGTH]);
-    void classifyFrame(const Frame<unsigned short, LENGTH> &input, int (&output)[LENGTH]);
+    UnorderedFrame<float, LENGTH> getPedestal();
+    OrderedFrame<char, LENGTH> classifyFrame(UnorderedFrame<unsigned short, LENGTH> &input);
+    OrderedFrame<float, LENGTH> subtractPedestal(UnorderedFrame<unsigned short, LENGTH> &raw_frame, UnorderedFrame<float, LENGTH> &pedestal);
+    void updatePedestal(UnorderedFrame<unsigned short, LENGTH> &raw_frame);
     void thread_task();
     void process_frame(FullFrame *ptr);
     typedef boost::singleton_pool<FullFrame, sizeof(FullFrame)> memory_pool;
-    unsigned int pedestal_buff_size = 100;
-    unsigned int pedestal_counter[LENGTH] = {0};
-    int pedestal_frame[LENGTH] = {0};
-    int devided_pedestal[LENGTH];
+    const unsigned int pedestal_buff_size = 100;
+    OrderedFrame<unsigned int, 400*400> pedestal_counter = {0};
+    OrderedFrame<int, 400*400> pedestal_sum = {0};
     boost::lockfree::queue<FullFrame*> frame_ptr_queue;
     std::atomic_bool pedestal = true;
     std::atomic_bool sleep = true;
