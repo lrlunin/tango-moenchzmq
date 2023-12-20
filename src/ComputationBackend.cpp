@@ -22,7 +22,7 @@ void ComputationBackend::pause(){
 void ComputationBackend::resume(){
     sleep = false;
 }
-void ComputationBackend::classifyFrame(const unsigned short (&input)[16000], int (&output)[16000]){
+void ComputationBackend::classifyFrame(const unsigned short (&input)[160000], int (&output)[160000]){
     for (auto i = 0; i < 16000; ++i){
         output[i] = 0;
     }
@@ -36,8 +36,8 @@ void ComputationBackend::process_frame(FullFrame *ff_ptr){
     printf("reader out\n");
     pedestal_share.unlock_shared();
 
-    int pixel_classes[16000] = {0};
-    ComputationBackend::classifyFrame(ff_ptr->arr, pixel_classes);
+    int pixel_classes[160000] = {0};
+    ComputationBackend::classifyFrame(ff_ptr->f.arr, pixel_classes);
 
     pedestal_share.lock();
     printf("writer in\n");
@@ -46,10 +46,10 @@ void ComputationBackend::process_frame(FullFrame *ff_ptr){
     printf("writer out\n");
     pedestal_share.unlock();
 
-    int frame_sum = accumulate(ff_ptr->arr, ff_ptr->arr+16000, 0);
+    int frame_sum = accumulate(ff_ptr->f.arr, ff_ptr->f.arr+16000, 0);
     printf("frame sum %d\n", frame_sum);
 }
-void ComputationBackend::calcPedestal(int (&arr)[16000]){
+void ComputationBackend::calcPedestal(int (&arr)[160000]){
         for (auto i = 0; i < 16000; ++i){
             arr[i] = pedestal_frame[i] / pedestal_counter[i];
         }
