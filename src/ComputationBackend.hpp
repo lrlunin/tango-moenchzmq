@@ -41,11 +41,18 @@ namespace consts{
 template <typename T = unsigned short, unsigned int V = 400 * 400>
 struct Frame{
     T arr[V];
-    T operator()(int y, int x){
+    // will it work with assigning so?..
+    &T operator()(int y, int x){
         return arr[consts::reorder_map[y][x]];
     }
 };
-
+template <typename T = unsigned short, unsigned int = 400*400>
+struct ProcessingResult{
+    T arr[V];
+    &T operator()(int y, int x){
+        return arr[consts::reorder_map[y][x]];
+    }
+};
 struct Metadata{
     int bitmode;
     int frameIndex;
@@ -62,7 +69,7 @@ public:
     void pause();
     void resume();
     void calcPedestal(int (&arr)[LENGTH]);
-    void classifyFrame(const unsigned short (&input)[LENGTH], int (&output)[LENGTH]);
+    void classifyFrame(const Frame<unsigned short, LENGTH> &input, int (&output)[LENGTH]);
     void thread_task();
     void process_frame(FullFrame *ptr);
     typedef boost::singleton_pool<FullFrame, sizeof(FullFrame)> memory_pool;
