@@ -16,8 +16,10 @@
 #include <boost/pool/singleton_pool.hpp>
 #include <cmath>
 #include "ComputationBackend.hpp"
+#include <chrono>
 
 using namespace std;
+
 
 int main(){
     
@@ -28,22 +30,28 @@ int main(){
     socket.connect("tcp://127.0.0.1:5555");
     socket.set(zmq::sockopt::subscribe, "");
     bool flag = false;
-    ComputationBackend cb;
-    for (int x = 0; x<1000; ++x){
-        FullFrame *ff_ptr = static_cast<FullFrame*>(ComputationBackend::memory_pool::malloc());
-        ff_ptr->m.bitmode = 1;
-        ff_ptr->m.frameIndex = x;
-        for (auto i = 0; i < 16000; ++i){
-            ff_ptr->arr[i] = 1;
-        }
-        cb.frame_ptr_queue.push(ff_ptr);
-        }
-    cb.init_threads();
-    while (true){
-        cin >> flag;
-        if (flag) cb.pause();
-        else cb.resume();
-    }
+    // ComputationBackend cb;
+    // for (int x = 0; x<1000; ++x){
+    //     FullFrame *ff_ptr = static_cast<FullFrame*>(ComputationBackend::memory_pool::malloc());
+    //     ff_ptr->m.bitmode = 1;
+    //     ff_ptr->m.frameIndex = x;
+    //     for (auto i = 0; i < 16000; ++i){
+    //         ff_ptr->arr[i] = 1;
+    //     }
+    //     cb.frame_ptr_queue.push(ff_ptr);
+    //     }
+    // cb.init_threads();
+
+    Frame x_nat;
+    unsigned short a[3] = {1,2,3};
+    std::memcpy(x_nat.arr, a, sizeof(a));
+    cout << x_nat(0,0) << x_nat(0,1) << x_nat(1,0);
+
+    // while (true){
+    //     cin >> flag;
+    //     if (flag) cb.pause();
+    //     else cb.resume();
+    // }
     // std::thread t1 (increment, &value);
     // t1.join();
     // std::cout << value << std::endl;
