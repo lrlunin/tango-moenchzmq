@@ -11,6 +11,7 @@
 #include <tuple>
 #include <shared_mutex>
 #include <syncstream>
+#include <condition_variable>
 #include <boost/lockfree/queue.hpp>
 #include <boost/pool/singleton_pool.hpp>
 #include <cmath>
@@ -43,22 +44,34 @@ class ComputationBackend{
         };
         vector<thread> threads;
         boost::lockfree::queue<int> data_queue;
+        condition_variable_any c_v;
+        atomic_bool sleep = true;
+        shared_mutex sm;
     void init_threads(){
         for (int x = 0; x<4; ++x){
             threads.push_back(move(thread(&ComputationBackend::compute, this, x)));
         }
     }
+    void pause(){
+        sleep = true;
+    }
+    void resume(){
+        sleep = false;
+        c_v.notify_all();
+    }
     void compute(int i){
-        osyncstream sout{cout};
-        int temp_int;  
-        while (data_queue.pop(temp_int)){
-                sout << "thread " << i+1 << ", " << temp_int << endl;
-                sout.emit();
-                //this_thread::sleep_for(0.001s);
+        int temp_int;
+        mutex mut;
+        while (true){
+            c_v.wait(mut, [this]{printf("waiting...\n"); return !sleep.load();});
+            while (!sleep.load() && data_queue.pop(temp_int)){
+                printf("thread %d, %d\n", i, temp_int);
+                this_thread::sleep_for(0.01s);
             };
-        sout << "thread " << i+1 << " died" << endl;
-        sout.emit();
-        };
+            sleep = true;
+        }
+        printf("thead %d died\n", i);
+    }
 };
 
 int main(){
@@ -71,12 +84,17 @@ int main(){
     socket.set(zmq::sockopt::subscribe, "");
     char counter = 0;
     int value = 0;
+    bool flag = false;
     ComputationBackend cb;
     for (int x = 0; x<50000; ++x){
             cb.data_queue.push(x);
         }
     cb.init_threads();
-    cin >> value;
+    while (true){
+        cin >> flag;
+        if (flag) cb.pause();
+        else cb.resume();
+    }
     // std::thread t1 (increment, &value);
     // t1.join();
     // std::cout << value << std::endl;
