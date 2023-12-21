@@ -12,7 +12,7 @@ using namespace std;
 
 ComputationBackend::ComputationBackend():frame_ptr_queue(2000){};
 void ComputationBackend::init_threads(){
-    for (int x = 0; x<6; ++x){
+    for (int x = 0; x<1; ++x){
            threads.push_back(move(thread(&ComputationBackend::thread_task, this)));
     }
 }
@@ -24,7 +24,7 @@ void ComputationBackend::resume(){
 }
 void ComputationBackend::process_frame(FullFrame *ff_ptr){
     pedestal_share.lock_shared();
-    auto pedestal = ComputationBackend::getPedestal();
+    UnorderedFrame<float, LENGTH> *pedestal = ComputationBackend::getPedestal();
     pedestal_share.unlock_shared();
     auto no_bkgd = ComputationBackend::subtractPedestal(ff_ptr->f, pedestal);
     auto frame_classes = ComputationBackend::classifyFrame(no_bkgd);
@@ -33,26 +33,28 @@ void ComputationBackend::process_frame(FullFrame *ff_ptr){
     pedestal_share.unlock();
     printf("finish frame %d\n", ff_ptr->m.frameIndex);
     memory_pool::free(ff_ptr);
+    delete pedestal;
+    delete no_bkgd;
+    delete frame_classes;
 }
 
- OrderedFrame<char, LENGTH> ComputationBackend::classifyFrame(OrderedFrame<float, LENGTH> &input){
+ OrderedFrame<char, LENGTH>* ComputationBackend::classifyFrame(OrderedFrame<float, LENGTH> *input){
     int nsigma = 3;
     float rms = 19;
     char cluster_size = 3;
-    OrderedFrame<char, LENGTH> class_mask;
+    OrderedFrame<char, LENGTH>* class_mask = new OrderedFrame<char, LENGTH>();
     int c2 = (cluster_size + 1 ) / 2;
     int c3 = cluster_size;
     
     for (int iy = 0; iy < 400; iy++){
         for (int ix = 0; ix < 400; ix++){
-            float sub_clusts[4] = {0};
             float max_value, tl, tr, bl, br, tot = 0;
             char pixel_class = 0;
             for (int ir = -cluster_size /2; ir < cluster_size / 2 + 1; ir++){
                 for (int ic = -cluster_size/2; ic < cluster_size/2 + 1; ic++){
-                    const int y_sub = std::min(std::max(iy + ir, 0), 400);
-                    const int x_sub = std::min(std::max(ix + ix, 0), 400);
-                    const int value = input(y_sub, x_sub);
+                    const int y_sub = std::min(std::max(iy + ir, 0), 399);
+                    const int x_sub = std::min(std::max(ix + ix, 0), 399);
+                    const float value = (*input)(y_sub, x_sub);
                     tot += value;
                     if (ir <= 0 && ic <=0) bl+= value;
                     if (ir <= 0 && ic >=0) br+= value;
@@ -63,48 +65,48 @@ void ComputationBackend::process_frame(FullFrame *ff_ptr){
                     if (value > max_value) max_value = value;
                 }
             }
-            if (input(iy, ix) < -nsigma * rms) {
+            if ((*input)(iy, ix) < -nsigma * rms) {
                 pixel_class =3;
-                class_mask(iy, ix) = 3;
+                (*class_mask)(iy, ix) = 3;
                 continue;
             }
             if (max_value > nsigma*rms){
                 pixel_class = 1;
-                class_mask(iy, ix) = 1;
-                if (input(iy, ix) < max_value) continue;
+                (*class_mask)(iy, ix) = 1;
+                if ((*input)(iy, ix) < max_value) continue;
             }
             else if (tot > c3*nsigma*rms) {
                 pixel_class =1;
-                class_mask(iy, ix) =1;
+                (*class_mask)(iy, ix) =1;
             }
             else if (std::max({bl, br, tl, tr}) > c2 * nsigma * rms){
                 pixel_class = 1;
-                class_mask(iy, ix) = 1;
+                (*class_mask)(iy, ix) = 1;
             }
-            if (pixel_class == 1 && input(iy, ix ) == max_value){
+            if (pixel_class == 1 && (*input)(iy, ix ) == max_value){
                 pixel_class = 2;
-                class_mask(iy, ix) = 2;
+                (*class_mask)(iy, ix) = 2;
             }
         }
     }
     return class_mask;
  }
 
-UnorderedFrame<float, LENGTH> ComputationBackend::getPedestal(){
-    UnorderedFrame<float, LENGTH> output;
+UnorderedFrame<float, LENGTH>* ComputationBackend::getPedestal(){
+    UnorderedFrame<float, LENGTH>* output = new UnorderedFrame<float, LENGTH>();
     for (int y = 0; y < 400; y++){
         for (int x = 0; x < 400; x++){
-            output(y, x) = pedestal_sum(y, x) / std::max(pedestal_counter(y, x), 1u);
+            (*output)(y, x) = pedestal_sum(y, x) / std::max(pedestal_counter(y, x), 1u);
         }
     }
     return output;
 }
 
-OrderedFrame<float, LENGTH> ComputationBackend::subtractPedestal(UnorderedFrame<unsigned short, LENGTH> &raw_frame, UnorderedFrame<float, LENGTH> &pedestal){
-    OrderedFrame<float, LENGTH> result = {0};
+OrderedFrame<float, LENGTH>* ComputationBackend::subtractPedestal(UnorderedFrame<unsigned short, LENGTH> &raw_frame, UnorderedFrame<float, LENGTH> *pedestal){
+    OrderedFrame<float, LENGTH> *result = new OrderedFrame<float, LENGTH>();
     for (int y = 0; y < 400; y++){
         for (int x = 0; x < 400; x++){
-            result(y, x) = raw_frame(y, x) - pedestal(y, x);
+            (*result)(y, x) = raw_frame(y, x) - (*pedestal)(y, x);
         }
     }
     return result;

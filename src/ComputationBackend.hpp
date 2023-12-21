@@ -67,9 +67,9 @@ public:
     void init_threads();
     void pause();
     void resume();
-    UnorderedFrame<float, LENGTH> getPedestal();
-    OrderedFrame<char, LENGTH> classifyFrame(OrderedFrame<float, LENGTH> &input);
-    OrderedFrame<float, LENGTH> subtractPedestal(UnorderedFrame<unsigned short, LENGTH> &raw_frame, UnorderedFrame<float, LENGTH> &pedestal);
+    UnorderedFrame<float, LENGTH>* getPedestal();
+    OrderedFrame<char, LENGTH>* classifyFrame(OrderedFrame<float, LENGTH> *input);
+    OrderedFrame<float, LENGTH>* subtractPedestal(UnorderedFrame<unsigned short, LENGTH> &raw_frame, UnorderedFrame<float, LENGTH> *pedestal);
     void updatePedestal(UnorderedFrame<unsigned short, LENGTH> &raw_frame);
     void thread_task();
     void process_frame(FullFrame *ptr);
