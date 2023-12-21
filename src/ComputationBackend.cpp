@@ -12,7 +12,7 @@ using namespace std;
 
 ComputationBackend::ComputationBackend():frame_ptr_queue(2000){};
 void ComputationBackend::init_threads(){
-    for (int x = 0; x<6; ++x){
+    for (int x = 0; x<4; ++x){
            threads.push_back(move(thread(&ComputationBackend::thread_task, this)));
     }
 }
@@ -50,8 +50,8 @@ void ComputationBackend::process_frame(FullFrame *ff_ptr){
             char pixel_class = 0;
             for (int ir = -cluster_size /2; ir < cluster_size / 2 + 1; ir++){
                 for (int ic = -cluster_size/2; ic < cluster_size/2 + 1; ic++){
-                    const int y_sub = std::min(std::max(iy + ir, 0), 400);
-                    const int x_sub = std::min(std::max(ix + ix, 0), 400);
+                    const int y_sub = std::min(std::max(iy + ir, 0), 399);
+                    const int x_sub = std::min(std::max(ix + ix, 0), 399);
                     const int value = input(y_sub, x_sub);
                     tot += value;
                     if (ir <= 0 && ic <=0) bl+= value;
