@@ -51,6 +51,17 @@ struct OrderedFrame{
     T& operator()(int y, int x) {
         return arr[y*400 + x];
     }
+    OrderedFrame& operator+=(const OrderedFrame& rhs){
+        for (auto i = 0; i < V; i++){
+            arr[i] += rhs.arr[i];
+        }
+        return *this;
+    }
+    void addClass(OrderedFrame<char, V>& classes, const char class_nr){
+        for (auto i = 0; i<V; i++){
+            arr[i] = (classes.arr[i] == class_nr);
+        }
+    }
 };
 struct Metadata{
     int bitmode;
@@ -62,23 +73,31 @@ struct FullFrame{
 };
 class ComputationBackend{
 public:
-    std::vector<std::thread> threads;
+    typedef boost::singleton_pool<FullFrame, sizeof(FullFrame)> memory_pool;
     ComputationBackend();
+    boost::lockfree::queue<FullFrame*> frame_ptr_queue;
+    std::vector<std::thread> threads;
+    std::shared_mutex pedestal_share;
+    std::shared_mutex frames_sums;
+    int processed_frames_amount = 0;
+
     void init_threads();
     void pause();
     void resume();
     UnorderedFrame<float, LENGTH> getPedestal();
     OrderedFrame<char, LENGTH> classifyFrame(OrderedFrame<float, LENGTH> &input);
     OrderedFrame<float, LENGTH> subtractPedestal(UnorderedFrame<unsigned short, LENGTH> &raw_frame, UnorderedFrame<float, LENGTH> &pedestal);
-    void updatePedestal(UnorderedFrame<unsigned short, LENGTH> &raw_frame);
+    void updatePedestal(UnorderedFrame<unsigned short, LENGTH> &raw_frame, OrderedFrame<char, LENGTH> &frame_classes, bool isPedestal);
     void thread_task();
     void process_frame(FullFrame *ptr);
-    typedef boost::singleton_pool<FullFrame, sizeof(FullFrame)> memory_pool;
+    
     const unsigned int pedestal_buff_size = 100;
     OrderedFrame<unsigned int, 400*400> pedestal_counter = {0};
     OrderedFrame<int, 400*400> pedestal_sum = {0};
-    boost::lockfree::queue<FullFrame*> frame_ptr_queue;
+    OrderedFrame<float, 400*400> analog_sum = {0};
+    OrderedFrame<int, 400*400> counting_sum = {0};
+
     std::atomic_bool pedestal = true;
     std::atomic_bool sleep = true;
-    std::shared_mutex pedestal_share;
+   
 };

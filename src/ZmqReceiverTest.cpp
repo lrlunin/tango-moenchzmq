@@ -27,6 +27,13 @@ struct Test{
     T& operator()(int y, int x){
         return arr[y*3 + x];
     }
+    Test<T,V> operator==(const T value){
+        Test<T, V> result = {0};
+        for (auto i = 0; i<V; i++){
+            result.arr[i] = (arr[i] == value);
+        }
+        return result;
+    }
 };
 
 int main(){
@@ -38,9 +45,21 @@ int main(){
     socket.connect("tcp://127.0.0.1:5555");
     socket.set(zmq::sockopt::subscribe, "");
     bool flag = false;
+    // OrderedFrame<int, 2> x1 = {1, 2};
+    // OrderedFrame<int, 2> x2 = {2, 3};
+    // x1 += x2;
+    // for (int i = 0; i <2; i++){
+    //     cout << x1.arr[i] << x2.arr[i] << endl;
+    // }
+    // Test<int, 10> test1;
+    // test1.arr[2] = 1;
+    // test1.arr[3] = 2;
+    // for (int i = 0; i<10; i++){
+    //    cout << *((test1 == 2).arr+i) << endl;
+    // }
     unique_ptr<ComputationBackend> comp_backend(new ComputationBackend());
     int i = 0;
-    while (i < 5000){
+    while (i < 500){
         zmq::message_t zmq_msg_1, zmq_msg_2;
         //message *msg_ptr = new message();
         // expceted to be a json

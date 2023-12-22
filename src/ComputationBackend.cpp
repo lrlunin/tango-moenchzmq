@@ -24,13 +24,22 @@ void ComputationBackend::resume(){
 }
 void ComputationBackend::process_frame(FullFrame *ff_ptr){
     pedestal_share.lock_shared();
-    auto pedestal = ComputationBackend::getPedestal();
+    UnorderedFrame<float, LENGTH> current_pedestal = ComputationBackend::getPedestal();
     pedestal_share.unlock_shared();
-    auto no_bkgd = ComputationBackend::subtractPedestal(ff_ptr->f, pedestal);
-    auto frame_classes = ComputationBackend::classifyFrame(no_bkgd);
+    OrderedFrame<float, LENGTH> no_bkgd = ComputationBackend::subtractPedestal(ff_ptr->f, current_pedestal);
+    // 0 - pedestal pixel, 1 - photon pixel, 2 - max in cluster
+    OrderedFrame<char, LENGTH> frame_classes = ComputationBackend::classifyFrame(no_bkgd);
     pedestal_share.lock();
-    updatePedestal(ff_ptr->f);
+    updatePedestal(ff_ptr->f, frame_classes, pedestal);
     pedestal_share.unlock();
+
+    frames_sums.lock();
+    // add to analog, threshold, counting
+    counting_sum.addClass(frame_classes, 2);
+    analog_sum += no_bkgd;
+    //threshold later
+    processed_frames_amount++;
+    frames_sums.unlock();
     printf("finish frame %d\n", ff_ptr->m.frameIndex);
     memory_pool::free(ff_ptr);
 }
@@ -100,25 +109,26 @@ UnorderedFrame<float, LENGTH> ComputationBackend::getPedestal(){
     return output;
 }
 
-OrderedFrame<float, LENGTH> ComputationBackend::subtractPedestal(UnorderedFrame<unsigned short, LENGTH> &raw_frame, UnorderedFrame<float, LENGTH> &pedestal){
-    OrderedFrame<float, LENGTH> result = {0};
+OrderedFrame<float, LENGTH> ComputationBackend::subtractPedestal(UnorderedFrame<unsigned short, LENGTH> &raw_frame, UnorderedFrame<float, LENGTH> &pedestal_frame){
+    OrderedFrame<float, LENGTH> result_frame = {0};
     for (int y = 0; y < 400; y++){
         for (int x = 0; x < 400; x++){
-            result(y, x) = raw_frame(y, x) - pedestal(y, x);
+            result_frame(y, x) = raw_frame(y, x) - pedestal_frame(y, x);
         }
     }
-    return result;
+    return result_frame;
 };
 
-void ComputationBackend::updatePedestal(UnorderedFrame<unsigned short, LENGTH> &raw_frame){
+void ComputationBackend::updatePedestal(UnorderedFrame<unsigned short, LENGTH> &raw_frame, OrderedFrame<char, LENGTH> &frame_classes, bool isPedestal = false){
     for (int y = 0; y < 400; y++){
         for (int x = 0; x < 400; x++){
+            if (!isPedestal && frame_classes(y, x) != 0) continue;
             if (pedestal_counter(y, x) < pedestal_buff_size){
                 pedestal_sum(y, x) = pedestal_sum(y, x) + raw_frame(y, x);
                 pedestal_sum(y, x)++;
             } 
             else {
-                pedestal_sum(y, x) = pedestal_sum(y, x) + raw_frame(y, x) - pedestal_sum(y, x)/pedestal_buff_size;
+                pedestal_sum(y, x) = pedestal_sum(y, x) + raw_frame(y, x) - pedestal_sum(y, x) / pedestal_buff_size;
             }
         }
     }
