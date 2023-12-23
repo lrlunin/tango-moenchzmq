@@ -84,8 +84,8 @@ public:
     void init_threads();
     void pause();
     void resume();
-    UnorderedFrame<float, LENGTH> getPedestal();
-    OrderedFrame<char, LENGTH> classifyFrame(OrderedFrame<float, LENGTH> &input);
+    void getPedestal(UnorderedFrame<float, LENGTH> &pedestal, UnorderedFrame<float, LENGTH> &pedestal_rms);
+    OrderedFrame<char, LENGTH> classifyFrame(OrderedFrame<float, LENGTH> &input, UnorderedFrame<float, LENGTH> &pedestal_rms);
     OrderedFrame<float, LENGTH> subtractPedestal(UnorderedFrame<unsigned short, LENGTH> &raw_frame, UnorderedFrame<float, LENGTH> &pedestal);
     void updatePedestal(UnorderedFrame<unsigned short, LENGTH> &raw_frame, OrderedFrame<char, LENGTH> &frame_classes, bool isPedestal);
     void thread_task();
@@ -94,6 +94,7 @@ public:
     const unsigned int pedestal_buff_size = 100;
     OrderedFrame<unsigned int, 400*400> pedestal_counter = {0};
     OrderedFrame<int, 400*400> pedestal_sum = {0};
+    OrderedFrame<int, 400*400> pedestal_squared_sum = {0};
     OrderedFrame<float, 400*400> analog_sum = {0};
     OrderedFrame<int, 400*400> counting_sum = {0};
 
