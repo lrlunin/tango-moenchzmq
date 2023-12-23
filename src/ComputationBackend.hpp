@@ -91,14 +91,14 @@ public:
     void thread_task();
     void process_frame(FullFrame *ptr);
     
-    const unsigned int pedestal_buff_size = 100;
-    OrderedFrame<unsigned int, 400*400> pedestal_counter = {0};
-    OrderedFrame<int, 400*400> pedestal_sum = {0};
-    OrderedFrame<int, 400*400> pedestal_squared_sum = {0};
+    const int pedestal_buff_size = 2000;
+    UnorderedFrame<float, 400*400> pedestal_counter = {0};
+    UnorderedFrame<float, 400*400> pedestal_sum = {0};
+    UnorderedFrame<float, 400*400> pedestal_squared_sum = {0};
     OrderedFrame<float, 400*400> analog_sum = {0};
     OrderedFrame<int, 400*400> counting_sum = {0};
 
-    std::atomic_bool pedestal = true;
+    std::atomic_bool isPedestal = true;
     std::atomic_bool sleep = true;
    
 };

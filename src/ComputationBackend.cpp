@@ -23,8 +23,8 @@ void ComputationBackend::resume(){
     sleep = false;
 }
 void ComputationBackend::process_frame(FullFrame *ff_ptr){
-    UnorderedFrame<float, LENGTH> pedestal_current;
-    UnorderedFrame<float, LENGTH> pedestal_rms_current;
+    UnorderedFrame<float, LENGTH> pedestal_current = {0};
+    UnorderedFrame<float, LENGTH> pedestal_rms_current = {0};
     pedestal_share.lock_shared();
     ComputationBackend::getPedestal(pedestal_current, pedestal_rms_current);
     pedestal_share.unlock_shared();
@@ -32,7 +32,7 @@ void ComputationBackend::process_frame(FullFrame *ff_ptr){
     // 0 - pedestal pixel, 1 - photon pixel, 2 - max in cluster
     OrderedFrame<char, LENGTH> frame_classes = ComputationBackend::classifyFrame(no_bkgd, pedestal_rms_current);
     pedestal_share.lock();
-    updatePedestal(ff_ptr->f, frame_classes, pedestal);
+    updatePedestal(ff_ptr->f, frame_classes, isPedestal);
     pedestal_share.unlock();
 
     frames_sums.lock();
@@ -42,10 +42,10 @@ void ComputationBackend::process_frame(FullFrame *ff_ptr){
     //threshold later
     processed_frames_amount++;
     frames_sums.unlock();
-    if (ff_ptr->m.frameIndex == 499){
-        printf("PED: %d, PED^2 %d\n", pedestal_sum(200, 200), pedestal_squared_sum(200, 200));
-        printf("PED_COUNTER: %d\n", pedestal_counter(200, 200));
-        printf("RMS: %f, AVG: %f\n", pedestal_rms_current(200, 200), pedestal_current(200, 200));
+    if (ff_ptr->m.frameIndex == 1999){
+        printf("PED: %f, PED^2 %f\n", pedestal_sum(2, 2), pedestal_squared_sum(2, 2));
+        printf("PED_COUNTER: %f\n", pedestal_counter(2, 2));
+        printf("RMS: %f, AVG: %f\n", pedestal_rms_current(2, 2), pedestal_current(2, 2));
     }
     printf("finish frame %d\n", ff_ptr->m.frameIndex);
     memory_pool::free(ff_ptr);
@@ -90,7 +90,7 @@ void ComputationBackend::process_frame(FullFrame *ff_ptr){
                 if (input(iy, ix) < max_value) continue;
             }
             else if (tot > c3*nsigma*rms) {
-                pixel_class =1;
+                pixel_class = 1;
                 class_mask(iy, ix) =1;
             }
             else if (std::max({bl, br, tl, tr}) > c2 * nsigma * rms){
@@ -109,9 +109,11 @@ void ComputationBackend::process_frame(FullFrame *ff_ptr){
 void ComputationBackend::getPedestal(UnorderedFrame<float, LENGTH> &pedestal, UnorderedFrame<float, LENGTH> &pedestal_rms){
     for (int y = 0; y < 400; y++){
         for (int x = 0; x < 400; x++){
-            const unsigned int counter = std::max(pedestal_counter(y, x), 1u);
+            const int counter = pedestal_counter(y, x);
+            if (counter != 0) {
             pedestal(y, x) = pedestal_sum(y, x) / counter;
-            pedestal_rms(y, x) = sqrtf(pedestal_squared_sum(y, x) / counter - pow(pedestal(y,x), 2));
+            pedestal_rms(y, x) = sqrt(pedestal_squared_sum(y, x) / counter - (pedestal_sum(y, x) / counter) * (pedestal_sum(y, x) / counter));
+            }
         }
     }
 }
@@ -131,9 +133,9 @@ void ComputationBackend::updatePedestal(UnorderedFrame<unsigned short, LENGTH> &
         for (int x = 0; x < 400; x++){
             //if (!isPedestal && frame_classes(y, x) != 0) continue;
             if (pedestal_counter(y, x) < pedestal_buff_size){
-                pedestal_sum(y, x) = pedestal_sum(y, x) + raw_frame(y, x);
-                pedestal_squared_sum(y, x) = pedestal_squared_sum(y,x) + raw_frame(y, x)*raw_frame(y, x);
                 pedestal_counter(y, x)++;
+                pedestal_sum(y, x) = pedestal_sum(y, x) + raw_frame(y, x);
+                pedestal_squared_sum(y, x) = pedestal_squared_sum(y, x) + raw_frame(y, x)*raw_frame(y, x);
             } 
             else {
                 pedestal_sum(y, x) = pedestal_sum(y, x) + raw_frame(y, x) - pedestal_sum(y, x) / pedestal_buff_size;
