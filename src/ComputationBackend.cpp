@@ -7,12 +7,13 @@
 #include <cmath>
 #include <numeric>
 #include "ComputationBackend.hpp"
+#include <tracy/Tracy.hpp>
 
 using namespace std;
 
 ComputationBackend::ComputationBackend():frame_ptr_queue(2000){};
 void ComputationBackend::init_threads(){
-    for (int x = 0; x<4; ++x){
+    for (int x = 0; x<16; ++x){
            threads.push_back(move(thread(&ComputationBackend::thread_task, this)));
     }
 }
@@ -23,31 +24,36 @@ void ComputationBackend::resume(){
     sleep = false;
 }
 void ComputationBackend::process_frame(FullFrame *ff_ptr){
-    UnorderedFrame<float, LENGTH> pedestal_current = {0};
-    UnorderedFrame<float, LENGTH> pedestal_rms_current = {0};
+    ZoneScoped;
+    UnorderedFrame<float, LENGTH> pedestal_current;
+    UnorderedFrame<float, LENGTH> pedestal_rms_current;
     pedestal_share.lock_shared();
-    ComputationBackend::getPedestal(pedestal_current, pedestal_rms_current);
+    ComputationBackend::loadPedestalAndRMS(pedestal_current, pedestal_rms_current);
     pedestal_share.unlock_shared();
     OrderedFrame<float, LENGTH> no_bkgd = ComputationBackend::subtractPedestal(ff_ptr->f, pedestal_current);
     // 0 - pedestal pixel, 1 - photon pixel, 2 - max in cluster
+    // better to create 3 different masks for easier assigment in sum frames...
     OrderedFrame<char, LENGTH> frame_classes = ComputationBackend::classifyFrame(no_bkgd, pedestal_rms_current);
-    pedestal_share.lock();
-    updatePedestal(ff_ptr->f, frame_classes, isPedestal);
-    pedestal_share.unlock();
+    if (ff_ptr->m.frameIndex % 10 == 0){
+        pedestal_share.lock();
+        updatePedestal(ff_ptr->f, frame_classes, isPedestal);
+        pedestal_share.unlock();
+    }
+
 
     frames_sums.lock();
     // add to analog, threshold, counting
-    counting_sum.addClass(frame_classes, 2);
-    analog_sum += no_bkgd;
+    //counting_sum.addClass(frame_classes, 2);
+    //analog_sum += no_bkgd;
     //threshold later
     processed_frames_amount++;
     frames_sums.unlock();
-    if (ff_ptr->m.frameIndex == 1999){
-        printf("PED: %f, PED^2 %f\n", pedestal_sum(2, 2), pedestal_squared_sum(2, 2));
-        printf("PED_COUNTER: %f\n", pedestal_counter(2, 2));
-        printf("RMS: %f, AVG: %f\n", pedestal_rms_current(2, 2), pedestal_current(2, 2));
-    }
-    printf("finish frame %d\n", ff_ptr->m.frameIndex);
+    // if (ff_ptr->m.frameIndex == 1999){
+    //     printf("PED: %f, PED^2 %f\n", pedestal_sum(2, 2), pedestal_squared_sum(2, 2));
+    //     printf("PED_COUNTER: %f\n", pedestal_counter(2, 2));
+    //     printf("RMS: %f, AVG: %f\n", pedestal_rms_current(2, 2), pedestal_current(2, 2));
+    // }
+    // printf("finish frame %d\n", ff_ptr->m.frameIndex);
     memory_pool::free(ff_ptr);
 }
 
@@ -106,7 +112,7 @@ void ComputationBackend::process_frame(FullFrame *ff_ptr){
     return class_mask;
  }
 
-void ComputationBackend::getPedestal(UnorderedFrame<float, LENGTH> &pedestal, UnorderedFrame<float, LENGTH> &pedestal_rms){
+void ComputationBackend::loadPedestalAndRMS(UnorderedFrame<float, LENGTH> &pedestal, UnorderedFrame<float, LENGTH> &pedestal_rms){
     for (int y = 0; y < 400; y++){
         for (int x = 0; x < 400; x++){
             const int counter = pedestal_counter(y, x);

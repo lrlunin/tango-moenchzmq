@@ -40,14 +40,14 @@ namespace consts{
 }
 template <typename T = unsigned short, unsigned int V = 400 * 400>
 struct UnorderedFrame{
-    T arr[V];
+    T arr[V] = {0};
     T& operator()(int y, int x) {
-        return arr[consts::reorder_map[y][x]];
+        return arr[y*400 + x];
     }
 };
 template <typename T = unsigned short, unsigned int V = 400*400>
 struct OrderedFrame{
-    T arr[V];
+    T arr[V] = {0};
     T& operator()(int y, int x) {
         return arr[y*400 + x];
     }
@@ -78,20 +78,20 @@ public:
     boost::lockfree::queue<FullFrame*> frame_ptr_queue;
     std::vector<std::thread> threads;
     std::shared_mutex pedestal_share;
-    std::shared_mutex frames_sums;
+    std::mutex frames_sums;
     int processed_frames_amount = 0;
 
     void init_threads();
     void pause();
     void resume();
-    void getPedestal(UnorderedFrame<float, LENGTH> &pedestal, UnorderedFrame<float, LENGTH> &pedestal_rms);
+    void loadPedestalAndRMS(UnorderedFrame<float, LENGTH> &pedestal, UnorderedFrame<float, LENGTH> &pedestal_rms);
     OrderedFrame<char, LENGTH> classifyFrame(OrderedFrame<float, LENGTH> &input, UnorderedFrame<float, LENGTH> &pedestal_rms);
     OrderedFrame<float, LENGTH> subtractPedestal(UnorderedFrame<unsigned short, LENGTH> &raw_frame, UnorderedFrame<float, LENGTH> &pedestal);
     void updatePedestal(UnorderedFrame<unsigned short, LENGTH> &raw_frame, OrderedFrame<char, LENGTH> &frame_classes, bool isPedestal);
     void thread_task();
     void process_frame(FullFrame *ptr);
     
-    const int pedestal_buff_size = 2000;
+    const int pedestal_buff_size = 300;
     UnorderedFrame<float, 400*400> pedestal_counter = {0};
     UnorderedFrame<float, 400*400> pedestal_sum = {0};
     UnorderedFrame<float, 400*400> pedestal_squared_sum = {0};

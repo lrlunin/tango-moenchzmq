@@ -17,7 +17,6 @@
 #include <cmath>
 #include "ComputationBackend.hpp"
 #include <chrono>
-
 using namespace std;
 
 template<typename T, int V>
@@ -62,7 +61,7 @@ int main(){
     // cout << a /b << endl;
     unique_ptr<ComputationBackend> comp_backend(new ComputationBackend());
     int i = 0;
-    while (i < 2000){
+    while (i < 200){
         zmq::message_t zmq_msg_1, zmq_msg_2;
         //message *msg_ptr = new message();
         // expceted to be a json
