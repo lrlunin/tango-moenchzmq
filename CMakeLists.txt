@@ -11,7 +11,7 @@ option( TRACY_ENABLE "" ON)
 option( TRACY_ON_DEMAND "" ON)
 add_subdirectory ("tracy") # target: TracyClient or alias Tracy :: TracyClient
 
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -std=c++20 ") # -pg -fno-omit-frame-pointer -fsanitize=address")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O3 -std=c++20 ") # -pg -fno-omit-frame-pointer -fsanitize=address")
 set (CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} ")
 add_subdirectory(src)
 

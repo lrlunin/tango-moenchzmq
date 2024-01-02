@@ -4,10 +4,13 @@
 #include <shared_mutex>
 #include <vector>
 
-constexpr int LENGTH = 160000;
+
 namespace consts{
-    constexpr static std::array<std::array<unsigned int, 400>, 400> reorder_map{[]() constexpr {
-        std::array<std::array<unsigned int, 400>, 400> result;
+    constexpr int FRAME_WIDTH = 400;
+    constexpr int FRAME_HEIGHT = 400;
+    constexpr int LENGTH = FRAME_HEIGHT * FRAME_WIDTH;
+    constexpr static std::array<std::array<unsigned int, FRAME_HEIGHT>, FRAME_WIDTH> reorder_map{[]() constexpr {
+        std::array<std::array<unsigned int, FRAME_HEIGHT>, FRAME_WIDTH> result;
         int nadc = 32;
         int adc_nr[32] = {300, 325, 350, 375, 300, 325, 350, 375,
         200, 225, 250, 275, 200, 225, 250, 275,
@@ -16,7 +19,7 @@ namespace consts{
         int npackets = 40;
         int sc_width = 25;
         int sc_height = 200;
-        int col, row;
+        int row;
         for (int ip = 0; ip < npackets; ip++) {
             for (int is = 0; is < 128; is++) {
                 for (auto iadc = 0; iadc < nadc; iadc++) {
@@ -40,9 +43,9 @@ namespace consts{
 }
 template <typename T = unsigned short, unsigned int V = 400 * 400>
 struct UnorderedFrame{
-    T arr[V] = {0};
+    T arr[V] = {0}; 
     T& operator()(int y, int x) {
-        return arr[y*400 + x];
+        return arr[consts::reorder_map[y][x]];
     }
 };
 template <typename T = unsigned short, unsigned int V = 400*400>
@@ -69,8 +72,9 @@ struct Metadata{
 };
 struct FullFrame{
     Metadata m;
-    UnorderedFrame<unsigned short, LENGTH> f;
+    UnorderedFrame<unsigned short, consts::LENGTH> f;
 };
+
 class ComputationBackend{
 public:
     typedef boost::singleton_pool<FullFrame, sizeof(FullFrame)> memory_pool;
@@ -84,19 +88,19 @@ public:
     void init_threads();
     void pause();
     void resume();
-    void loadPedestalAndRMS(UnorderedFrame<float, LENGTH> &pedestal, UnorderedFrame<float, LENGTH> &pedestal_rms);
-    OrderedFrame<char, LENGTH> classifyFrame(OrderedFrame<float, LENGTH> &input, UnorderedFrame<float, LENGTH> &pedestal_rms);
-    OrderedFrame<float, LENGTH> subtractPedestal(UnorderedFrame<unsigned short, LENGTH> &raw_frame, UnorderedFrame<float, LENGTH> &pedestal);
-    void updatePedestal(UnorderedFrame<unsigned short, LENGTH> &raw_frame, OrderedFrame<char, LENGTH> &frame_classes, bool isPedestal);
+    void loadPedestalAndRMS(UnorderedFrame<float, consts::LENGTH> &pedestal, UnorderedFrame<float, consts::LENGTH> &pedestal_rms);
+    OrderedFrame<char, consts::LENGTH> classifyFrame(OrderedFrame<float, consts::LENGTH> &input, UnorderedFrame<float, consts::LENGTH> &pedestal_rms);
+    OrderedFrame<float, consts::LENGTH> subtractPedestal(UnorderedFrame<unsigned short, consts::LENGTH> &raw_frame, UnorderedFrame<float, consts::LENGTH> &pedestal);
+    void updatePedestal(UnorderedFrame<unsigned short, consts::LENGTH> &raw_frame, OrderedFrame<char, consts::LENGTH> &frame_classes, bool isPedestal);
     void thread_task();
     void process_frame(FullFrame *ptr);
     
     const int pedestal_buff_size = 300;
-    UnorderedFrame<float, 400*400> pedestal_counter = {0};
-    UnorderedFrame<float, 400*400> pedestal_sum = {0};
-    UnorderedFrame<float, 400*400> pedestal_squared_sum = {0};
-    OrderedFrame<float, 400*400> analog_sum = {0};
-    OrderedFrame<int, 400*400> counting_sum = {0};
+    UnorderedFrame<float, consts::LENGTH> pedestal_counter = {0};
+    UnorderedFrame<float, consts::LENGTH> pedestal_sum = {0};
+    UnorderedFrame<float, consts::LENGTH> pedestal_squared_sum = {0};
+    OrderedFrame<float, consts::LENGTH> analog_sum = {0};
+    OrderedFrame<int, consts::LENGTH> counting_sum = {0};
 
     std::atomic_bool isPedestal = true;
     std::atomic_bool sleep = true;
