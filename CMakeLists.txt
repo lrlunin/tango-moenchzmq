@@ -13,18 +13,19 @@ add_subdirectory ("tracy") # target: TracyClient or alias Tracy :: TracyClient
 
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O3 -std=c++20 ") # -pg -fno-omit-frame-pointer -fsanitize=address")
 set (CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} ")
-add_subdirectory(src)
+add_subdirectory(src/backend)
+add_subdirectory(src/tangods)
 
 #Add your executable
-add_executable(TestDeviceLunin ${TANGO_SRC_FILES})
-add_executable(napi_test_cpp-hdf5 ${NEXUS_SRC_FILES})
+add_executable(MoenchZMQ ${TANGO_SRC_FILES})
+#add_executable(napi_test_cpp-hdf5 ${NEXUS_SRC_FILES})
 add_executable(ZmqReceiver ${MOENCH_SRC_FILES} "tracy/public/TracyClient.cpp")
 
 # add_compile_options(-fsanitize=address)
 # add_link_options(-fsanitize=address)
 
 #Link towards slsDetectorShared
-target_link_libraries(TestDeviceLunin Tango::Tango)
-target_link_libraries(napi_test_cpp-hdf5 NeXusCPP)
+target_link_libraries(MoenchZMQ Tango::Tango)
+#target_link_libraries(napi_test_cpp-hdf5 NeXusCPP)
 target_link_libraries(ZmqReceiver slsDetectorShared zmq ${Boost_LIBRARIES} Tracy::TracyClient)
 

@@ -1,12 +1,12 @@
-/*----- PROTECTED REGION ID(TestDeviceLunin.h) ENABLED START -----*/
+/*----- PROTECTED REGION ID(MoenchZMQ.h) ENABLED START -----*/
 /* clang-format on */
 //=============================================================================
 //
-// file :        TestDeviceLunin.h
+// file :        MoenchZMQ.h
 //
-// description : Include file for the TestDeviceLunin class
+// description : Include file for the MoenchZMQ class
 //
-// project :     Lunin title
+// project :     MoenchZMQ processor
 //
 // This file is part of Tango device class.
 //
@@ -21,13 +21,13 @@
 //=============================================================================
 
 
-#ifndef TestDeviceLunin_H
-#define TestDeviceLunin_H
+#ifndef MoenchZMQ_H
+#define MoenchZMQ_H
 
 #include <tango/tango.h>
 
 /* clang-format off */
-/*----- PROTECTED REGION END -----*/	//	TestDeviceLunin.h
+/*----- PROTECTED REGION END -----*/	//	MoenchZMQ.h
 
 #ifdef TANGO_LOG
 	// cppTango after c934adea (Merge branch 'remove-cout-definition' into 'main', 2022-05-23)
@@ -40,32 +40,37 @@
 #endif // TANGO_LOG
 
 /**
- *  TestDeviceLunin class description:
- *    LOL MEME
+ *  MoenchZMQ class description:
+ *    
  */
 
 
-namespace TestDeviceLunin_ns
+namespace MoenchZMQ_ns
 {
-/*----- PROTECTED REGION ID(TestDeviceLunin::Additional Class Declarations) ENABLED START -----*/
+/*----- PROTECTED REGION ID(MoenchZMQ::Additional Class Declarations) ENABLED START -----*/
 /* clang-format on */
 //	Additional Class Declarations
 /* clang-format off */
-/*----- PROTECTED REGION END -----*/	//	TestDeviceLunin::Additional Class Declarations
+/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::Additional Class Declarations
 
-class TestDeviceLunin : public TANGO_BASE_CLASS
+class MoenchZMQ : public TANGO_BASE_CLASS
 {
 
-/*----- PROTECTED REGION ID(TestDeviceLunin::Data Members) ENABLED START -----*/
+/*----- PROTECTED REGION ID(MoenchZMQ::Data Members) ENABLED START -----*/
 /* clang-format on */
 //	Add your own data members
 /* clang-format off */
-/*----- PROTECTED REGION END -----*/	//	TestDeviceLunin::Data Members
+/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::Data Members
 
 
 //	Attribute data members
 public:
-	Tango::DevFloat	*attr_counter_read;
+	Tango::DevULong	*attr_file_index_read;
+	Tango::DevString static_string;
+	Tango::DevString	*attr_filename_read;
+	Tango::DevString	*attr_file_root_path_read;
+	Tango::DevFloat	*attr_analog_img_read;
+	Tango::DevFloat	*attr_counting_img_read;
 
 //	Constructors and destructors
 public:
@@ -75,14 +80,14 @@ public:
 	 *	@param cl	Class.
 	 *	@param s 	Device Name
 	 */
-	TestDeviceLunin(Tango::DeviceClass *cl,std::string &s);
+	MoenchZMQ(Tango::DeviceClass *cl,std::string &s);
 	/**
 	 * Constructs a newly device object.
 	 *
 	 *	@param cl	Class.
 	 *	@param s 	Device Name
 	 */
-	TestDeviceLunin(Tango::DeviceClass *cl,const char *s);
+	MoenchZMQ(Tango::DeviceClass *cl,const char *s);
 	/**
 	 * Constructs a newly device object.
 	 *
@@ -90,11 +95,11 @@ public:
 	 *	@param s 	Device name
 	 *	@param d	Device description.
 	 */
-	TestDeviceLunin(Tango::DeviceClass *cl,const char *s,const char *d);
+	MoenchZMQ(Tango::DeviceClass *cl,const char *s,const char *d);
 	/**
 	 * The device object destructor.
 	 */
-	~TestDeviceLunin();
+	~MoenchZMQ();
 
 
 //	Miscellaneous methods
@@ -117,34 +122,72 @@ public:
 public:
 	//--------------------------------------------------------
 	/*
-	 *	Method      : TestDeviceLunin::read_attr_hardware()
+	 *	Method      : MoenchZMQ::read_attr_hardware()
 	 * Description:  Hardware acquisition for attributes.
 	 */
 	//--------------------------------------------------------
 	virtual void read_attr_hardware(std::vector<long> &attr_list);
 	//--------------------------------------------------------
 	/*
-	 *	Method      : TestDeviceLunin::write_attr_hardware()
+	 *	Method      : MoenchZMQ::write_attr_hardware()
 	 * Description:  Hardware writing for attributes.
 	 */
 	//--------------------------------------------------------
 	virtual void write_attr_hardware(std::vector<long> &attr_list);
 
 /**
- *	Attribute counter related methods
+ *	Attribute file_index related methods
+ *
+ *
+ *	Data type:  Tango::DevULong
+ *	Attr type:	Scalar
+ */
+	virtual void read_file_index(Tango::Attribute &attr);
+	virtual void write_file_index(Tango::WAttribute &attr);
+	virtual bool is_file_index_allowed(Tango::AttReqType type);
+/**
+ *	Attribute filename related methods
+ *
+ *
+ *	Data type:  Tango::DevString
+ *	Attr type:	Scalar
+ */
+	virtual void read_filename(Tango::Attribute &attr);
+	virtual void write_filename(Tango::WAttribute &attr);
+	virtual bool is_filename_allowed(Tango::AttReqType type);
+/**
+ *	Attribute file_root_path related methods
+ *
+ *
+ *	Data type:  Tango::DevString
+ *	Attr type:	Scalar
+ */
+	virtual void read_file_root_path(Tango::Attribute &attr);
+	virtual void write_file_root_path(Tango::WAttribute &attr);
+	virtual bool is_file_root_path_allowed(Tango::AttReqType type);
+/**
+ *	Attribute analog_img related methods
  *
  *
  *	Data type:  Tango::DevFloat
- *	Attr type:	Scalar
+ *	Attr type:	Image max = 400 x 400
  */
-	virtual void read_counter(Tango::Attribute &attr);
-	virtual void write_counter(Tango::WAttribute &attr);
-	virtual bool is_counter_allowed(Tango::AttReqType type);
+	virtual void read_analog_img(Tango::Attribute &attr);
+	virtual bool is_analog_img_allowed(Tango::AttReqType type);
+/**
+ *	Attribute counting_img related methods
+ *
+ *
+ *	Data type:  Tango::DevFloat
+ *	Attr type:	Image max = 400 x 400
+ */
+	virtual void read_counting_img(Tango::Attribute &attr);
+	virtual bool is_counting_img_allowed(Tango::AttReqType type);
 
 
 	//--------------------------------------------------------
 	/**
-	 *	Method      : TestDeviceLunin::add_dynamic_attributes()
+	 *	Method      : MoenchZMQ::add_dynamic_attributes()
 	 * Description:  Add dynamic attributes if any.
 	 */
 	//--------------------------------------------------------
@@ -159,25 +202,25 @@ public:
 
 	//--------------------------------------------------------
 	/**
-	 *	Method      : TestDeviceLunin::add_dynamic_commands()
+	 *	Method      : MoenchZMQ::add_dynamic_commands()
 	 * Description:  Add dynamic commands if any.
 	 */
 	//--------------------------------------------------------
 	void add_dynamic_commands();
 
-/*----- PROTECTED REGION ID(TestDeviceLunin::Additional Method prototypes) ENABLED START -----*/
+/*----- PROTECTED REGION ID(MoenchZMQ::Additional Method prototypes) ENABLED START -----*/
 /* clang-format on */
 //	Additional Method prototypes
 /* clang-format off */
-/*----- PROTECTED REGION END -----*/	//	TestDeviceLunin::Additional Method prototypes
+/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::Additional Method prototypes
 };
 
-/*----- PROTECTED REGION ID(TestDeviceLunin::Additional Classes Definitions) ENABLED START -----*/
+/*----- PROTECTED REGION ID(MoenchZMQ::Additional Classes Definitions) ENABLED START -----*/
 /* clang-format on */
 //	Additional Classes Definitions
 /* clang-format off */
-/*----- PROTECTED REGION END -----*/	//	TestDeviceLunin::Additional Classes Definitions
+/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::Additional Classes Definitions
 
 }	//	End of namespace
 
-#endif   //	TestDeviceLunin_H
+#endif   //	MoenchZMQ_H

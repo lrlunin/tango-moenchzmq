@@ -1,4 +1,4 @@
-/*----- PROTECTED REGION ID(TestDeviceLunin::ClassFactory.cpp) ENABLED START -----*/
+/*----- PROTECTED REGION ID(MoenchZMQ::ClassFactory.cpp) ENABLED START -----*/
 /* clang-format on */
 //=============================================================================
 //
@@ -9,7 +9,7 @@
 //               all class singleton for a device server. It is called
 //               at device server startup.
 //
-// project :     Lunin title
+// project :     MoenchZMQ processor
 //
 // This file is part of Tango device class.
 //
@@ -24,19 +24,19 @@
 //=============================================================================
 
 #include <tango/tango.h>
-#include "TestDeviceLuninClass.h"
+#include "MoenchZMQClass.h"
 
 //	Add class header files if needed
 
 
 /**
- *	Create TestDeviceLunin Class singleton and store it in DServer object.
+ *	Create MoenchZMQ Class singleton and store it in DServer object.
  */
 
 void Tango::DServer::class_factory()
 {
 	//	Add method class init if needed
-	add_class(TestDeviceLunin_ns::TestDeviceLuninClass::init("TestDeviceLunin"));
+	add_class(MoenchZMQ_ns::MoenchZMQClass::init("MoenchZMQ"));
 }
 /* clang-format off */
-/*----- PROTECTED REGION END -----*/	//	TestDeviceLunin::ClassFactory.cpp
+/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::ClassFactory.cpp

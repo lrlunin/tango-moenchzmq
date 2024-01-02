@@ -101,8 +101,6 @@ public:
     UnorderedFrame<float, consts::LENGTH> pedestal_squared_sum = {0};
     OrderedFrame<float, consts::LENGTH> analog_sum = {0};
     OrderedFrame<int, consts::LENGTH> counting_sum = {0};
-
     std::atomic_bool isPedestal = true;
     std::atomic_bool sleep = true;
-   
 };

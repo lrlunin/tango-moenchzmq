@@ -1,15 +1,15 @@
-/*----- PROTECTED REGION ID(TestDeviceLunin::main.cpp) ENABLED START -----*/
+/*----- PROTECTED REGION ID(MoenchZMQ::main.cpp) ENABLED START -----*/
 /* clang-format on */
 //=============================================================================
 //
 // file :        main.cpp
 //
-// description : C++ source for the TestDeviceLunin device server main.
+// description : C++ source for the MoenchZMQ device server main.
 //               The main rule is to initialise (and create) the Tango
 //               system and to create the DServerClass singleton.
 //               The main should be the same for every Tango device server.
 //
-// project :     Lunin title
+// project :     MoenchZMQ processor
 //
 // This file is part of Tango device class.
 //
@@ -75,4 +75,4 @@ int main(int argc,char *argv[])
 }
 
 /* clang-format off */
-/*----- PROTECTED REGION END -----*/	//	TestDeviceLunin::main.cpp
+/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::main.cpp
