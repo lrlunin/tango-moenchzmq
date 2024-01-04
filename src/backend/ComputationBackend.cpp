@@ -4,7 +4,6 @@
 #include <syncstream>
 #include <condition_variable>
 #include <fmt/core.h>
-#include <nexus/NeXusFile.hpp>
 #include <cmath>
 #include <numeric>
 #include "ComputationBackend.hpp"
@@ -42,12 +41,7 @@ void ComputationBackend::resetPedestalAndRMS(){
     pedestal_squared_sum.zero();
 }
 void ComputationBackend::dumpAccumulators(){
-    std::filesystem::path h5_filepath = getFullFilepath();
-    h5_filepath += ".nxs"
-    NeXus::File nxs_file(h5_filepath, NXACC_CREATE5);
-    nxs_file.makeGroup(fmt::format("entry{}", fileindex), "NXentry", true);
-
-
+    
 };
 void ComputationBackend::process_frame(FullFrame *ff_ptr){
     ZoneScoped;
