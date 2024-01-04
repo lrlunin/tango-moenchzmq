@@ -3,7 +3,8 @@
 #include <tuple>
 #include <syncstream>
 #include <condition_variable>
-
+#include <fmt/core.h>
+#include <nexus/NeXusFile.hpp>
 #include <cmath>
 #include <numeric>
 #include "ComputationBackend.hpp"
@@ -17,6 +18,12 @@ void ComputationBackend::init_threads(){
            threads.push_back(move(thread(&ComputationBackend::thread_task, this)));
     }
 }
+std::filesystem::path ComputationBackend::getFullFilepath(){
+    std::filesystem::path full_filepath;
+    full_filepath/=filepath;
+    full_filepath/=filename;
+    return full_filepath.lexically_normal();
+};
 void ComputationBackend::pause(){
     threads_sleep = true;
 }
@@ -24,16 +31,24 @@ void ComputationBackend::resume(){
     threads_sleep = false;
 }
 void ComputationBackend::resetAccumulators(){
-    analog_sum = {0};
-    thresholded_sum = {0};
-    counting_sum = {0};
+    analog_sum.zero();
+    thresholded_sum.zero();
+    counting_sum.zero();
     processed_frames_amount = 0;
 }
 void ComputationBackend::resetPedestalAndRMS(){
-    pedestal_counter.arr = {0};
-    pedestal_sum.arr = {0};
-    pedestal_squared_sum.arr = {0};
+    pedestal_counter.zero();
+    pedestal_sum.zero();
+    pedestal_squared_sum.zero();
 }
+void ComputationBackend::dumpAccumulators(){
+    std::filesystem::path h5_filepath = getFullFilepath();
+    h5_filepath += ".nxs"
+    NeXus::File nxs_file(h5_filepath, NXACC_CREATE5);
+    nxs_file.makeGroup(fmt::format("entry{}", fileindex), "NXentry", true);
+
+
+};
 void ComputationBackend::process_frame(FullFrame *ff_ptr){
     ZoneScoped;
     UnorderedFrame<float, consts::LENGTH> pedestal_current;

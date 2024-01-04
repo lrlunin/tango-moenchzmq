@@ -49,6 +49,11 @@ struct UnorderedFrame{
     T& operator()(int y, int x) {
         return arr[consts::reorder_map[y][x]];
     }
+    void zero(){
+        for (auto i = 0; i<V; i++){
+            arr[i] = 0;
+        }
+    }
 };
 template <typename T = unsigned short, unsigned int V = 400*400>
 struct OrderedFrame{
@@ -76,6 +81,11 @@ struct OrderedFrame{
             arr[i] = (classes.arr[i] == class_nr);
         }
     }
+    void zero(){
+        for (auto i = 0; i<V; i++){
+            arr[i] = 0;
+        }
+    }
 };
 struct Metadata{
     int bitmode;
@@ -90,7 +100,7 @@ class ComputationBackend{
 public:
     typedef boost::singleton_pool<FullFrame, sizeof(FullFrame)> memory_pool;
     ComputationBackend();
-    std::filesystem::path full_filepath, filepath, filename;
+    std::string filepath, filename;
     std::atomic<long> fileindex;
     boost::lockfree::queue<FullFrame*> frame_ptr_queue;
     std::vector<std::thread> threads;
@@ -99,6 +109,7 @@ public:
     std::atomic<long> processed_frames_amount;
 
     void init_threads();
+    std::filesystem::path getFullFilepath();
     void pause();
     void resume();
     void resetAccumulators();

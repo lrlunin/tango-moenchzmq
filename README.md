@@ -3,6 +3,7 @@
 zeromq-dev
 hdf5-dev
 rapidjson-dev
+fmt-dev
 
 ## not easy (self compiling)
 ### tango
