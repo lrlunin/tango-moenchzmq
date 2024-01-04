@@ -27,5 +27,5 @@ add_executable(ZmqReceiver ${MOENCH_SRC_FILES} "tracy/public/TracyClient.cpp")
 #Link towards slsDetectorShared
 target_link_libraries(MoenchZMQ Tango::Tango)
 #target_link_libraries(napi_test_cpp-hdf5 NeXusCPP)
-target_link_libraries(ZmqReceiver slsDetectorShared zmq ${Boost_LIBRARIES} Tracy::TracyClient)
+target_link_libraries(ZmqReceiver slsDetectorShared zmq ${Boost_LIBRARIES} Tracy::TracyClient NeXusCPP)
 

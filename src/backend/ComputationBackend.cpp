@@ -11,17 +11,28 @@
 
 using namespace std;
 
-ComputationBackend::ComputationBackend():frame_ptr_queue(2000){};
+ComputationBackend::ComputationBackend():frame_ptr_queue(5000){};
 void ComputationBackend::init_threads(){
-    for (int x = 0; x<16; ++x){
+    for (int x = 0; x < 10; ++x){
            threads.push_back(move(thread(&ComputationBackend::thread_task, this)));
     }
 }
 void ComputationBackend::pause(){
-    sleep = true;
+    threads_sleep = true;
 }
 void ComputationBackend::resume(){
-    sleep = false;
+    threads_sleep = false;
+}
+void ComputationBackend::resetAccumulators(){
+    analog_sum = {0};
+    thresholded_sum = {0};
+    counting_sum = {0};
+    processed_frames_amount = 0;
+}
+void ComputationBackend::resetPedestalAndRMS(){
+    pedestal_counter.arr = {0};
+    pedestal_sum.arr = {0};
+    pedestal_squared_sum.arr = {0};
 }
 void ComputationBackend::process_frame(FullFrame *ff_ptr){
     ZoneScoped;
@@ -39,21 +50,15 @@ void ComputationBackend::process_frame(FullFrame *ff_ptr){
     updatePedestal(ff_ptr->f, frame_classes, isPedestal);
     pedestal_share.unlock();
 
-
-
-    frames_sums.lock();
-    // add to analog, threshold, counting
-    //counting_sum.addClass(frame_classes, 2);
-    //analog_sum += no_bkgd;
-    //threshold later
-    processed_frames_amount++;
-    frames_sums.unlock();
-    if (ff_ptr->m.frameIndex == 199){
-        printf("PED: %f, PED^2 %f\n", pedestal_sum(200, 200), pedestal_squared_sum(200, 200));
-        printf("PED_COUNTER: %f\n", pedestal_counter(200, 200));
-        printf("RMS: %f, AVG: %f\n", pedestal_rms_current(200, 200), pedestal_current(200, 200));
+    if (!isPedestal){
+        frames_sums.lock();
+        // add to analog, threshold, counting
+        counting_sum.addClass(frame_classes, 2);
+        analog_sum += no_bkgd;
+        //threshold later
+        processed_frames_amount++;
+        frames_sums.unlock();
     }
-    //printf("finish frame %d\n", ff_ptr->m.frameIndex);
     memory_pool::free(ff_ptr);
 }
 
@@ -99,7 +104,7 @@ void ComputationBackend::process_frame(FullFrame *ff_ptr){
             }
             else if (tot > c3*nsigma*rms) {
                 pixel_class = 1;
-                class_mask(iy, ix) =1;
+                class_mask(iy, ix) = 1;
             }
             else if (std::max({bl, br, tl, tr}) > c2 * nsigma * rms){
                 pixel_class = 1;
@@ -156,10 +161,10 @@ void ComputationBackend::updatePedestal(UnorderedFrame<unsigned short, consts::L
 void ComputationBackend::thread_task(){
         FullFrame* ff_ptr;
         while (true){
-            while (!sleep && frame_ptr_queue.pop(ff_ptr)){
+            while (!threads_sleep && frame_ptr_queue.pop(ff_ptr)){
                 ComputationBackend::process_frame(ff_ptr);
             }
-            printf("either queue is empty or set to sleep\n");
+            //printf("either queue is empty or set to sleep\n");
             this_thread::sleep_for(0.03s);
         }
         printf("thead %d died\n", this_thread::get_id());

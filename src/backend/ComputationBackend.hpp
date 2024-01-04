@@ -1,8 +1,10 @@
+#pragma once
 #include <boost/lockfree/queue.hpp>
 #include <boost/pool/singleton_pool.hpp>
 #include <thread>
 #include <shared_mutex>
 #include <vector>
+#include <filesystem>
 
 
 namespace consts{
@@ -43,17 +45,26 @@ namespace consts{
 }
 template <typename T = unsigned short, unsigned int V = 400 * 400>
 struct UnorderedFrame{
-    T arr[V] = {0}; 
+    T arr[V]; 
     T& operator()(int y, int x) {
         return arr[consts::reorder_map[y][x]];
     }
 };
 template <typename T = unsigned short, unsigned int V = 400*400>
 struct OrderedFrame{
-    T arr[V] = {0};
+    T arr[V];
     T& operator()(int y, int x) {
         return arr[y*400 + x];
     }
+    std::array<T, V> flipped_array(){
+        std::array<T, V> flip_arr;
+        for (int y = 0; y<400; y++){
+            for (int x = 0; x < 400; x++){
+                flip_arr[y* 400 + x] = arr[(consts::FRAME_HEIGHT - 1 - y)* 400 + x];
+            }
+        }
+        return flip_arr;
+    };
     OrderedFrame& operator+=(const OrderedFrame& rhs){
         for (auto i = 0; i < V; i++){
             arr[i] += rhs.arr[i];
@@ -79,15 +90,20 @@ class ComputationBackend{
 public:
     typedef boost::singleton_pool<FullFrame, sizeof(FullFrame)> memory_pool;
     ComputationBackend();
+    std::filesystem::path full_filepath, filepath, filename;
+    std::atomic<long> fileindex;
     boost::lockfree::queue<FullFrame*> frame_ptr_queue;
     std::vector<std::thread> threads;
     std::shared_mutex pedestal_share;
     std::mutex frames_sums;
-    int processed_frames_amount = 0;
+    std::atomic<long> processed_frames_amount;
 
     void init_threads();
     void pause();
     void resume();
+    void resetAccumulators();
+    void resetPedestalAndRMS();
+    void dumpAccumulators();
     void loadPedestalAndRMS(UnorderedFrame<float, consts::LENGTH> &pedestal, UnorderedFrame<float, consts::LENGTH> &pedestal_rms);
     OrderedFrame<char, consts::LENGTH> classifyFrame(OrderedFrame<float, consts::LENGTH> &input, UnorderedFrame<float, consts::LENGTH> &pedestal_rms);
     OrderedFrame<float, consts::LENGTH> subtractPedestal(UnorderedFrame<unsigned short, consts::LENGTH> &raw_frame, UnorderedFrame<float, consts::LENGTH> &pedestal);
@@ -96,11 +112,12 @@ public:
     void process_frame(FullFrame *ptr);
     
     const int pedestal_buff_size = 300;
-    UnorderedFrame<float, consts::LENGTH> pedestal_counter = {0};
-    UnorderedFrame<float, consts::LENGTH> pedestal_sum = {0};
-    UnorderedFrame<float, consts::LENGTH> pedestal_squared_sum = {0};
-    OrderedFrame<float, consts::LENGTH> analog_sum = {0};
-    OrderedFrame<int, consts::LENGTH> counting_sum = {0};
+    UnorderedFrame<float, consts::LENGTH> pedestal_counter;
+    UnorderedFrame<float, consts::LENGTH> pedestal_sum;
+    UnorderedFrame<float, consts::LENGTH> pedestal_squared_sum;
+    OrderedFrame<float, consts::LENGTH> analog_sum;
+    OrderedFrame<float, consts::LENGTH> thresholded_sum;
+    OrderedFrame<int, consts::LENGTH> counting_sum;
     std::atomic_bool isPedestal = true;
-    std::atomic_bool sleep = true;
+    std::atomic_bool threads_sleep = true;
 };
