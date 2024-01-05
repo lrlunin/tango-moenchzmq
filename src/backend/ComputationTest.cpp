@@ -18,15 +18,57 @@
 #include "ComputationBackend.hpp"
 #include "ZMQListener.hpp"
 #include <chrono>
-#include <h5cpp/hdf5.hpp>
+#include <filesystem>
+#include <hdf5/serial/H5Cpp.h>
+// #include <hdf5/H
 
 using namespace std;
-
+//using namespace hdf5;
 
 
 int main() {
-    auto type = hdf5::datatype::TypeTrait<int>::create();
-      std::cout<<type.get_class()<<std::endl;
+    // filesystem::path file_path("h5cpp.h5");
+    // hdf5::file::File fl = hdf5::file::create(file_path, hdf5::file::AccessFlags::Truncate);
+    // hdf5::node::Group root_group = fl.root();
+    // hdf5::dataspace::Simple dspace({3, 10, 10});
+    // auto dt = hdf5::datatype::create<float>();
+    // hdf5::node::Dataset signal_ds = root_group.create_dataset("signal", dt, dspace);
+    // std::vector<float> y(100);
+    // std::fill(y.begin(), y.end(), 20);
+    // float x = 20;
+    // //float y[10] = {20};
+    // Dimensions offset{0, 0, 0};
+    // Dimensions block{1, 10, 10};
+
+    // dataspace::Hyperslab selection{offset, block};
+    // signal_ds.write(y, selection);
+    // cout << signal_ds.dataspace().size() << signal_ds.datatype().get_class() << endl;
+    // create a 
+    H5::H5File file("myfile.h5", H5F_ACC_TRUNC);
+    H5::DataType datatype(H5::PredType::NATIVE_FLOAT);
+    hsize_t dims[2] = {3, 100};
+    hsize_t sub_dims[2] = {1,100};
+    H5::DataSpace dataspace(2, dims);
+    H5::DataSpace memspace(2, sub_dims, NULL);
+    H5::DataSet dataset = file.createDataSet("signal", datatype, dataspace);
+    dataspace = dataset.getSpace();
+    vector<float> data(100);
+    std::fill(data.begin(), data.end(), 20);
+    hsize_t count[2] = {1, 100};
+    hsize_t offset[2] ={0, 0};
+    hsize_t block[2] = {1, 1};
+    dataspace.selectHyperslab(H5S_SELECT_SET, count, offset, NULL, block);
+    dataset.write(data.data(), datatype, memspace, dataspace);
+
+    std::fill(data.begin(), data.end(), 30);
+    offset[0] =1;
+    dataspace.selectHyperslab(H5S_SELECT_SET, count, offset, NULL, block);
+    dataset.write(data.data(), datatype, memspace, dataspace);
+
+    std::fill(data.begin(), data.end(), 40);
+    offset[0] = 2;
+    dataspace.selectHyperslab(H5S_SELECT_SET, count, offset, NULL, block);
+    dataset.write(data.data(), datatype, memspace, dataspace);
     return 0;
 
 }
