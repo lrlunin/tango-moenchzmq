@@ -1,4 +1,4 @@
-project(TangoMoenchZMQ LANGUAGES CXX)
+project(TangoMoenchZMQ LANGUAGES C CXX)
 cmake_minimum_required(VERSION 3.14)
 
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/cmake")
@@ -7,6 +7,8 @@ find_package(slsDetectorPackage)
 #find_package(ZeroMQ REQUIRED)
 find_package(Boost REQUIRED)
 find_package(HDF5 REQUIRED COMPONENTS CXX)
+find_package(h5cpp REQUIRED)
+
 find_package(Tango REQUIRED)
 option( TRACY_ENABLE "" ON)
 option( TRACY_ON_DEMAND "" ON)
@@ -29,5 +31,5 @@ add_executable(ZmqReceiver ${MOENCH_SRC_FILES} "tracy/public/TracyClient.cpp")
 #Link towards slsDetectorShared
 target_link_libraries(MoenchZMQ Tango::Tango)
 #target_link_libraries(napi_test_cpp-hdf5 NeXusCPP)
-target_link_libraries(ZmqReceiver slsDetectorShared zmq ${Boost_LIBRARIES} Tracy::TracyClient ${HDF5_LIBRARIES} fmt)
+target_link_libraries(ZmqReceiver slsDetectorShared zmq ${Boost_LIBRARIES} Tracy::TracyClient ${HDF5_LIBRARIES} fmt h5cpp::h5cpp)
 

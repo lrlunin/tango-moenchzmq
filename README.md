@@ -13,6 +13,7 @@ https://slsdetectorgroup.github.io/devdoc/installation.html
 we need flags
 -DSLS_DEVEL_HEADERS=ON
 -DSLS_USE_MOENCH=ON
+https://ess-dmsc.github.io/h5cpp/stable/users_guide/installing.html
 
 ### nexus
 https://github.com/nexusformat/code
