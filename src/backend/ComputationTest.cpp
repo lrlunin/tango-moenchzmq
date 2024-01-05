@@ -46,22 +46,22 @@ int main() {
     // create a 
     H5::H5File file("myfile.h5", H5F_ACC_TRUNC);
     H5::DataType datatype(H5::PredType::NATIVE_FLOAT);
-    hsize_t dims[2] = {3, 100};
-    hsize_t sub_dims[2] = {1,100};
-    H5::DataSpace dataspace(2, dims);
-    H5::DataSpace memspace(2, sub_dims, NULL);
+    hsize_t dims[3] = {3, 10, 10};
+    hsize_t sub_dims[3] = {1, 10, 10};
+    H5::DataSpace dataspace(3, dims);
+    H5::DataSpace memspace(3, sub_dims, NULL);
     H5::DataSet dataset = file.createDataSet("signal", datatype, dataspace);
     dataspace = dataset.getSpace();
     vector<float> data(100);
     std::fill(data.begin(), data.end(), 20);
-    hsize_t count[2] = {1, 100};
-    hsize_t offset[2] ={0, 0};
-    hsize_t block[2] = {1, 1};
+    hsize_t count[3] = {1, 10, 10};
+    hsize_t offset[3] ={0, 0, 0};
+    hsize_t block[3] = {1, 1, 1};
     dataspace.selectHyperslab(H5S_SELECT_SET, count, offset, NULL, block);
     dataset.write(data.data(), datatype, memspace, dataspace);
 
     std::fill(data.begin(), data.end(), 30);
-    offset[0] =1;
+    offset[0] = 1;
     dataspace.selectHyperslab(H5S_SELECT_SET, count, offset, NULL, block);
     dataset.write(data.data(), datatype, memspace, dataspace);
 
