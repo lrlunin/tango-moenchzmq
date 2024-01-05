@@ -13,7 +13,7 @@ using namespace std;
 
 ComputationBackend::ComputationBackend():frame_ptr_queue(5000){};
 void ComputationBackend::init_threads(){
-    for (int x = 0; x < 10; ++x){
+    for (int x = 0; x < THREAD_AMOIUNT; ++x){
            threads.push_back(move(thread(&ComputationBackend::thread_task, this)));
     }
 }
@@ -88,7 +88,7 @@ void ComputationBackend::process_frame(FullFrame *ff_ptr){
                 for (int ic = -cluster_size / 2; ic < cluster_size / 2 + 1; ic++){
                     const int y_sub = iy + ir;
                     const int x_sub = ix + ix;
-                    if (y_sub >= 0 && y_sub < 400 && x_sub >= 0 && x_sub < 400){
+                    if (y_sub >= 0 && y_sub < consts::FRAME_HEIGHT && x_sub >= 0 && x_sub < consts::FRAME_WIDTH){
                         const int value = input(y_sub, x_sub);
                         tot += value;
                         if (ir <= 0 && ic <=0) bl+= value;
@@ -154,14 +154,14 @@ void ComputationBackend::updatePedestal(UnorderedFrame<unsigned short, consts::L
     for (int y = 0; y < consts::FRAME_HEIGHT; y++){
         for (int x = 0; x < consts::FRAME_WIDTH; x++){
             //if (!isPedestal && frame_classes(y, x) != 0) continue;
-            if (pedestal_counter(y, x) < pedestal_buff_size){
+            if (pedestal_counter(y, x) < consts::PEDESTAL_BUFFER_SIZE){
                 pedestal_counter(y, x)++;
                 pedestal_sum(y, x) = pedestal_sum(y, x) + raw_frame(y, x);
                 pedestal_squared_sum(y, x) = pedestal_squared_sum(y, x) + pow(raw_frame(y, x), 2);
             } 
             else {
-                pedestal_sum(y, x) = pedestal_sum(y, x) + raw_frame(y, x) - pedestal_sum(y, x) / pedestal_buff_size;
-                pedestal_squared_sum(y, x) = pedestal_squared_sum(y,x) + pow(raw_frame(y, x), 2) - pedestal_squared_sum(y, x) / pedestal_buff_size;
+                pedestal_sum(y, x) = pedestal_sum(y, x) + raw_frame(y, x) - pedestal_sum(y, x) / consts::PEDESTAL_BUFFER_SIZE;
+                pedestal_squared_sum(y, x) = pedestal_squared_sum(y,x) + pow(raw_frame(y, x), 2) - pedestal_squared_sum(y, x) / consts::PEDESTAL_BUFFER_SIZE;
             }
         }
     }

@@ -11,6 +11,7 @@ namespace consts{
     constexpr int FRAME_WIDTH = 400;
     constexpr int FRAME_HEIGHT = 400;
     constexpr int LENGTH = FRAME_HEIGHT * FRAME_WIDTH;
+    constexpr float PEDESTAL_BUFFER_SIZE = 1000;
     constexpr static std::array<std::array<unsigned int, FRAME_HEIGHT>, FRAME_WIDTH> reorder_map{[]() constexpr {
         std::array<std::array<unsigned int, FRAME_HEIGHT>, FRAME_WIDTH> result;
         int nadc = 32;
@@ -114,6 +115,7 @@ public:
     std::mutex frames_sums;
     std::atomic<long> processed_frames_amount;
 
+    int THREAD_AMOIUNT = 10;
     void init_threads();
     std::filesystem::path getFullFilepath();
     void pause();
@@ -128,7 +130,6 @@ public:
     void thread_task();
     void process_frame(FullFrame *ptr);
     
-    const int pedestal_buff_size = 300;
     UnorderedFrame<float, consts::LENGTH> pedestal_counter;
     UnorderedFrame<float, consts::LENGTH> pedestal_sum;
     UnorderedFrame<float, consts::LENGTH> pedestal_squared_sum;
