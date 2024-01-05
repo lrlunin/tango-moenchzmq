@@ -55,17 +55,23 @@ struct UnorderedFrame{
         }
     }
 };
-template <typename T = unsigned short, unsigned int V = 400*400>
+template <typename T = unsigned short, unsigned int V = consts::FRAME_WIDTH*consts::FRAME_HEIGHT>
 struct OrderedFrame{
     T arr[V];
     T& operator()(int y, int x) {
-        return arr[y*400 + x];
+        return arr[y * consts::FRAME_WIDTH + x];
     }
-    std::array<T, V> flipped_array(){
+    std::array<T, V> asArray(bool flip = true){
         std::array<T, V> flip_arr;
-        for (int y = 0; y<400; y++){
-            for (int x = 0; x < 400; x++){
-                flip_arr[y* 400 + x] = arr[(consts::FRAME_HEIGHT - 1 - y)* 400 + x];
+        for (int y = 0; y < consts::FRAME_HEIGHT; y++){
+            for (int x = 0; x < consts::FRAME_WIDTH; x++){
+                /*
+                to flip image vertically we need either running y from 0 to 399 or 399 to 0
+                if not flipped then flip_arr[y * consts::FRAME_WIDTH + x] = arr[y * consts::FRAME_WIDTH + x]
+                if flipped then flip_arr[y * consts::FRAME_WIDTH + x] = arr[(consts::FRAME_HEIGHT - 1 - y) * consts::FRAME_WIDTH + consts::FRAME_WIDTH  + x]
+                the resulting formula below is just some math trickery to avoid if coniditions
+                */
+                flip_arr[y * consts::FRAME_WIDTH + x] = arr[flip * (consts::FRAME_WIDTH * (consts::FRAME_HEIGHT - 1)) + consts::FRAME_WIDTH * y *(-1 + 2 * (!flip)) + x];
             }
         }
         return flip_arr;
