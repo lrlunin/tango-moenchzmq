@@ -148,6 +148,78 @@ MoenchZMQClass *MoenchZMQClass::instance()
 //===================================================================
 //	Command execution method calls
 //===================================================================
+//--------------------------------------------------------
+/**
+ * method : 		start_receiverClass::execute()
+ * description : 	method to trigger the execution of the command.
+ *
+ * @param	device	The device on which the command must be executed
+ * @param	in_any	The command input data
+ *
+ *	returns The command output data (packed in the Any object)
+ */
+//--------------------------------------------------------
+CORBA::Any *start_receiverClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED(const CORBA::Any &in_any))
+{
+	TANGO_LOG_INFO << "start_receiverClass::execute(): arrived" << std::endl;
+	((static_cast<MoenchZMQ *>(device))->start_receiver());
+	return new CORBA::Any();
+}
+
+//--------------------------------------------------------
+/**
+ * method : 		stop_receiverClass::execute()
+ * description : 	method to trigger the execution of the command.
+ *
+ * @param	device	The device on which the command must be executed
+ * @param	in_any	The command input data
+ *
+ *	returns The command output data (packed in the Any object)
+ */
+//--------------------------------------------------------
+CORBA::Any *stop_receiverClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED(const CORBA::Any &in_any))
+{
+	TANGO_LOG_INFO << "stop_receiverClass::execute(): arrived" << std::endl;
+	((static_cast<MoenchZMQ *>(device))->stop_receiver());
+	return new CORBA::Any();
+}
+
+//--------------------------------------------------------
+/**
+ * method : 		abort_receiverClass::execute()
+ * description : 	method to trigger the execution of the command.
+ *
+ * @param	device	The device on which the command must be executed
+ * @param	in_any	The command input data
+ *
+ *	returns The command output data (packed in the Any object)
+ */
+//--------------------------------------------------------
+CORBA::Any *abort_receiverClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED(const CORBA::Any &in_any))
+{
+	TANGO_LOG_INFO << "abort_receiverClass::execute(): arrived" << std::endl;
+	((static_cast<MoenchZMQ *>(device))->abort_receiver());
+	return new CORBA::Any();
+}
+
+//--------------------------------------------------------
+/**
+ * method : 		reset_pedestalClass::execute()
+ * description : 	method to trigger the execution of the command.
+ *
+ * @param	device	The device on which the command must be executed
+ * @param	in_any	The command input data
+ *
+ *	returns The command output data (packed in the Any object)
+ */
+//--------------------------------------------------------
+CORBA::Any *reset_pedestalClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED(const CORBA::Any &in_any))
+{
+	TANGO_LOG_INFO << "reset_pedestalClass::execute(): arrived" << std::endl;
+	((static_cast<MoenchZMQ *>(device))->reset_pedestal());
+	return new CORBA::Any();
+}
+
 
 //===================================================================
 //	Properties management
@@ -217,6 +289,32 @@ void MoenchZMQClass::set_default_property()
 	//	Set Default Class Properties
 
 	//	Set Default device Properties
+	prop_name = "ZMQ_IP";
+	prop_desc = "";
+	prop_def  = "";
+	vect_data.clear();
+	if (prop_def.length()>0)
+	{
+		Tango::DbDatum	data(prop_name);
+		data << vect_data ;
+		dev_def_prop.push_back(data);
+		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
+	}
+	else
+		add_wiz_dev_prop(prop_name, prop_desc);
+	prop_name = "ZMQ_PORT";
+	prop_desc = "";
+	prop_def  = "";
+	vect_data.clear();
+	if (prop_def.length()>0)
+	{
+		Tango::DbDatum	data(prop_name);
+		data << vect_data ;
+		dev_def_prop.push_back(data);
+		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
+	}
+	else
+		add_wiz_dev_prop(prop_name, prop_desc);
 }
 
 //--------------------------------------------------------
@@ -388,9 +486,124 @@ void MoenchZMQClass::attribute_factory(std::vector<Tango::Attr *> &att_list)
 	file_root_path->set_default_properties(file_root_path_prop);
 	//	Not Polled
 	file_root_path->set_disp_level(Tango::OPERATOR);
-	// file_root_path->set_memorized();
-	// file_root_path->set_memorized_init(false);
+	file_root_path->set_memorized();
+	file_root_path->set_memorized_init(false);
 	att_list.push_back(file_root_path);
+
+	//	Attribute : normalize
+	normalizeAttrib	*normalize = new normalizeAttrib();
+	Tango::UserDefaultAttrProp	normalize_prop;
+	//	description	not set for normalize
+	//	label	not set for normalize
+	//	unit	not set for normalize
+	//	standard_unit	not set for normalize
+	//	display_unit	not set for normalize
+	//	format	not set for normalize
+	//	max_value	not set for normalize
+	//	min_value	not set for normalize
+	//	max_alarm	not set for normalize
+	//	min_alarm	not set for normalize
+	//	max_warning	not set for normalize
+	//	min_warning	not set for normalize
+	//	delta_t	not set for normalize
+	//	delta_val	not set for normalize
+	normalize->set_default_properties(normalize_prop);
+	//	Not Polled
+	normalize->set_disp_level(Tango::OPERATOR);
+	//	Not Memorized
+	att_list.push_back(normalize);
+
+	//	Attribute : threshold
+	thresholdAttrib	*threshold = new thresholdAttrib();
+	Tango::UserDefaultAttrProp	threshold_prop;
+	//	description	not set for threshold
+	threshold_prop.set_label("threshold");
+	threshold_prop.set_unit("ADU");
+	//	standard_unit	not set for threshold
+	//	display_unit	not set for threshold
+	//	format	not set for threshold
+	//	max_value	not set for threshold
+	//	min_value	not set for threshold
+	//	max_alarm	not set for threshold
+	//	min_alarm	not set for threshold
+	//	max_warning	not set for threshold
+	//	min_warning	not set for threshold
+	//	delta_t	not set for threshold
+	//	delta_val	not set for threshold
+	threshold->set_default_properties(threshold_prop);
+	//	Not Polled
+	threshold->set_disp_level(Tango::OPERATOR);
+	//	Not Memorized
+	att_list.push_back(threshold);
+
+	//	Attribute : counting_sigma
+	counting_sigmaAttrib	*counting_sigma = new counting_sigmaAttrib();
+	Tango::UserDefaultAttrProp	counting_sigma_prop;
+	//	description	not set for counting_sigma
+	//	label	not set for counting_sigma
+	//	unit	not set for counting_sigma
+	//	standard_unit	not set for counting_sigma
+	//	display_unit	not set for counting_sigma
+	//	format	not set for counting_sigma
+	//	max_value	not set for counting_sigma
+	//	min_value	not set for counting_sigma
+	//	max_alarm	not set for counting_sigma
+	//	min_alarm	not set for counting_sigma
+	//	max_warning	not set for counting_sigma
+	//	min_warning	not set for counting_sigma
+	//	delta_t	not set for counting_sigma
+	//	delta_val	not set for counting_sigma
+	counting_sigma->set_default_properties(counting_sigma_prop);
+	//	Not Polled
+	counting_sigma->set_disp_level(Tango::OPERATOR);
+	//	Not Memorized
+	att_list.push_back(counting_sigma);
+
+	//	Attribute : live_period
+	live_periodAttrib	*live_period = new live_periodAttrib();
+	Tango::UserDefaultAttrProp	live_period_prop;
+	//	description	not set for live_period
+	live_period_prop.set_label("live period");
+	live_period_prop.set_unit("frames");
+	//	standard_unit	not set for live_period
+	//	display_unit	not set for live_period
+	//	format	not set for live_period
+	//	max_value	not set for live_period
+	//	min_value	not set for live_period
+	//	max_alarm	not set for live_period
+	//	min_alarm	not set for live_period
+	//	max_warning	not set for live_period
+	//	min_warning	not set for live_period
+	//	delta_t	not set for live_period
+	//	delta_val	not set for live_period
+	live_period->set_default_properties(live_period_prop);
+	//	Not Polled
+	live_period->set_disp_level(Tango::OPERATOR);
+	//	Not Memorized
+	att_list.push_back(live_period);
+
+	//	Attribute : process_pedestal
+	process_pedestalAttrib	*process_pedestal = new process_pedestalAttrib();
+	Tango::UserDefaultAttrProp	process_pedestal_prop;
+	//	description	not set for process_pedestal
+	//	label	not set for process_pedestal
+	//	unit	not set for process_pedestal
+	//	standard_unit	not set for process_pedestal
+	//	display_unit	not set for process_pedestal
+	//	format	not set for process_pedestal
+	//	max_value	not set for process_pedestal
+	//	min_value	not set for process_pedestal
+	//	max_alarm	not set for process_pedestal
+	//	min_alarm	not set for process_pedestal
+	//	max_warning	not set for process_pedestal
+	//	min_warning	not set for process_pedestal
+	//	delta_t	not set for process_pedestal
+	//	delta_val	not set for process_pedestal
+	process_pedestal->set_default_properties(process_pedestal_prop);
+	//	Not Polled
+	process_pedestal->set_disp_level(Tango::OPERATOR);
+	//	Not Memorized
+	att_list.push_back(process_pedestal);
 
 	//	Attribute : analog_img
 	analog_imgAttrib	*analog_img = new analog_imgAttrib();
@@ -482,6 +695,42 @@ void MoenchZMQClass::command_factory()
 	/* clang-format off */
 	/*----- PROTECTED REGION END -----*/	//	MoenchZMQClass::command_factory_before
 
+
+	//	Command start_receiver
+	start_receiverClass	*pstart_receiverCmd =
+		new start_receiverClass("start_receiver",
+			Tango::DEV_VOID, Tango::DEV_VOID,
+			"",
+			"",
+			Tango::OPERATOR);
+	command_list.push_back(pstart_receiverCmd);
+
+	//	Command stop_receiver
+	stop_receiverClass	*pstop_receiverCmd =
+		new stop_receiverClass("stop_receiver",
+			Tango::DEV_VOID, Tango::DEV_VOID,
+			"",
+			"",
+			Tango::OPERATOR);
+	command_list.push_back(pstop_receiverCmd);
+
+	//	Command abort_receiver
+	abort_receiverClass	*pabort_receiverCmd =
+		new abort_receiverClass("abort_receiver",
+			Tango::DEV_VOID, Tango::DEV_VOID,
+			"",
+			"",
+			Tango::OPERATOR);
+	command_list.push_back(pabort_receiverCmd);
+
+	//	Command reset_pedestal
+	reset_pedestalClass	*preset_pedestalCmd =
+		new reset_pedestalClass("reset_pedestal",
+			Tango::DEV_VOID, Tango::DEV_VOID,
+			"",
+			"",
+			Tango::OPERATOR);
+	command_list.push_back(preset_pedestalCmd);
 
 	/*----- PROTECTED REGION ID(MoenchZMQClass::command_factory_after) ENABLED START -----*/
 	/* clang-format on */

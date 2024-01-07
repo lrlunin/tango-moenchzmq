@@ -26,8 +26,10 @@
 /*----- PROTECTED REGION END -----*/	//	MoenchZMQ::MoenchZMQStateMachine.cpp
 
 //================================================================
-//  States  |  Description
+//  States   |  Description
 //================================================================
+//  ON       |  
+//  RUNNING  |  
 
 
 namespace MoenchZMQ_ns
@@ -104,6 +106,106 @@ bool MoenchZMQ::is_file_root_path_allowed(TANGO_UNUSED(Tango::AttReqType type))
 
 //--------------------------------------------------------
 /**
+ *	Method      : MoenchZMQ::is_normalize_allowed()
+ * Description:  Execution allowed for normalize attribute
+ */
+//--------------------------------------------------------
+bool MoenchZMQ::is_normalize_allowed(TANGO_UNUSED(Tango::AttReqType type))
+{
+	//	Not any excluded states for normalize attribute in Write access.
+	/*----- PROTECTED REGION ID(MoenchZMQ::normalizeStateAllowed_WRITE) ENABLED START -----*/
+	/* clang-format on */
+	/* clang-format off */
+	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::normalizeStateAllowed_WRITE
+
+	//	Not any excluded states for normalize attribute in read access.
+	/*----- PROTECTED REGION ID(MoenchZMQ::normalizeStateAllowed_READ) ENABLED START -----*/
+	/* clang-format on */
+	/* clang-format off */
+	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::normalizeStateAllowed_READ
+	return true;
+}
+
+//--------------------------------------------------------
+/**
+ *	Method      : MoenchZMQ::is_threshold_allowed()
+ * Description:  Execution allowed for threshold attribute
+ */
+//--------------------------------------------------------
+bool MoenchZMQ::is_threshold_allowed(TANGO_UNUSED(Tango::AttReqType type))
+{
+
+	//	Not any excluded states for threshold attribute in read access.
+	/*----- PROTECTED REGION ID(MoenchZMQ::thresholdStateAllowed_READ) ENABLED START -----*/
+	/* clang-format on */
+	/* clang-format off */
+	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::thresholdStateAllowed_READ
+	return true;
+}
+
+//--------------------------------------------------------
+/**
+ *	Method      : MoenchZMQ::is_counting_sigma_allowed()
+ * Description:  Execution allowed for counting_sigma attribute
+ */
+//--------------------------------------------------------
+bool MoenchZMQ::is_counting_sigma_allowed(TANGO_UNUSED(Tango::AttReqType type))
+{
+	//	Not any excluded states for counting_sigma attribute in Write access.
+	/*----- PROTECTED REGION ID(MoenchZMQ::counting_sigmaStateAllowed_WRITE) ENABLED START -----*/
+	/* clang-format on */
+	/* clang-format off */
+	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::counting_sigmaStateAllowed_WRITE
+
+	//	Not any excluded states for counting_sigma attribute in read access.
+	/*----- PROTECTED REGION ID(MoenchZMQ::counting_sigmaStateAllowed_READ) ENABLED START -----*/
+	/* clang-format on */
+	/* clang-format off */
+	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::counting_sigmaStateAllowed_READ
+	return true;
+}
+
+//--------------------------------------------------------
+/**
+ *	Method      : MoenchZMQ::is_live_period_allowed()
+ * Description:  Execution allowed for live_period attribute
+ */
+//--------------------------------------------------------
+bool MoenchZMQ::is_live_period_allowed(TANGO_UNUSED(Tango::AttReqType type))
+{
+	//	Not any excluded states for live_period attribute in Write access.
+	/*----- PROTECTED REGION ID(MoenchZMQ::live_periodStateAllowed_WRITE) ENABLED START -----*/
+	/* clang-format on */
+	/* clang-format off */
+	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::live_periodStateAllowed_WRITE
+
+	//	Not any excluded states for live_period attribute in read access.
+	/*----- PROTECTED REGION ID(MoenchZMQ::live_periodStateAllowed_READ) ENABLED START -----*/
+	/* clang-format on */
+	/* clang-format off */
+	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::live_periodStateAllowed_READ
+	return true;
+}
+
+//--------------------------------------------------------
+/**
+ *	Method      : MoenchZMQ::is_process_pedestal_allowed()
+ * Description:  Execution allowed for process_pedestal attribute
+ */
+//--------------------------------------------------------
+bool MoenchZMQ::is_process_pedestal_allowed(TANGO_UNUSED(Tango::AttReqType type))
+{
+
+	//	Not any excluded states for process_pedestal attribute in read access.
+	/*----- PROTECTED REGION ID(MoenchZMQ::process_pedestalStateAllowed_READ) ENABLED START -----*/
+	/* clang-format on */
+	/* clang-format off */
+	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::process_pedestalStateAllowed_READ
+	return true;
+}
+
+//--------------------------------------------------------
+/**
  *	Method      : MoenchZMQ::is_analog_img_allowed()
  * Description:  Execution allowed for analog_img attribute
  */
@@ -140,6 +242,70 @@ bool MoenchZMQ::is_counting_img_allowed(TANGO_UNUSED(Tango::AttReqType type))
 //=================================================
 //		Commands Allowed Methods
 //=================================================
+
+//--------------------------------------------------------
+/**
+ *	Method      : MoenchZMQ::is_start_receiver_allowed()
+ * Description:  Execution allowed for start_receiver attribute
+ */
+//--------------------------------------------------------
+bool MoenchZMQ::is_start_receiver_allowed(TANGO_UNUSED(const CORBA::Any &any))
+{
+	//	Not any excluded states for start_receiver command.
+	/*----- PROTECTED REGION ID(MoenchZMQ::start_receiverStateAllowed) ENABLED START -----*/
+	/* clang-format on */
+	/* clang-format off */
+	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::start_receiverStateAllowed
+	return true;
+}
+
+//--------------------------------------------------------
+/**
+ *	Method      : MoenchZMQ::is_stop_receiver_allowed()
+ * Description:  Execution allowed for stop_receiver attribute
+ */
+//--------------------------------------------------------
+bool MoenchZMQ::is_stop_receiver_allowed(TANGO_UNUSED(const CORBA::Any &any))
+{
+	//	Not any excluded states for stop_receiver command.
+	/*----- PROTECTED REGION ID(MoenchZMQ::stop_receiverStateAllowed) ENABLED START -----*/
+	/* clang-format on */
+	/* clang-format off */
+	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::stop_receiverStateAllowed
+	return true;
+}
+
+//--------------------------------------------------------
+/**
+ *	Method      : MoenchZMQ::is_abort_receiver_allowed()
+ * Description:  Execution allowed for abort_receiver attribute
+ */
+//--------------------------------------------------------
+bool MoenchZMQ::is_abort_receiver_allowed(TANGO_UNUSED(const CORBA::Any &any))
+{
+	//	Not any excluded states for abort_receiver command.
+	/*----- PROTECTED REGION ID(MoenchZMQ::abort_receiverStateAllowed) ENABLED START -----*/
+	/* clang-format on */
+	/* clang-format off */
+	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::abort_receiverStateAllowed
+	return true;
+}
+
+//--------------------------------------------------------
+/**
+ *	Method      : MoenchZMQ::is_reset_pedestal_allowed()
+ * Description:  Execution allowed for reset_pedestal attribute
+ */
+//--------------------------------------------------------
+bool MoenchZMQ::is_reset_pedestal_allowed(TANGO_UNUSED(const CORBA::Any &any))
+{
+	//	Not any excluded states for reset_pedestal command.
+	/*----- PROTECTED REGION ID(MoenchZMQ::reset_pedestalStateAllowed) ENABLED START -----*/
+	/* clang-format on */
+	/* clang-format off */
+	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::reset_pedestalStateAllowed
+	return true;
+}
 
 
 /*----- PROTECTED REGION ID(MoenchZMQ::MoenchZMQStateAllowed.AdditionalMethods) ENABLED START -----*/

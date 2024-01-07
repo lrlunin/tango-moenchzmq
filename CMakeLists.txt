@@ -21,15 +21,15 @@ add_subdirectory(src/backend)
 add_subdirectory(src/tangods)
 
 #Add your executable
-add_executable(MoenchZMQ ${TANGO_SRC_FILES})
+add_executable(MoenchZMQ ${MOENCH_SRC_FILES} ${TANGO_SRC_FILES} "tracy/public/TracyClient.cpp")
 #add_executable(napi_test_cpp-hdf5 ${NEXUS_SRC_FILES})
-add_executable(ZmqReceiver ${MOENCH_SRC_FILES} "tracy/public/TracyClient.cpp")
+add_executable(ZmqReceiver ${MOENCH_MAIN} ${MOENCH_SRC_FILES} "tracy/public/TracyClient.cpp")
 
 # add_compile_options(-fsanitize=address)
 # add_link_options(-fsanitize=address)
 
 #Link towards slsDetectorShared
-target_link_libraries(MoenchZMQ Tango::Tango)
+target_link_libraries(MoenchZMQ slsDetectorShared zmq ${Boost_LIBRARIES} Tracy::TracyClient ${HDF5_LIBRARIES} fmt Tango::Tango)
 #target_link_libraries(napi_test_cpp-hdf5 NeXusCPP)
-target_link_libraries(ZmqReceiver slsDetectorShared zmq ${Boost_LIBRARIES} Tracy::TracyClient ${HDF5_LIBRARIES} fmt) # h5cpp::h5cpp)
+target_link_libraries(ZmqReceiver  slsDetectorShared zmq ${Boost_LIBRARIES} Tracy::TracyClient ${HDF5_LIBRARIES} fmt) # h5cpp::h5cpp)
 

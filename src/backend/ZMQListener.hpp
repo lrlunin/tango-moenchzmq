@@ -18,7 +18,7 @@
 
 class ZMQListener {
     public:
-        ZMQListener(std::string socket_addr);
+        ZMQListener(std::string socket_addr, std::string socket_port);
         void listen_socket();
         void start_receive();
         void stop_receive();

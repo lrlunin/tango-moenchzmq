@@ -91,6 +91,77 @@ public:
 		{return (static_cast<MoenchZMQ *>(dev))->is_file_root_path_allowed(ty);}
 };
 
+//	Attribute normalize class definition
+class normalizeAttrib: public Tango::Attr
+{
+public:
+	normalizeAttrib():Attr("normalize",
+			Tango::DEV_BOOLEAN, Tango::READ_WRITE) {};
+	~normalizeAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<MoenchZMQ *>(dev))->read_normalize(att);}
+	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
+		{(static_cast<MoenchZMQ *>(dev))->write_normalize(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<MoenchZMQ *>(dev))->is_normalize_allowed(ty);}
+};
+
+//	Attribute threshold class definition
+class thresholdAttrib: public Tango::Attr
+{
+public:
+	thresholdAttrib():Attr("threshold",
+			Tango::DEV_DOUBLE, Tango::READ) {};
+	~thresholdAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<MoenchZMQ *>(dev))->read_threshold(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<MoenchZMQ *>(dev))->is_threshold_allowed(ty);}
+};
+
+//	Attribute counting_sigma class definition
+class counting_sigmaAttrib: public Tango::Attr
+{
+public:
+	counting_sigmaAttrib():Attr("counting_sigma",
+			Tango::DEV_DOUBLE, Tango::READ_WRITE) {};
+	~counting_sigmaAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<MoenchZMQ *>(dev))->read_counting_sigma(att);}
+	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
+		{(static_cast<MoenchZMQ *>(dev))->write_counting_sigma(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<MoenchZMQ *>(dev))->is_counting_sigma_allowed(ty);}
+};
+
+//	Attribute live_period class definition
+class live_periodAttrib: public Tango::Attr
+{
+public:
+	live_periodAttrib():Attr("live_period",
+			Tango::DEV_LONG, Tango::READ_WRITE) {};
+	~live_periodAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<MoenchZMQ *>(dev))->read_live_period(att);}
+	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
+		{(static_cast<MoenchZMQ *>(dev))->write_live_period(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<MoenchZMQ *>(dev))->is_live_period_allowed(ty);}
+};
+
+//	Attribute process_pedestal class definition
+class process_pedestalAttrib: public Tango::Attr
+{
+public:
+	process_pedestalAttrib():Attr("process_pedestal",
+			Tango::DEV_BOOLEAN, Tango::READ) {};
+	~process_pedestalAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<MoenchZMQ *>(dev))->read_process_pedestal(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<MoenchZMQ *>(dev))->is_process_pedestal_allowed(ty);}
+};
+
 //	Attribute analog_img class definition
 class analog_imgAttrib: public Tango::ImageAttr
 {
@@ -121,6 +192,102 @@ public:
 		{(static_cast<MoenchZMQ *>(dev))->read_counting_img(att);}
 	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
 		{return (static_cast<MoenchZMQ *>(dev))->is_counting_img_allowed(ty);}
+};
+
+
+//=========================================
+//	Define classes for commands
+//=========================================
+//	Command start_receiver class definition
+class start_receiverClass : public Tango::Command
+{
+public:
+	start_receiverClass(const char   *cmd_name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out,
+				   const char        *in_desc,
+				   const char        *out_desc,
+				   Tango::DispLevel  level)
+	:Command(cmd_name,in,out,in_desc,out_desc, level)	{};
+
+	start_receiverClass(const char   *cmd_name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out)
+	:Command(cmd_name,in,out)	{};
+	~start_receiverClass() {};
+
+	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
+	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
+	{return (static_cast<MoenchZMQ *>(dev))->is_start_receiver_allowed(any);}
+};
+
+//	Command stop_receiver class definition
+class stop_receiverClass : public Tango::Command
+{
+public:
+	stop_receiverClass(const char   *cmd_name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out,
+				   const char        *in_desc,
+				   const char        *out_desc,
+				   Tango::DispLevel  level)
+	:Command(cmd_name,in,out,in_desc,out_desc, level)	{};
+
+	stop_receiverClass(const char   *cmd_name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out)
+	:Command(cmd_name,in,out)	{};
+	~stop_receiverClass() {};
+
+	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
+	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
+	{return (static_cast<MoenchZMQ *>(dev))->is_stop_receiver_allowed(any);}
+};
+
+//	Command abort_receiver class definition
+class abort_receiverClass : public Tango::Command
+{
+public:
+	abort_receiverClass(const char   *cmd_name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out,
+				   const char        *in_desc,
+				   const char        *out_desc,
+				   Tango::DispLevel  level)
+	:Command(cmd_name,in,out,in_desc,out_desc, level)	{};
+
+	abort_receiverClass(const char   *cmd_name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out)
+	:Command(cmd_name,in,out)	{};
+	~abort_receiverClass() {};
+
+	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
+	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
+	{return (static_cast<MoenchZMQ *>(dev))->is_abort_receiver_allowed(any);}
+};
+
+//	Command reset_pedestal class definition
+class reset_pedestalClass : public Tango::Command
+{
+public:
+	reset_pedestalClass(const char   *cmd_name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out,
+				   const char        *in_desc,
+				   const char        *out_desc,
+				   Tango::DispLevel  level)
+	:Command(cmd_name,in,out,in_desc,out_desc, level)	{};
+
+	reset_pedestalClass(const char   *cmd_name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out)
+	:Command(cmd_name,in,out)	{};
+	~reset_pedestalClass() {};
+
+	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
+	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
+	{return (static_cast<MoenchZMQ *>(dev))->is_reset_pedestal_allowed(any);}
 };
 
 

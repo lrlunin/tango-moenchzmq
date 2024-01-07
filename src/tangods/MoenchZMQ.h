@@ -25,7 +25,7 @@
 #define MoenchZMQ_H
 
 #include <tango/tango.h>
-
+#include "../backend/ZMQListener.hpp"
 /* clang-format off */
 /*----- PROTECTED REGION END -----*/	//	MoenchZMQ.h
 
@@ -62,14 +62,26 @@ class MoenchZMQ : public TANGO_BASE_CLASS
 /* clang-format off */
 /*----- PROTECTED REGION END -----*/	//	MoenchZMQ::Data Members
 
+//	Device property data members
+public:
+	//	ZMQ_IP:	
+	std::string	ZMQ_IP;
+	//	ZMQ_PORT:	
+	std::string	ZMQ_PORT;
+
+	bool	mandatoryNotDefined;
 
 //	Attribute data members
 public:
-	std::string ZMQ_IP, ZMQ_PORT;
+	std::unique_ptr<ZMQListener> zmq_listener_ptr;
 	Tango::DevULong	*attr_file_index_read;
-	Tango::DevString static_string;
 	Tango::DevString	*attr_filename_read;
 	Tango::DevString	*attr_file_root_path_read;
+	Tango::DevBoolean	*attr_normalize_read;
+	Tango::DevDouble	*attr_threshold_read;
+	Tango::DevDouble	*attr_counting_sigma_read;
+	Tango::DevLong	*attr_live_period_read;
+	Tango::DevBoolean	*attr_process_pedestal_read;
 	Tango::DevFloat	*attr_analog_img_read;
 	Tango::DevFloat	*attr_counting_img_read;
 
@@ -113,12 +125,19 @@ public:
 	 *	Initialize the device
 	 */
 	virtual void init_device();
+	/*
+	 *	Read the device properties from database
+	 */
 	void get_device_property();
 	/*
 	 *	Always executed method before execution command method.
 	 */
 	virtual void always_executed_hook();
 
+	/*
+	 *	Check if mandatory property has been set
+	 */
+	 void check_mandatory_property(Tango::DbDatum &class_prop, Tango::DbDatum &dev_prop);
 
 //	Attribute methods
 public:
@@ -168,6 +187,54 @@ public:
 	virtual void write_file_root_path(Tango::WAttribute &attr);
 	virtual bool is_file_root_path_allowed(Tango::AttReqType type);
 /**
+ *	Attribute normalize related methods
+ *
+ *
+ *	Data type:  Tango::DevBoolean
+ *	Attr type:	Scalar
+ */
+	virtual void read_normalize(Tango::Attribute &attr);
+	virtual void write_normalize(Tango::WAttribute &attr);
+	virtual bool is_normalize_allowed(Tango::AttReqType type);
+/**
+ *	Attribute threshold related methods
+ *
+ *
+ *	Data type:  Tango::DevDouble
+ *	Attr type:	Scalar
+ */
+	virtual void read_threshold(Tango::Attribute &attr);
+	virtual bool is_threshold_allowed(Tango::AttReqType type);
+/**
+ *	Attribute counting_sigma related methods
+ *
+ *
+ *	Data type:  Tango::DevDouble
+ *	Attr type:	Scalar
+ */
+	virtual void read_counting_sigma(Tango::Attribute &attr);
+	virtual void write_counting_sigma(Tango::WAttribute &attr);
+	virtual bool is_counting_sigma_allowed(Tango::AttReqType type);
+/**
+ *	Attribute live_period related methods
+ *
+ *
+ *	Data type:  Tango::DevLong
+ *	Attr type:	Scalar
+ */
+	virtual void read_live_period(Tango::Attribute &attr);
+	virtual void write_live_period(Tango::WAttribute &attr);
+	virtual bool is_live_period_allowed(Tango::AttReqType type);
+/**
+ *	Attribute process_pedestal related methods
+ *
+ *
+ *	Data type:  Tango::DevBoolean
+ *	Attr type:	Scalar
+ */
+	virtual void read_process_pedestal(Tango::Attribute &attr);
+	virtual bool is_process_pedestal_allowed(Tango::AttReqType type);
+/**
  *	Attribute analog_img related methods
  *
  *
@@ -200,6 +267,34 @@ public:
 
 //	Command related methods
 public:
+	/**
+	 *	Command start_receiver related method
+	 *
+	 *
+	 */
+	virtual void start_receiver();
+	virtual bool is_start_receiver_allowed(const CORBA::Any &any);
+	/**
+	 *	Command stop_receiver related method
+	 *
+	 *
+	 */
+	virtual void stop_receiver();
+	virtual bool is_stop_receiver_allowed(const CORBA::Any &any);
+	/**
+	 *	Command abort_receiver related method
+	 *
+	 *
+	 */
+	virtual void abort_receiver();
+	virtual bool is_abort_receiver_allowed(const CORBA::Any &any);
+	/**
+	 *	Command reset_pedestal related method
+	 *
+	 *
+	 */
+	virtual void reset_pedestal();
+	virtual bool is_reset_pedestal_allowed(const CORBA::Any &any);
 
 
 	//--------------------------------------------------------
