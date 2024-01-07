@@ -39,20 +39,29 @@
 //  The following table gives the correspondence
 //  between command and method names.
 //
-//  Command name  |  Method name
+//  Command name    |  Method name
 //================================================================
-//  State         |  Inherited (no method)
-//  Status        |  Inherited (no method)
+//  State           |  Inherited (no method)
+//  Status          |  Inherited (no method)
+//  start_receiver  |  start_receiver
+//  stop_receiver   |  stop_receiver
+//  abort_receiver  |  abort_receiver
+//  reset_pedestal  |  reset_pedestal
 //================================================================
 
 //================================================================
 //  Attributes managed are:
 //================================================================
-//  file_index      |  Tango::DevULong	Scalar
-//  filename        |  Tango::DevString	Scalar
-//  file_root_path  |  Tango::DevString	Scalar
-//  analog_img      |  Tango::DevFloat	Image  ( max = 400 x 400)
-//  counting_img    |  Tango::DevFloat	Image  ( max = 400 x 400)
+//  file_index        |  Tango::DevULong	Scalar
+//  filename          |  Tango::DevString	Scalar
+//  file_root_path    |  Tango::DevString	Scalar
+//  normalize         |  Tango::DevBoolean	Scalar
+//  threshold         |  Tango::DevDouble	Scalar
+//  counting_sigma    |  Tango::DevDouble	Scalar
+//  live_period       |  Tango::DevLong	Scalar
+//  process_pedestal  |  Tango::DevBoolean	Scalar
+//  analog_img        |  Tango::DevFloat	Image  ( max = 400 x 400)
+//  counting_img      |  Tango::DevFloat	Image  ( max = 400 x 400)
 //================================================================
 
 namespace MoenchZMQ_ns
@@ -122,6 +131,11 @@ void MoenchZMQ::delete_device()
 	delete[] attr_file_index_read;
 	delete[] attr_filename_read;
 	delete[] attr_file_root_path_read;
+	delete[] attr_normalize_read;
+	delete[] attr_threshold_read;
+	delete[] attr_counting_sigma_read;
+	delete[] attr_live_period_read;
+	delete[] attr_process_pedestal_read;
 	delete[] attr_analog_img_read;
 	delete[] attr_counting_img_read;
 }
@@ -141,12 +155,23 @@ void MoenchZMQ::init_device()
 	/* clang-format off */
 	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::init_device_before
 
+
+	//	Get the device properties from database
 	get_device_property();
+
 	attr_file_index_read = new Tango::DevULong[1];
 	attr_filename_read = new Tango::DevString[1];
 	attr_file_root_path_read = new Tango::DevString[1];
+	attr_normalize_read = new Tango::DevBoolean[1];
+	attr_threshold_read = new Tango::DevDouble[1];
+	attr_counting_sigma_read = new Tango::DevDouble[1];
+	attr_live_period_read = new Tango::DevLong[1];
+	attr_process_pedestal_read = new Tango::DevBoolean[1];
 	attr_analog_img_read = new Tango::DevFloat[400*400];
 	attr_counting_img_read = new Tango::DevFloat[400*400];
+	//	No longer if mandatory property not set.
+	if (mandatoryNotDefined)
+		return;
 
 	/*----- PROTECTED REGION ID(MoenchZMQ::init_device) ENABLED START -----*/
 	/* clang-format on */
@@ -155,12 +180,99 @@ void MoenchZMQ::init_device()
 	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::init_device
 }
 
-void MoenchZMQ::get_device_property(){
-	Tango::DbData dev_prop{Tango::DbDatum("ZMQ_IP"), Tango::DbDatum("ZMQ_PORT")};
-	get_db_device()->get_property(dev_prop);
-	dev_prop[0] >> ZMQ_IP;
-	dev_prop[1] >> ZMQ_PORT;
+//--------------------------------------------------------
+/**
+ *	Method      : MoenchZMQ::get_device_property()
+ * Description:  Read database to initialize property data members.
+ */
+//--------------------------------------------------------
+void MoenchZMQ::get_device_property()
+{
+	/*----- PROTECTED REGION ID(MoenchZMQ::get_device_property_before) ENABLED START -----*/
+	/* clang-format on */
+	//	Initialize property data members
+	/* clang-format off */
+	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::get_device_property_before
+
+	mandatoryNotDefined = false;
+
+	//	Read device properties from database.
+	Tango::DbData	dev_prop;
+	dev_prop.push_back(Tango::DbDatum("ZMQ_IP"));
+	dev_prop.push_back(Tango::DbDatum("ZMQ_PORT"));
+
+	//	is there at least one property to be read ?
+	if (dev_prop.size()>0)
+	{
+		//	Call database and extract values
+		if (Tango::Util::instance()->_UseDb==true)
+			get_db_device()->get_property(dev_prop);
+
+		//	get instance on MoenchZMQClass to get class property
+		Tango::DbDatum	def_prop, cl_prop;
+		MoenchZMQClass	*ds_class =
+			(static_cast<MoenchZMQClass *>(get_device_class()));
+		int	i = -1;
+
+		//	Try to initialize ZMQ_IP from class property
+		cl_prop = ds_class->get_class_property(dev_prop[++i].name);
+		if (cl_prop.is_empty()==false)	cl_prop  >>  zMQ_IP;
+		else {
+			//	Try to initialize ZMQ_IP from default device value
+			def_prop = ds_class->get_default_device_property(dev_prop[i].name);
+			if (def_prop.is_empty()==false)	def_prop  >>  zMQ_IP;
+		}
+		//	And try to extract ZMQ_IP value from database
+		if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  zMQ_IP;
+		//	Property StartDsPath is mandatory, check if has been defined in database.
+		check_mandatory_property(cl_prop, dev_prop[i]);
+
+		//	Try to initialize ZMQ_PORT from class property
+		cl_prop = ds_class->get_class_property(dev_prop[++i].name);
+		if (cl_prop.is_empty()==false)	cl_prop  >>  zMQ_PORT;
+		else {
+			//	Try to initialize ZMQ_PORT from default device value
+			def_prop = ds_class->get_default_device_property(dev_prop[i].name);
+			if (def_prop.is_empty()==false)	def_prop  >>  zMQ_PORT;
+		}
+		//	And try to extract ZMQ_PORT value from database
+		if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  zMQ_PORT;
+
+	}
+
+	/*----- PROTECTED REGION ID(MoenchZMQ::get_device_property_after) ENABLED START -----*/
+	/* clang-format on */
+	//	Check device property data members init
+	/* clang-format off */
+	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::get_device_property_after
 }
+//--------------------------------------------------------
+/**
+ *	Method      : MoenchZMQ::check_mandatory_property()
+ * Description:  For mandatory properties check if defined in database.
+ */
+//--------------------------------------------------------
+void MoenchZMQ::check_mandatory_property(Tango::DbDatum &class_prop, Tango::DbDatum &dev_prop)
+{
+	//	Check if all properties are empty
+	if (class_prop.is_empty() && dev_prop.is_empty())
+	{
+		TangoSys_OMemStream	tms;
+		tms << std::endl <<"Property \'" << dev_prop.name;
+		if (Tango::Util::instance()->_UseDb==true)
+			tms << "\' is mandatory but not defined in database";
+		else
+			tms << "\' is mandatory but cannot be defined without database";
+		append_status(tms.str());
+		mandatoryNotDefined = true;
+		/*----- PROTECTED REGION ID(MoenchZMQ::check_mandatory_property) ENABLED START -----*/
+		/* clang-format on */
+		std::cerr << tms.str() << " for " << device_name << std::endl;
+		/* clang-format off */
+		/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::check_mandatory_property
+	}
+}
+
 
 //--------------------------------------------------------
 /**
@@ -171,6 +283,13 @@ void MoenchZMQ::get_device_property(){
 void MoenchZMQ::always_executed_hook()
 {
 	DEBUG_STREAM << "MoenchZMQ::always_executed_hook()  " << device_name << std::endl;
+	if (mandatoryNotDefined)
+	{
+		Tango::Except::throw_exception(
+					(const char *)"PROPERTY_NOT_SET",
+					get_status().c_str(),
+					(const char *)"MoenchZMQ::always_executed_hook()");
+	}
 	/*----- PROTECTED REGION ID(MoenchZMQ::always_executed_hook) ENABLED START -----*/
 	/* clang-format on */
 	//	code always executed before all requests
@@ -285,7 +404,7 @@ void MoenchZMQ::write_filename(Tango::WAttribute &attr)
 	attr.get_write_value(w_val);
 	/*----- PROTECTED REGION ID(MoenchZMQ::write_filename) ENABLED START -----*/
 	/* clang-format on */
-	*attr_filename_read = w_val;
+	//	Add your own code
 	/* clang-format off */
 	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::write_filename
 }
@@ -328,6 +447,164 @@ void MoenchZMQ::write_file_root_path(Tango::WAttribute &attr)
 	//	Add your own code
 	/* clang-format off */
 	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::write_file_root_path
+}
+//--------------------------------------------------------
+/**
+ *	Read attribute normalize related method
+ *
+ *
+ *	Data type:	Tango::DevBoolean
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void MoenchZMQ::read_normalize(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "MoenchZMQ::read_normalize(Tango::Attribute &attr) entering... " << std::endl;
+	/*----- PROTECTED REGION ID(MoenchZMQ::read_normalize) ENABLED START -----*/
+	/* clang-format on */
+	//	Set the attribute value
+	attr.set_value(attr_normalize_read);
+	/* clang-format off */
+	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::read_normalize
+}
+//--------------------------------------------------------
+/**
+ *	Write attribute normalize related method
+ *
+ *
+ *	Data type:	Tango::DevBoolean
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void MoenchZMQ::write_normalize(Tango::WAttribute &attr)
+{
+	DEBUG_STREAM << "MoenchZMQ::write_normalize(Tango::WAttribute &attr) entering... " << std::endl;
+	//	Retrieve write value
+	Tango::DevBoolean	w_val;
+	attr.get_write_value(w_val);
+	/*----- PROTECTED REGION ID(MoenchZMQ::write_normalize) ENABLED START -----*/
+	/* clang-format on */
+	//	Add your own code
+	/* clang-format off */
+	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::write_normalize
+}
+//--------------------------------------------------------
+/**
+ *	Read attribute threshold related method
+ *
+ *
+ *	Data type:	Tango::DevDouble
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void MoenchZMQ::read_threshold(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "MoenchZMQ::read_threshold(Tango::Attribute &attr) entering... " << std::endl;
+	/*----- PROTECTED REGION ID(MoenchZMQ::read_threshold) ENABLED START -----*/
+	/* clang-format on */
+	//	Set the attribute value
+	attr.set_value(attr_threshold_read);
+	/* clang-format off */
+	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::read_threshold
+}
+//--------------------------------------------------------
+/**
+ *	Read attribute counting_sigma related method
+ *
+ *
+ *	Data type:	Tango::DevDouble
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void MoenchZMQ::read_counting_sigma(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "MoenchZMQ::read_counting_sigma(Tango::Attribute &attr) entering... " << std::endl;
+	/*----- PROTECTED REGION ID(MoenchZMQ::read_counting_sigma) ENABLED START -----*/
+	/* clang-format on */
+	//	Set the attribute value
+	attr.set_value(attr_counting_sigma_read);
+	/* clang-format off */
+	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::read_counting_sigma
+}
+//--------------------------------------------------------
+/**
+ *	Write attribute counting_sigma related method
+ *
+ *
+ *	Data type:	Tango::DevDouble
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void MoenchZMQ::write_counting_sigma(Tango::WAttribute &attr)
+{
+	DEBUG_STREAM << "MoenchZMQ::write_counting_sigma(Tango::WAttribute &attr) entering... " << std::endl;
+	//	Retrieve write value
+	Tango::DevDouble	w_val;
+	attr.get_write_value(w_val);
+	/*----- PROTECTED REGION ID(MoenchZMQ::write_counting_sigma) ENABLED START -----*/
+	/* clang-format on */
+	//	Add your own code
+	/* clang-format off */
+	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::write_counting_sigma
+}
+//--------------------------------------------------------
+/**
+ *	Read attribute live_period related method
+ *
+ *
+ *	Data type:	Tango::DevLong
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void MoenchZMQ::read_live_period(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "MoenchZMQ::read_live_period(Tango::Attribute &attr) entering... " << std::endl;
+	/*----- PROTECTED REGION ID(MoenchZMQ::read_live_period) ENABLED START -----*/
+	/* clang-format on */
+	//	Set the attribute value
+	attr.set_value(attr_live_period_read);
+	/* clang-format off */
+	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::read_live_period
+}
+//--------------------------------------------------------
+/**
+ *	Write attribute live_period related method
+ *
+ *
+ *	Data type:	Tango::DevLong
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void MoenchZMQ::write_live_period(Tango::WAttribute &attr)
+{
+	DEBUG_STREAM << "MoenchZMQ::write_live_period(Tango::WAttribute &attr) entering... " << std::endl;
+	//	Retrieve write value
+	Tango::DevLong	w_val;
+	attr.get_write_value(w_val);
+	/*----- PROTECTED REGION ID(MoenchZMQ::write_live_period) ENABLED START -----*/
+	/* clang-format on */
+	//	Add your own code
+	/* clang-format off */
+	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::write_live_period
+}
+//--------------------------------------------------------
+/**
+ *	Read attribute process_pedestal related method
+ *
+ *
+ *	Data type:	Tango::DevBoolean
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void MoenchZMQ::read_process_pedestal(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "MoenchZMQ::read_process_pedestal(Tango::Attribute &attr) entering... " << std::endl;
+	/*----- PROTECTED REGION ID(MoenchZMQ::read_process_pedestal) ENABLED START -----*/
+	/* clang-format on */
+	//	Set the attribute value
+	attr.set_value(attr_process_pedestal_read);
+	/* clang-format off */
+	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::read_process_pedestal
 }
 //--------------------------------------------------------
 /**
@@ -384,6 +661,78 @@ void MoenchZMQ::add_dynamic_attributes()
 	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::add_dynamic_attributes
 }
 
+//--------------------------------------------------------
+/**
+ *	Command start_receiver related method
+ *
+ *
+ */
+//--------------------------------------------------------
+void MoenchZMQ::start_receiver()
+{
+	DEBUG_STREAM << "MoenchZMQ::start_receiver()  - " << device_name << std::endl;
+	/*----- PROTECTED REGION ID(MoenchZMQ::start_receiver) ENABLED START -----*/
+	/* clang-format on */
+
+	//	Add your own code
+
+	/* clang-format off */
+	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::start_receiver
+}
+//--------------------------------------------------------
+/**
+ *	Command stop_receiver related method
+ *
+ *
+ */
+//--------------------------------------------------------
+void MoenchZMQ::stop_receiver()
+{
+	DEBUG_STREAM << "MoenchZMQ::stop_receiver()  - " << device_name << std::endl;
+	/*----- PROTECTED REGION ID(MoenchZMQ::stop_receiver) ENABLED START -----*/
+	/* clang-format on */
+
+	//	Add your own code
+
+	/* clang-format off */
+	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::stop_receiver
+}
+//--------------------------------------------------------
+/**
+ *	Command abort_receiver related method
+ *
+ *
+ */
+//--------------------------------------------------------
+void MoenchZMQ::abort_receiver()
+{
+	DEBUG_STREAM << "MoenchZMQ::abort_receiver()  - " << device_name << std::endl;
+	/*----- PROTECTED REGION ID(MoenchZMQ::abort_receiver) ENABLED START -----*/
+	/* clang-format on */
+
+	//	Add your own code
+
+	/* clang-format off */
+	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::abort_receiver
+}
+//--------------------------------------------------------
+/**
+ *	Command reset_pedestal related method
+ *
+ *
+ */
+//--------------------------------------------------------
+void MoenchZMQ::reset_pedestal()
+{
+	DEBUG_STREAM << "MoenchZMQ::reset_pedestal()  - " << device_name << std::endl;
+	/*----- PROTECTED REGION ID(MoenchZMQ::reset_pedestal) ENABLED START -----*/
+	/* clang-format on */
+
+	//	Add your own code
+
+	/* clang-format off */
+	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::reset_pedestal
+}
 //--------------------------------------------------------
 /**
  *	Method      : MoenchZMQ::add_dynamic_commands()
