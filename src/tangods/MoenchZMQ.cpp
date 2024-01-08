@@ -174,6 +174,8 @@ void MoenchZMQ::init_device()
 	if (mandatoryNotDefined)
 		return;
 	zmq_listener_ptr = std::make_unique<ZMQListener>(ZMQ_IP, ZMQ_PORT);
+	zmq_listener_ptr->comp_backend_ptr->init_threads();
+	zmq_listener_ptr->comp_backend_ptr->resume();
 	set_state(Tango::ON);
 	/*----- PROTECTED REGION ID(MoenchZMQ::init_device) ENABLED START -----*/
 	/* clang-format on */
@@ -571,6 +573,15 @@ void MoenchZMQ::read_process_pedestal(Tango::Attribute &attr)
 	/* clang-format off */
 	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::read_process_pedestal
 }
+
+void MoenchZMQ::write_process_pedestal(Tango::WAttribute &attr)
+{
+	Tango::DevBoolean	w_val;
+	attr.get_write_value(w_val);
+	DEBUG_STREAM << w_val;
+	*attr_process_pedestal_read = w_val;
+	zmq_listener_ptr->comp_backend_ptr->isPedestal = w_val;
+}
 //--------------------------------------------------------
 /**
  *	Read attribute analog_img related method
@@ -644,7 +655,7 @@ void MoenchZMQ::start_receiver()
 	/* clang-format on */
 
 	//	Add your own code
-
+	zmq_listener_ptr->start_receive();
 	/* clang-format off */
 	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::start_receiver
 }
@@ -662,7 +673,7 @@ void MoenchZMQ::stop_receiver()
 	/* clang-format on */
 
 	//	Add your own code
-
+	zmq_listener_ptr->stop_receive();
 	/* clang-format off */
 	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::stop_receiver
 }

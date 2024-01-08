@@ -36,3 +36,9 @@ void ZMQListener::listen_socket(){
         };
     }
 }
+void ZMQListener::start_receive(){
+    receive_data = true;
+}
+void ZMQListener::stop_receive(){
+    receive_data = false;
+}

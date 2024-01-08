@@ -154,10 +154,12 @@ class process_pedestalAttrib: public Tango::Attr
 {
 public:
 	process_pedestalAttrib():Attr("process_pedestal",
-			Tango::DEV_BOOLEAN, Tango::READ) {};
+			Tango::DEV_BOOLEAN, Tango::READ_WRITE) {};
 	~process_pedestalAttrib() {};
 	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
 		{(static_cast<MoenchZMQ *>(dev))->read_process_pedestal(att);}
+	virtual void write(Tango::DeviceImpl *dev, Tango::WAttribute &att)
+		{(static_cast<MoenchZMQ *>(dev))->write_process_pedestal(att);}
 	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
 		{return (static_cast<MoenchZMQ *>(dev))->is_process_pedestal_allowed(ty);}
 };

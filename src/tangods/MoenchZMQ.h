@@ -233,6 +233,7 @@ public:
  *	Attr type:	Scalar
  */
 	virtual void read_process_pedestal(Tango::Attribute &attr);
+	virtual void write_process_pedestal(Tango::WAttribute &attr);
 	virtual bool is_process_pedestal_allowed(Tango::AttReqType type);
 /**
  *	Attribute analog_img related methods
