@@ -305,6 +305,7 @@ void MoenchZMQ::read_file_index(Tango::Attribute &attr)
 	/*----- PROTECTED REGION ID(MoenchZMQ::read_file_index) ENABLED START -----*/
 	/* clang-format on */
 	//	Set the attribute value
+	*attr_file_index_read = 2.0;
 	attr.set_value(attr_file_index_read);
 	/* clang-format off */
 	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::read_file_index
@@ -345,6 +346,7 @@ void MoenchZMQ::read_filename(Tango::Attribute &attr)
 	/*----- PROTECTED REGION ID(MoenchZMQ::read_filename) ENABLED START -----*/
 	/* clang-format on */
 	//	Set the attribute value
+	*attr_filename_read = Tango::string_dup("Hello world");
 	attr.set_value(attr_filename_read);
 	/* clang-format off */
 	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::read_filename
@@ -385,6 +387,7 @@ void MoenchZMQ::read_file_root_path(Tango::Attribute &attr)
 	/*----- PROTECTED REGION ID(MoenchZMQ::read_file_root_path) ENABLED START -----*/
 	/* clang-format on */
 	//	Set the attribute value
+	*attr_file_root_path_read = Tango::string_dup("Hello world");
 	attr.set_value(attr_file_root_path_read);
 	/* clang-format off */
 	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::read_file_root_path
@@ -583,6 +586,7 @@ void MoenchZMQ::read_analog_img(Tango::Attribute &attr)
 	/*----- PROTECTED REGION ID(MoenchZMQ::read_analog_img) ENABLED START -----*/
 	/* clang-format on */
 	//	Set the attribute value
+	zmq_listener_ptr->comp_backend_ptr->analog_sum.copy_to_buffer<Tango::DevFloat*>(attr_analog_img_read);
 	attr.set_value(attr_analog_img_read, analog_imgAttrib::X_DATA_SIZE, analog_imgAttrib::Y_DATA_SIZE);
 	/* clang-format off */
 	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::read_analog_img
@@ -602,6 +606,9 @@ void MoenchZMQ::read_counting_img(Tango::Attribute &attr)
 	/*----- PROTECTED REGION ID(MoenchZMQ::read_counting_img) ENABLED START -----*/
 	/* clang-format on */
 	//	Set the attribute value
+	for (int x = 0; x<400*400; x++){
+		attr_counting_img_read[x] = x;
+	}
 	attr.set_value(attr_counting_img_read, counting_imgAttrib::X_DATA_SIZE, counting_imgAttrib::Y_DATA_SIZE);
 	/* clang-format off */
 	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::read_counting_img

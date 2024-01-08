@@ -62,8 +62,8 @@ struct OrderedFrame{
     T& operator()(int y, int x) {
         return arr[y * consts::FRAME_WIDTH + x];
     }
-    std::array<T, V> asArray(bool flip = true){
-        std::array<T, V> flip_arr;
+    template <typename B>
+    void copy_to_buffer(B &buffer, bool flip = true){
         for (int y = 0; y < consts::FRAME_HEIGHT; y++){
             for (int x = 0; x < consts::FRAME_WIDTH; x++){
                 /*
@@ -72,10 +72,9 @@ struct OrderedFrame{
                 if flipped then flip_arr[y * consts::FRAME_WIDTH + x] = arr[(consts::FRAME_HEIGHT - 1 - y) * consts::FRAME_WIDTH + consts::FRAME_WIDTH  + x]
                 the resulting formula below is just some math trickery to avoid if coniditions
                 */
-                flip_arr[y * consts::FRAME_WIDTH + x] = arr[flip * (consts::FRAME_WIDTH * (consts::FRAME_HEIGHT - 1)) + consts::FRAME_WIDTH * y *(-1 + 2 * (!flip)) + x];
+                buffer[y * consts::FRAME_WIDTH + x] = arr[flip * (consts::FRAME_WIDTH * (consts::FRAME_HEIGHT - 1)) + consts::FRAME_WIDTH * y *(-1 + 2 * (!flip)) + x];
             }
         }
-        return flip_arr;
     };
     OrderedFrame& operator+=(const OrderedFrame& rhs){
         for (auto i = 0; i < V; i++){
