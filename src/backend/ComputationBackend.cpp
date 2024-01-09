@@ -58,7 +58,8 @@ void ComputationBackend::process_frame(FullFrame *ff_ptr){
     pedestal_share.lock();
     updatePedestal(ff_ptr->f, frame_classes, isPedestal);
     pedestal_share.unlock();
-
+    // it's very important that the prcoessed_frames amount will be increased at the very last moment
+    // to prevent the race conditions
     if (!isPedestal){
         frames_sums.lock();
         // add to analog, threshold, counting
@@ -67,6 +68,8 @@ void ComputationBackend::process_frame(FullFrame *ff_ptr){
         //threshold later
         processed_frames_amount++;
         frames_sums.unlock();
+    } else {
+        processed_frames_amount++;
     }
     memory_pool::free(ff_ptr);
 }

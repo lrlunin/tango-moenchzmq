@@ -1,5 +1,11 @@
 #include "ZMQListener.hpp"
 #include <iostream>
+#include <thread>
+#include <chrono>
+#include <numeric>
+
+using namespace std;
+
 ZMQListener::ZMQListener(std::string socket_addr, std::string socket_port){
     if (!socket_addr.starts_with("tcp://")){
         socket_addr = "tcp://" + socket_addr;
@@ -41,4 +47,12 @@ void ZMQListener::start_receive(){
 }
 void ZMQListener::stop_receive(){
     receive_data = false;
+    while (comp_backend_ptr->processed_frames_amount < received_frames_amount && !abort_wait){
+        this_thread::sleep_for(0.25s);
+    }
+    abort_wait = false;
+    // save data,  and all other stuff
+}
+void ZMQListener::abort_receive(){
+    abort_wait = true;
 }

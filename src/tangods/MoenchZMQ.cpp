@@ -656,6 +656,7 @@ void MoenchZMQ::start_receiver()
 
 	//	Add your own code
 	zmq_listener_ptr->start_receive();
+	set_state(Tango::RUNNING);
 	/* clang-format off */
 	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::start_receiver
 }
@@ -672,8 +673,12 @@ void MoenchZMQ::stop_receiver()
 	/*----- PROTECTED REGION ID(MoenchZMQ::stop_receiver) ENABLED START -----*/
 	/* clang-format on */
 
-	//	Add your own code
-	zmq_listener_ptr->stop_receive();
+	// wrap blocking function into lambda and then run a separate thread for it
+	std::thread([&]{zmq_listener_ptr->stop_receive();
+					set_state(Tango::ON);
+					}
+				).detach();
+	
 	/* clang-format off */
 	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::stop_receiver
 }
