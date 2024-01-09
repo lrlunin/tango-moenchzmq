@@ -8,7 +8,9 @@
 #include <cmath>
 #include <numeric>
 #include "ComputationBackend.hpp"
+#ifdef NDEBUG
 #include <tracy/Tracy.hpp>
+#endif
 #include <chrono>
 using namespace std;
 
@@ -54,7 +56,9 @@ void ComputationBackend::dumpAccumulators(){
     
 };
 void ComputationBackend::processFrame(FullFrame *ff_ptr){
+    #ifdef NDEBUG
     ZoneScoped;
+    #endif
     UnorderedFrame<float, consts::LENGTH> pedestal_current;
     UnorderedFrame<float, consts::LENGTH> pedestal_rms_current;
     pedestal_share.lock_shared();
@@ -76,11 +80,9 @@ void ComputationBackend::processFrame(FullFrame *ff_ptr){
         counting_sum.addClass(frame_classes, 2);
         analog_sum += no_bkgd;
         //threshold later
-        processed_frames_amount++;
         frames_sums.unlock();
-    } else {
-        processed_frames_amount++;
     }
+    processed_frames_amount++;
     memory_pool::free(ff_ptr);
 }
 
@@ -97,6 +99,7 @@ void ComputationBackend::processFrame(FullFrame *ff_ptr){
             max_value = tl = tr = bl = br = tot = 0;
             char pixel_class = 0;
             float rms = pedestal_rms(iy, ix);
+            float main_pixel_value = input(iy, ix);
             for (int ir = -cluster_size / 2; ir < cluster_size / 2 + 1; ir++){
                 for (int ic = -cluster_size / 2; ic < cluster_size / 2 + 1; ic++){
                     const int y_sub = iy + ir;
@@ -114,28 +117,17 @@ void ComputationBackend::processFrame(FullFrame *ff_ptr){
                     }
                 }
             }
-            if (input(iy, ix) < -nsigma * rms) {
-                pixel_class = 3;
+            if (main_pixel_value < -nsigma * rms) {
                 class_mask(iy, ix) = 3;
-                continue;
-            }
-            if (max_value > nsigma*rms){
-                pixel_class = 1;
+            } else if (max_value > nsigma*rms || 
+                       std::max({bl, br, tl, tr}) > c2 * nsigma * rms ||
+                       tot > c3*nsigma*rms){
                 class_mask(iy, ix) = 1;
-                if (input(iy, ix) < max_value) continue;
+                if (main_pixel_value == max_value){
+                    class_mask(iy, ix) = 2;
+                }
             }
-            else if (tot > c3*nsigma*rms) {
-                pixel_class = 1;
-                class_mask(iy, ix) = 1;
-            }
-            else if (std::max({bl, br, tl, tr}) > c2 * nsigma * rms){
-                pixel_class = 1;
-                class_mask(iy, ix) = 1;
-            }
-            if (pixel_class == 1 && input(iy, ix) == max_value){
-                pixel_class = 2;
-                class_mask(iy, ix) = 2;
-            }
+            
         }
     }
     return class_mask;
