@@ -4,21 +4,31 @@
 #include <syncstream>
 #include <condition_variable>
 #include <fmt/core.h>
+#include <fmt/chrono.h>
 #include <cmath>
 #include <numeric>
 #include "ComputationBackend.hpp"
 #include <tracy/Tracy.hpp>
-
+#include <chrono>
 using namespace std;
 
-ComputationBackend::ComputationBackend():frame_ptr_queue(5000){};
-void ComputationBackend::init_threads(){
+ComputationBackend::ComputationBackend():frame_ptr_queue(5000){
+};
+ComputationBackend::ComputationBackend(string save_root_path):save_root_path(save_root_path),frame_ptr_queue(5000){
+    const auto now = chrono::system_clock::now();
+    // 20240109_run like folder and file name
+    filepath = fmt::format("{:%Y%m%d}_run", now);
+    filename = filepath;
+    fileindex = 0;
+    initThreads();
+}
+void ComputationBackend::initThreads(){
     for (int x = 0; x < THREAD_AMOIUNT; ++x){
-           threads.push_back(move(thread(&ComputationBackend::thread_task, this)));
+           threads.push_back(move(thread(&ComputationBackend::threadTask, this)));
     }
 }
 std::filesystem::path ComputationBackend::getFullFilepath(){
-    std::filesystem::path full_filepath;
+    std::filesystem::path full_filepath(save_root_path);
     full_filepath/=filepath;
     full_filepath/=filename;
     return full_filepath.lexically_normal();
@@ -43,7 +53,7 @@ void ComputationBackend::resetPedestalAndRMS(){
 void ComputationBackend::dumpAccumulators(){
     
 };
-void ComputationBackend::process_frame(FullFrame *ff_ptr){
+void ComputationBackend::processFrame(FullFrame *ff_ptr){
     ZoneScoped;
     UnorderedFrame<float, consts::LENGTH> pedestal_current;
     UnorderedFrame<float, consts::LENGTH> pedestal_rms_current;
@@ -170,11 +180,11 @@ void ComputationBackend::updatePedestal(UnorderedFrame<unsigned short, consts::L
     }
 };
 
-void ComputationBackend::thread_task(){
+void ComputationBackend::threadTask(){
         FullFrame* ff_ptr;
         while (true){
             while (!threads_sleep && frame_ptr_queue.pop(ff_ptr)){
-                ComputationBackend::process_frame(ff_ptr);
+                ComputationBackend::processFrame(ff_ptr);
             }
             //printf("either queue is empty or set to sleep\n");
             this_thread::sleep_for(0.03s);

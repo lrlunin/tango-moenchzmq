@@ -65,10 +65,10 @@ class MoenchZMQ : public TANGO_BASE_CLASS
 //	Device property data members
 public:
 	//	ZMQ_IP:	
-	std::string	ZMQ_IP;
+	std::string	ZMQ_RX_IP;
 	//	ZMQ_PORT:	
-	std::string	ZMQ_PORT;
-
+	std::string	ZMQ_RX_PORT;
+	std::string SAVE_ROOT_PATH;
 	bool	mandatoryNotDefined;
 
 //	Attribute data members

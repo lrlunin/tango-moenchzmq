@@ -172,10 +172,10 @@ void MoenchZMQ::init_device()
 	attr_counting_img_read = new Tango::DevFloat[400*400];
 	//	No longer if mandatory property not set.
 	if (mandatoryNotDefined)
-		return;
-	zmq_listener_ptr = std::make_unique<ZMQListener>(ZMQ_IP, ZMQ_PORT);
-	zmq_listener_ptr->comp_backend_ptr->init_threads();
-	zmq_listener_ptr->comp_backend_ptr->resume();
+	return;
+	*attr_live_period_read = 0;
+	zmq_listener_ptr = std::make_unique<ZMQListener>(ZMQ_RX_IP, ZMQ_RX_PORT, SAVE_ROOT_PATH);
+	
 	set_state(Tango::ON);
 	/*----- PROTECTED REGION ID(MoenchZMQ::init_device) ENABLED START -----*/
 	/* clang-format on */
@@ -199,10 +199,11 @@ void MoenchZMQ::get_device_property()
 	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::get_device_property_before
 
 	mandatoryNotDefined = false;
-	Tango::DbData dev_prop{Tango::DbDatum("ZMQ_IP"), Tango::DbDatum("ZMQ_PORT")};
+	Tango::DbData dev_prop{Tango::DbDatum("ZMQ_RX_IP"), Tango::DbDatum("ZMQ_RX_PORT"), Tango::DbDatum("SAVE_ROOT_PATH")};
 	get_db_device()->get_property(dev_prop);
-	dev_prop[0] >> ZMQ_IP;
-	dev_prop[1] >> ZMQ_PORT;
+	dev_prop[0] >> ZMQ_RX_IP;
+	dev_prop[1] >> ZMQ_RX_PORT;
+	dev_prop[2] >> SAVE_ROOT_PATH;
 
 	/*----- PROTECTED REGION ID(MoenchZMQ::get_device_property_after) ENABLED START -----*/
 	/* clang-format on */
@@ -307,7 +308,7 @@ void MoenchZMQ::read_file_index(Tango::Attribute &attr)
 	/*----- PROTECTED REGION ID(MoenchZMQ::read_file_index) ENABLED START -----*/
 	/* clang-format on */
 	//	Set the attribute value
-	*attr_file_index_read = 2.0;
+	*attr_file_index_read = zmq_listener_ptr->comp_backend_ptr->fileindex;
 	attr.set_value(attr_file_index_read);
 	/* clang-format off */
 	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::read_file_index
@@ -348,7 +349,7 @@ void MoenchZMQ::read_filename(Tango::Attribute &attr)
 	/*----- PROTECTED REGION ID(MoenchZMQ::read_filename) ENABLED START -----*/
 	/* clang-format on */
 	//	Set the attribute value
-	*attr_filename_read = Tango::string_dup("Hello world");
+	*attr_filename_read = Tango::string_dup(zmq_listener_ptr->comp_backend_ptr->filename);
 	attr.set_value(attr_filename_read);
 	/* clang-format off */
 	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::read_filename
@@ -389,7 +390,7 @@ void MoenchZMQ::read_file_root_path(Tango::Attribute &attr)
 	/*----- PROTECTED REGION ID(MoenchZMQ::read_file_root_path) ENABLED START -----*/
 	/* clang-format on */
 	//	Set the attribute value
-	*attr_file_root_path_read = Tango::string_dup("Hello world");
+	*attr_file_root_path_read = Tango::string_dup(zmq_listener_ptr->comp_backend_ptr->save_root_path);
 	attr.set_value(attr_file_root_path_read);
 	/* clang-format off */
 	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::read_file_root_path
@@ -411,7 +412,7 @@ void MoenchZMQ::write_file_root_path(Tango::WAttribute &attr)
 	attr.get_write_value(w_val);
 	/*----- PROTECTED REGION ID(MoenchZMQ::write_file_root_path) ENABLED START -----*/
 	/* clang-format on */
-	//	Add your own code
+	zmq_listener_ptr->comp_backend_ptr->save_root_path = w_val;
 	/* clang-format off */
 	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::write_file_root_path
 }
@@ -569,6 +570,7 @@ void MoenchZMQ::read_process_pedestal(Tango::Attribute &attr)
 	/*----- PROTECTED REGION ID(MoenchZMQ::read_process_pedestal) ENABLED START -----*/
 	/* clang-format on */
 	//	Set the attribute value
+	*attr_process_pedestal_read = zmq_listener_ptr->comp_backend_ptr->isPedestal;
 	attr.set_value(attr_process_pedestal_read);
 	/* clang-format off */
 	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::read_process_pedestal
@@ -599,10 +601,11 @@ void MoenchZMQ::read_analog_img(Tango::Attribute &attr)
 	//	Set the attribute value
 	zmq_listener_ptr->comp_backend_ptr->analog_sum.copy_to_buffer<Tango::DevFloat*>(attr_analog_img_read);
 	attr.set_value(attr_analog_img_read, analog_imgAttrib::X_DATA_SIZE, analog_imgAttrib::Y_DATA_SIZE);
+	//push_change_event("analog_img");
 	/* clang-format off */
 	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::read_analog_img
 }
-//--------------------------------------------------------
+//----------------------------------------------------	----
 /**
  *	Read attribute counting_img related method
  *
@@ -712,8 +715,7 @@ void MoenchZMQ::reset_pedestal()
 	DEBUG_STREAM << "MoenchZMQ::reset_pedestal()  - " << device_name << std::endl;
 	/*----- PROTECTED REGION ID(MoenchZMQ::reset_pedestal) ENABLED START -----*/
 	/* clang-format on */
-
-	//	Add your own code
+	zmq_listener_ptr->comp_backend_ptr->resetPedestalAndRMS();
 
 	/* clang-format off */
 	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::reset_pedestal

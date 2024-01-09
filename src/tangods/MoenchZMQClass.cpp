@@ -289,7 +289,7 @@ void MoenchZMQClass::set_default_property()
 	//	Set Default Class Properties
 
 	//	Set Default device Properties
-	prop_name = "ZMQ_IP";
+	prop_name = "ZMQ_RX_IP";
 	prop_desc = "";
 	prop_def  = "";
 	vect_data.clear();
@@ -302,7 +302,7 @@ void MoenchZMQClass::set_default_property()
 	}
 	else
 		add_wiz_dev_prop(prop_name, prop_desc);
-	prop_name = "ZMQ_PORT";
+	prop_name = "ZMQ_RX_PORT";
 	prop_desc = "";
 	prop_def  = "";
 	vect_data.clear();
@@ -625,6 +625,7 @@ void MoenchZMQClass::attribute_factory(std::vector<Tango::Attr *> &att_list)
 	analog_img->set_default_properties(analog_img_prop);
 	//	Not Polled
 	analog_img->set_disp_level(Tango::OPERATOR);
+	analog_img->set_change_event(true, false);
 	//	Not Memorized
 	att_list.push_back(analog_img);
 

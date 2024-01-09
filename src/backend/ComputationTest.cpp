@@ -19,6 +19,8 @@
 #include "ZMQListener.hpp"
 #include <chrono>
 #include <filesystem>
+#include <fmt/core.h>
+#include <fmt/chrono.h>
 #include <hdf5/serial/H5Cpp.h>
 // #include <hdf5/H
 
@@ -69,6 +71,7 @@ int main() {
     offset[0] = 2;
     dataspace.selectHyperslab(H5S_SELECT_SET, count, offset, NULL, block);
     dataset.write(data.data(), datatype, memspace, dataspace);
+    ComputationBackend c("/home/maxborn");
+    std::cout << c.getFullFilepath() << std::endl;
     return 0;
-
 }

@@ -6,7 +6,7 @@
 
 using namespace std;
 
-ZMQListener::ZMQListener(std::string socket_addr, std::string socket_port){
+ZMQListener::ZMQListener(std::string socket_addr, std::string socket_port, std::string save_root_path){
     if (!socket_addr.starts_with("tcp://")){
         socket_addr = "tcp://" + socket_addr;
     }
@@ -15,9 +15,9 @@ ZMQListener::ZMQListener(std::string socket_addr, std::string socket_port){
     socket = zmq::socket_t(context, ZMQ_SUB);
     socket.connect(full_address.c_str());
     socket.set(zmq::sockopt::subscribe, "");
-    comp_backend_ptr = std::make_unique<ComputationBackend>();
+    comp_backend_ptr = std::make_unique<ComputationBackend>(save_root_path);
     receive_data = false;
-
+    abort_wait = false;
     zmq_listener_thread = std::thread(&ZMQListener::listen_socket, this);
 }
 void ZMQListener::listen_socket(){
@@ -38,11 +38,15 @@ void ZMQListener::listen_socket(){
                     ff_ptr->m.bitmode = d["bitmode"].GetUint();
                     std::memcpy(ff_ptr->f.arr, data_zmq_msg.data(), std::min(data_zmq_msg.size(), static_cast<size_t>(sizeof(FullFrame::f.arr))));
                     comp_backend_ptr->frame_ptr_queue.push(ff_ptr);
+                    received_frames_amount++;
             }
         };
     }
 }
 void ZMQListener::start_receive(){
+    received_frames_amount=0;
+    comp_backend_ptr->processed_frames_amount = 0;
+    comp_backend_ptr->resume();
     receive_data = true;
 }
 void ZMQListener::stop_receive(){
@@ -51,6 +55,7 @@ void ZMQListener::stop_receive(){
         this_thread::sleep_for(0.25s);
     }
     abort_wait = false;
+    comp_backend_ptr->pause();
     // save data,  and all other stuff
 }
 void ZMQListener::abort_receive(){

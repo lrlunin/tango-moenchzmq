@@ -106,7 +106,8 @@ class ComputationBackend{
 public:
     typedef boost::singleton_pool<FullFrame, sizeof(FullFrame)> memory_pool;
     ComputationBackend();
-    std::string filepath, filename;
+    ComputationBackend(std::string save_root_path);
+    std::string save_root_path, filepath, filename;
     std::atomic<long> fileindex;
     boost::lockfree::queue<FullFrame*> frame_ptr_queue;
     std::vector<std::thread> threads;
@@ -115,7 +116,7 @@ public:
     std::atomic<long> processed_frames_amount;
 
     int THREAD_AMOIUNT = 10;
-    void init_threads();
+    void initThreads();
     std::filesystem::path getFullFilepath();
     void pause();
     void resume();
@@ -126,8 +127,8 @@ public:
     OrderedFrame<char, consts::LENGTH> classifyFrame(OrderedFrame<float, consts::LENGTH> &input, UnorderedFrame<float, consts::LENGTH> &pedestal_rms);
     OrderedFrame<float, consts::LENGTH> subtractPedestal(UnorderedFrame<unsigned short, consts::LENGTH> &raw_frame, UnorderedFrame<float, consts::LENGTH> &pedestal);
     void updatePedestal(UnorderedFrame<unsigned short, consts::LENGTH> &raw_frame, OrderedFrame<char, consts::LENGTH> &frame_classes, bool isPedestal);
-    void thread_task();
-    void process_frame(FullFrame *ptr);
+    void threadTask();
+    void processFrame(FullFrame *ptr);
     
     UnorderedFrame<float, consts::LENGTH> pedestal_counter;
     UnorderedFrame<float, consts::LENGTH> pedestal_sum;

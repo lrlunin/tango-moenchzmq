@@ -626,6 +626,7 @@ void MoenchZMQClass::attribute_factory(std::vector<Tango::Attr *> &att_list)
 	//	Not Polled
 	analog_img->set_disp_level(Tango::OPERATOR);
 	//	Not Memorized
+	analog_img->set_change_event(true, false);
 	att_list.push_back(analog_img);
 
 	//	Attribute : counting_img
