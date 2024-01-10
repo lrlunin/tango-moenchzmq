@@ -27,6 +27,7 @@
 
 #include "MoenchZMQ.h"
 #include "MoenchZMQClass.h"
+#include "data.hpp"
 /* clang-format off */
 /*----- PROTECTED REGION END -----*/	//	MoenchZMQ.cpp
 
@@ -621,7 +622,7 @@ void MoenchZMQ::read_counting_img(Tango::Attribute &attr)
 	/* clang-format on */
 	//	Set the attribute value
 	for (int x = 0; x<400*400; x++){
-		attr_counting_img_read[x] = x;
+		attr_counting_img_read[x] = COUNTING_UNPUMPED[x];
 	}
 	attr.set_value(attr_counting_img_read, counting_imgAttrib::X_DATA_SIZE, counting_imgAttrib::Y_DATA_SIZE);
 	/* clang-format off */
