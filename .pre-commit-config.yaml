@@ -1,0 +1,11 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.2.0
+    hooks:
+      - id: end-of-file-fixer
+  - repo: local
+    hooks:
+      - id: previews
+        name: update previews
+        entry: scripts/generate_previews.sh
+        language: script
