@@ -9,3 +9,4 @@ repos:
         name: update previews
         entry: scripts/generate_previews.sh
         language: script
+        pass_filenames: false

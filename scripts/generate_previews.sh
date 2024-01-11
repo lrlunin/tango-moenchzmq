@@ -21,12 +21,10 @@ $pump_type
 "
 output_file_h="$script_path/../src/tangods/data.hpp"
 > "$output_file_h"
-# loop from index 0 to 9
 for proc_type in "ANALOG" "THRESHOLD" "COUNTING" 
 do
     for pump_type in "PUMPED" "UNPUMPED"
     do
-    filename="$script_path"/pngs/output_"$proc_type"_"$pump_type".png
     convert "$script_path"/preview_template_empty.png\
             -colorspace gray\
             -font "$script_path"/RobotoMono-Regular.ttf\
@@ -46,8 +44,6 @@ do
             -gravity center\
             -annotate +0+97\
             "$proc_type\n$pump_type"\
-             $filename
-    convert "$filename"\
             -flip\
             -define h:format=gray\
              h:- | sed s\\MagickImage\\"$proc_type"_"$pump_type"\\g >> "$output_file_h"
