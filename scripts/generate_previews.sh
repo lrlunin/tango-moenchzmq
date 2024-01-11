@@ -26,6 +26,7 @@ for proc_type in "ANALOG" "THRESHOLD" "COUNTING"
 do
     for pump_type in "PUMPED" "UNPUMPED"
     do
+    filename="$script_path"/pngs/output_"$proc_type"_"$pump_type".png
     convert "$script_path"/preview_template_empty.png\
             -colorspace gray\
             -font "$script_path"/RobotoMono-Regular.ttf\
@@ -43,30 +44,12 @@ do
             -font "$script_path"/RobotoMono-Bold.ttf\
             -pointsize 35\
             -gravity center\
-            -annotate +0+92\
+            -annotate +0+97\
             "$proc_type\n$pump_type"\
+             $filename
+    convert "$filename"\
             -flip\
             -define h:format=gray\
              h:- | sed s\\MagickImage\\"$proc_type"_"$pump_type"\\g >> "$output_file_h"
-    convert "$script_path"/preview_template_empty.png\
-            -colorspace gray\
-            -font "$script_path"/RobotoMono-Regular.ttf\
-            -fill white\
-            -density 96\
-            -pointsize 12\
-            -gravity northwest\
-            -annotate +9+112\
-            "$upper_block"\
-            -annotate +9+180\
-            "$middle_block"\
-            -pointsize 11\
-            -annotate +9+355\
-            "$footer"\
-            -font "$script_path"/RobotoMono-Bold.ttf\
-            -pointsize 35\
-            -gravity center\
-            -annotate +0+92\
-            "$proc_type\n$pump_type"\
-            "$script_path"/pngs/output_"$proc_type"_"$pump_type".png
     done
 done
