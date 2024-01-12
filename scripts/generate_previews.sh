@@ -1,9 +1,10 @@
 #!/bin/bash
 script_path=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 date=$(date '+%d/%m/%Y')
+year=$(date '+%Y')
 version=v$(cat "$script_path/../VERSION")
 upper_block="
-MOENCHZMQ(C)2024 Max Born Institute
+MOENCHZMQ(C)$year Max Born Institute
 FoXSS TEAM; RELEASE $date
 BUILD TAG: $version"
 middle_block="
@@ -12,7 +13,7 @@ RESOLUTION: 400px x 400px
 CURRENT CHANNEL:
 "
 footer="
-Copyright (C)2024 @lrlunin
+Copyright (C)$year @lrlunin
 All rights reserved.
 "
 middle="
