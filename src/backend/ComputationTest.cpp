@@ -22,6 +22,7 @@
 #include <fmt/core.h>
 #include <fmt/chrono.h>
 #include <hdf5/serial/H5Cpp.h>
+#include "NeXuSWriter.hpp"
 // #include <hdf5/H
 
 using namespace std;
@@ -53,6 +54,7 @@ int main() {
     H5::DataSpace dataspace(3, dims);
     H5::DataSpace memspace(3, sub_dims, NULL);
     H5::DataSet dataset = file.createDataSet("signal", datatype, dataspace);
+    std::cout << file.exists("signal") << file.exists("signal2") << std::endl;
     dataspace = dataset.getSpace();
     vector<float> data(100);
     std::fill(data.begin(), data.end(), 20);
@@ -71,7 +73,5 @@ int main() {
     offset[0] = 2;
     dataspace.selectHyperslab(H5S_SELECT_SET, count, offset, NULL, block);
     dataset.write(data.data(), datatype, memspace, dataspace);
-    ComputationBackend c;
-    std::cout << c.getFullFilepath() << std::endl;
     return 0;
 }
