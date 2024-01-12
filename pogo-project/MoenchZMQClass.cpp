@@ -555,7 +555,8 @@ void MoenchZMQClass::attribute_factory(std::vector<Tango::Attr *> &att_list)
 	threshold->set_default_properties(threshold_prop);
 	//	Not Polled
 	threshold->set_disp_level(Tango::OPERATOR);
-	//	Not Memorized
+	threshold->set_memorized();
+	threshold->set_memorized_init(true);
 	att_list.push_back(threshold);
 
 	//	Attribute : counting_sigma
@@ -578,7 +579,8 @@ void MoenchZMQClass::attribute_factory(std::vector<Tango::Attr *> &att_list)
 	counting_sigma->set_default_properties(counting_sigma_prop);
 	//	Not Polled
 	counting_sigma->set_disp_level(Tango::OPERATOR);
-	//	Not Memorized
+	counting_sigma->set_memorized();
+	counting_sigma->set_memorized_init(true);
 	att_list.push_back(counting_sigma);
 
 	//	Attribute : live_period
@@ -647,8 +649,32 @@ void MoenchZMQClass::attribute_factory(std::vector<Tango::Attr *> &att_list)
 	split_pumped->set_default_properties(split_pumped_prop);
 	//	Not Polled
 	split_pumped->set_disp_level(Tango::OPERATOR);
-	//	Not Memorized
+	split_pumped->set_memorized();
+	split_pumped->set_memorized_init(true);
 	att_list.push_back(split_pumped);
+
+	//	Attribute : acquired_frames
+	acquired_framesAttrib	*acquired_frames = new acquired_framesAttrib();
+	Tango::UserDefaultAttrProp	acquired_frames_prop;
+	//	description	not set for acquired_frames
+	//	label	not set for acquired_frames
+	//	unit	not set for acquired_frames
+	//	standard_unit	not set for acquired_frames
+	//	display_unit	not set for acquired_frames
+	//	format	not set for acquired_frames
+	//	max_value	not set for acquired_frames
+	//	min_value	not set for acquired_frames
+	//	max_alarm	not set for acquired_frames
+	//	min_alarm	not set for acquired_frames
+	//	max_warning	not set for acquired_frames
+	//	min_warning	not set for acquired_frames
+	//	delta_t	not set for acquired_frames
+	//	delta_val	not set for acquired_frames
+	acquired_frames->set_default_properties(acquired_frames_prop);
+	//	Not Polled
+	acquired_frames->set_disp_level(Tango::OPERATOR);
+	//	Not Memorized
+	att_list.push_back(acquired_frames);
 
 	//	Attribute : analog_img
 	analog_imgAttrib	*analog_img = new analog_imgAttrib();

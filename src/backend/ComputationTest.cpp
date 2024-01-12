@@ -71,7 +71,7 @@ int main() {
     offset[0] = 2;
     dataspace.selectHyperslab(H5S_SELECT_SET, count, offset, NULL, block);
     dataset.write(data.data(), datatype, memspace, dataspace);
-    ComputationBackend c("/home/maxborn");
+    ComputationBackend c;
     std::cout << c.getFullFilepath() << std::endl;
     return 0;
 }

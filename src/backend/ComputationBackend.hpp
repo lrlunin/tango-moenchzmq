@@ -16,14 +16,12 @@ namespace consts{
 }
 template <typename T = unsigned short, unsigned int V = 400 * 400>
 struct UnorderedFrame{
-    T arr[V]; 
+    T arr[V];
     T& operator()(int y, int x) {
         return arr[consts::reorder_map[y][x]];
     }
     void zero(){
-        for (auto i = 0; i<V; i++){
-            arr[i] = 0;
-        }
+        std::fill(arr, arr + V, 0);
     }
 };
 template <typename T = unsigned short, unsigned int V = consts::FRAME_WIDTH*consts::FRAME_HEIGHT>
@@ -47,20 +45,18 @@ struct OrderedFrame{
         }
     };
     OrderedFrame& operator+=(const OrderedFrame& rhs){
-        for (auto i = 0; i < V; i++){
+        for (unsigned int i = 0; i < V; i++){
             arr[i] += rhs.arr[i];
         }
         return *this;
     }
     void addClass(OrderedFrame<char, V>& classes, const char class_nr){
-        for (auto i = 0; i<V; i++){
+        for (unsigned int i = 0; i < V; i++){
             arr[i] = (classes.arr[i] == class_nr);
         }
     }
     void zero(){
-        for (auto i = 0; i<V; i++){
-            arr[i] = 0;
-        }
+        std::fill(arr, arr + V, 0);
     }
 };
 struct Metadata{
@@ -76,14 +72,15 @@ class ComputationBackend{
 public:
     typedef boost::singleton_pool<FullFrame, sizeof(FullFrame)> memory_pool;
     ComputationBackend();
-    ComputationBackend(std::string save_root_path);
-    std::string save_root_path, filepath, filename;
-    std::atomic<long> fileindex;
+    std::string save_root_path, file_path, file_name;
+    std::atomic<long> file_index;
     boost::lockfree::queue<FullFrame*> frame_ptr_queue;
     std::vector<std::thread> threads;
     std::shared_mutex pedestal_share;
     std::mutex frames_sums;
     std::atomic<long> processed_frames_amount;
+    std::atomic<long> live_period;
+
 
     int THREAD_AMOIUNT = 10;
     void initThreads();
@@ -104,8 +101,11 @@ public:
     UnorderedFrame<float, consts::LENGTH> pedestal_sum;
     UnorderedFrame<float, consts::LENGTH> pedestal_squared_sum;
     OrderedFrame<float, consts::LENGTH> analog_sum;
+    OrderedFrame<float, consts::LENGTH> analog_sum_pumped;
     OrderedFrame<float, consts::LENGTH> thresholded_sum;
     OrderedFrame<int, consts::LENGTH> counting_sum;
+    OrderedFrame<int, consts::LENGTH> counting_sum_pumped;
+    std::atomic_bool isSplitPumped = false;
     std::atomic_bool isPedestal = true;
     std::atomic_bool threads_sleep = true;
 };

@@ -62,6 +62,7 @@
 //  live_period          |  Tango::DevLong	Scalar
 //  process_pedestal     |  Tango::DevBoolean	Scalar
 //  split_pumped         |  Tango::DevBoolean	Scalar
+//  acquired_frames      |  Tango::DevLong	Scalar
 //  analog_img           |  Tango::DevFloat	Image  ( max = 400 x 400)
 //  counting_img         |  Tango::DevFloat	Image  ( max = 400 x 400)
 //  analog_img_pumped    |  Tango::DevFloat	Image  ( max = 400 x 400)
@@ -136,11 +137,11 @@ void MoenchZMQ::delete_device()
 	delete[] attr_file_name_read;
 	delete[] attr_file_root_path_read;
 	delete[] attr_normalize_read;
-	delete[] attr_threshold_read;
 	delete[] attr_counting_sigma_read;
 	delete[] attr_live_period_read;
 	delete[] attr_process_pedestal_read;
 	delete[] attr_split_pumped_read;
+	delete[] attr_acquired_frames_read;
 	delete[] attr_analog_img_read;
 	delete[] attr_counting_img_read;
 	delete[] attr_analog_img_pumped_read;
@@ -170,11 +171,12 @@ void MoenchZMQ::init_device()
 	attr_file_name_read = new Tango::DevString[1];
 	attr_file_root_path_read = new Tango::DevString[1];
 	attr_normalize_read = new Tango::DevBoolean[1];
-	attr_threshold_read = new Tango::DevDouble[1];
 	attr_counting_sigma_read = new Tango::DevDouble[1];
+	attr_threshold_read = new Tango::DevDouble[1];
 	attr_live_period_read = new Tango::DevLong[1];
 	attr_process_pedestal_read = new Tango::DevBoolean[1];
 	attr_split_pumped_read = new Tango::DevBoolean[1];
+	attr_acquired_frames_read = new Tango::DevLong[1];
 	attr_analog_img_read = new Tango::DevFloat[400*400];
 	attr_counting_img_read = new Tango::DevFloat[400*400];
 	attr_analog_img_pumped_read = new Tango::DevFloat[400*400];
@@ -519,6 +521,27 @@ void MoenchZMQ::read_threshold(Tango::Attribute &attr)
 }
 //--------------------------------------------------------
 /**
+ *	Write attribute threshold related method
+ *
+ *
+ *	Data type:	Tango::DevDouble
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void MoenchZMQ::write_threshold(Tango::WAttribute &attr)
+{
+	DEBUG_STREAM << "MoenchZMQ::write_threshold(Tango::WAttribute &attr) entering... " << std::endl;
+	//	Retrieve write value
+	Tango::DevDouble	w_val;
+	attr.get_write_value(w_val);
+	/*----- PROTECTED REGION ID(MoenchZMQ::write_threshold) ENABLED START -----*/
+	/* clang-format on */
+	*attr_threshold_read = w_val;
+	/* clang-format off */
+	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::write_threshold
+}
+//--------------------------------------------------------
+/**
  *	Read attribute counting_sigma related method
  *
  *
@@ -553,7 +576,7 @@ void MoenchZMQ::write_counting_sigma(Tango::WAttribute &attr)
 	attr.get_write_value(w_val);
 	/*----- PROTECTED REGION ID(MoenchZMQ::write_counting_sigma) ENABLED START -----*/
 	/* clang-format on */
-	//	Add your own code
+	*attr_counting_sigma_read = w_val;
 	/* clang-format off */
 	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::write_counting_sigma
 }
@@ -655,6 +678,25 @@ void MoenchZMQ::write_split_pumped(Tango::WAttribute &attr)
 	//	Add your own code
 	/* clang-format off */
 	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::write_split_pumped
+}
+//--------------------------------------------------------
+/**
+ *	Read attribute acquired_frames related method
+ *
+ *
+ *	Data type:	Tango::DevLong
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void MoenchZMQ::read_acquired_frames(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "MoenchZMQ::read_acquired_frames(Tango::Attribute &attr) entering... " << std::endl;
+	/*----- PROTECTED REGION ID(MoenchZMQ::read_acquired_frames) ENABLED START -----*/
+	/* clang-format on */
+	//	Set the attribute value
+	attr.set_value(attr_acquired_frames_read);
+	/* clang-format off */
+	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::read_acquired_frames
 }
 //--------------------------------------------------------
 /**

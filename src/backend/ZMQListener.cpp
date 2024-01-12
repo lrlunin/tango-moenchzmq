@@ -15,7 +15,7 @@ ZMQListener::ZMQListener(std::string socket_addr, std::string socket_port, std::
     socket = zmq::socket_t(context, ZMQ_SUB);
     socket.connect(full_address.c_str());
     socket.set(zmq::sockopt::subscribe, "");
-    comp_backend_ptr = std::make_unique<ComputationBackend>(save_root_path);
+    comp_backend_ptr = std::make_unique<ComputationBackend>();
     receive_data = false;
     abort_wait = false;
     zmq_listener_thread = std::thread(&ZMQListener::listen_socket, this);
@@ -44,19 +44,25 @@ void ZMQListener::listen_socket(){
     }
 }
 void ZMQListener::start_receive(){
-    received_frames_amount=0;
-    comp_backend_ptr->processed_frames_amount = 0;
-    comp_backend_ptr->resume();
-    receive_data = true;
+    if (!receive_data){
+        received_frames_amount=0;
+        comp_backend_ptr->processed_frames_amount = 0;
+        comp_backend_ptr->resetAccumulators();
+        comp_backend_ptr->resume();
+        receive_data = true;
+    }
 }
 void ZMQListener::stop_receive(){
-    receive_data = false;
-    while (comp_backend_ptr->processed_frames_amount < received_frames_amount && !abort_wait){
-        this_thread::sleep_for(0.25s);
+    if (receive_data){
+        receive_data = false;
+        while (comp_backend_ptr->processed_frames_amount < received_frames_amount && !abort_wait){
+            this_thread::sleep_for(0.25s);
+        }
+        abort_wait = false;
+        comp_backend_ptr->pause();
+        // save data etc
+        comp_backend_ptr->file_index++;
     }
-    abort_wait = false;
-    comp_backend_ptr->pause();
-    // save data,  and all other stuff
 }
 void ZMQListener::abort_receive(){
     abort_wait = true;

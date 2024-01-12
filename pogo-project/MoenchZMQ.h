@@ -82,6 +82,7 @@ public:
 	Tango::DevLong	*attr_live_period_read;
 	Tango::DevBoolean	*attr_process_pedestal_read;
 	Tango::DevBoolean	*attr_split_pumped_read;
+	Tango::DevLong	*attr_acquired_frames_read;
 	Tango::DevFloat	*attr_analog_img_read;
 	Tango::DevFloat	*attr_counting_img_read;
 	Tango::DevFloat	*attr_analog_img_pumped_read;
@@ -206,6 +207,7 @@ public:
  *	Attr type:	Scalar
  */
 	virtual void read_threshold(Tango::Attribute &attr);
+	virtual void write_threshold(Tango::WAttribute &attr);
 	virtual bool is_threshold_allowed(Tango::AttReqType type);
 /**
  *	Attribute counting_sigma related methods
@@ -246,6 +248,15 @@ public:
 	virtual void read_split_pumped(Tango::Attribute &attr);
 	virtual void write_split_pumped(Tango::WAttribute &attr);
 	virtual bool is_split_pumped_allowed(Tango::AttReqType type);
+/**
+ *	Attribute acquired_frames related methods
+ *
+ *
+ *	Data type:  Tango::DevLong
+ *	Attr type:	Scalar
+ */
+	virtual void read_acquired_frames(Tango::Attribute &attr);
+	virtual bool is_acquired_frames_allowed(Tango::AttReqType type);
 /**
  *	Attribute analog_img related methods
  *

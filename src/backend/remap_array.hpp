@@ -2,7 +2,8 @@
 remapping of pixels of the array sent by the detector to the server
 generated once to avoid constexpr with lambda at each compilation which is unsupported feature by clang by now
 the alternative code:
-
+*/
+/*
 constexpr static std::array<std::array<unsigned int, FRAME_HEIGHT>, FRAME_WIDTH> reorder_map{[]() constexpr {
       std::array<std::array<unsigned int, FRAME_HEIGHT>, FRAME_WIDTH> result;
       int nadc = 32;

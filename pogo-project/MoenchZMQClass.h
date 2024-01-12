@@ -111,10 +111,12 @@ class thresholdAttrib: public Tango::Attr
 {
 public:
 	thresholdAttrib():Attr("threshold",
-			Tango::DEV_DOUBLE, Tango::READ) {};
+			Tango::DEV_DOUBLE, Tango::READ_WRITE) {};
 	~thresholdAttrib() {};
 	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
 		{(static_cast<MoenchZMQ *>(dev))->read_threshold(att);}
+	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
+		{(static_cast<MoenchZMQ *>(dev))->write_threshold(att);}
 	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
 		{return (static_cast<MoenchZMQ *>(dev))->is_threshold_allowed(ty);}
 };
@@ -175,6 +177,19 @@ public:
 		{(static_cast<MoenchZMQ *>(dev))->write_split_pumped(att);}
 	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
 		{return (static_cast<MoenchZMQ *>(dev))->is_split_pumped_allowed(ty);}
+};
+
+//	Attribute acquired_frames class definition
+class acquired_framesAttrib: public Tango::Attr
+{
+public:
+	acquired_framesAttrib():Attr("acquired_frames",
+			Tango::DEV_LONG, Tango::READ) {};
+	~acquired_framesAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<MoenchZMQ *>(dev))->read_acquired_frames(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<MoenchZMQ *>(dev))->is_acquired_frames_allowed(ty);}
 };
 
 //	Attribute analog_img class definition

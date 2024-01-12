@@ -15,15 +15,13 @@
 using namespace std;
 
 ComputationBackend::ComputationBackend():frame_ptr_queue(5000){
-};
-ComputationBackend::ComputationBackend(string save_root_path):save_root_path(save_root_path),frame_ptr_queue(5000){
     const auto now = chrono::system_clock::now();
     // 20240109_run like folder and file name
-    filepath = fmt::format("{:%Y%m%d}_run", now);
-    filename = filepath;
-    fileindex = 0;
+    file_path = fmt::format("{:%Y%m%d}_run", now);
+    file_name = file_path;
+    file_index = 0;
     initThreads();
-}
+};
 void ComputationBackend::initThreads(){
     for (int x = 0; x < THREAD_AMOIUNT; ++x){
            threads.push_back(thread(&ComputationBackend::threadTask, this));
@@ -31,8 +29,8 @@ void ComputationBackend::initThreads(){
 }
 std::filesystem::path ComputationBackend::getFullFilepath(){
     std::filesystem::path full_filepath(save_root_path);
-    full_filepath/=filepath;
-    full_filepath/=filename;
+    full_filepath/=file_path;
+    full_filepath/=file_name;
     return full_filepath.lexically_normal();
 };
 void ComputationBackend::pause(){
@@ -97,7 +95,6 @@ void ComputationBackend::processFrame(FullFrame *ff_ptr){
         for (int ix = 0; ix < consts::FRAME_WIDTH; ix++){
             float max_value, tl, tr, bl, br, tot;
             max_value = tl = tr = bl = br = tot = 0;
-            char pixel_class = 0;
             float rms = pedestal_rms(iy, ix);
             float main_pixel_value = input(iy, ix);
             for (int ir = -cluster_size / 2; ir < cluster_size / 2 + 1; ir++){
@@ -127,7 +124,6 @@ void ComputationBackend::processFrame(FullFrame *ff_ptr){
                     class_mask(iy, ix) = 2;
                 }
             }
-            
         }
     }
     return class_mask;
@@ -158,7 +154,7 @@ OrderedFrame<float, consts::LENGTH> ComputationBackend::subtractPedestal(Unorder
 void ComputationBackend::updatePedestal(UnorderedFrame<unsigned short, consts::LENGTH> &raw_frame, OrderedFrame<char, consts::LENGTH> &frame_classes, bool isPedestal = false){
     for (int y = 0; y < consts::FRAME_HEIGHT; y++){
         for (int x = 0; x < consts::FRAME_WIDTH; x++){
-            //if (!isPedestal && frame_classes(y, x) != 0) continue;
+            if (!isPedestal && frame_classes(y, x) != 0) continue;
             if (pedestal_counter(y, x) < consts::PEDESTAL_BUFFER_SIZE){
                 pedestal_counter(y, x)++;
                 pedestal_sum(y, x) = pedestal_sum(y, x) + raw_frame(y, x);
@@ -181,5 +177,4 @@ void ComputationBackend::threadTask(){
             //printf("either queue is empty or set to sleep\n");
             this_thread::sleep_for(0.03s);
         }
-        printf("thead %d died\n", this_thread::get_id());
 }

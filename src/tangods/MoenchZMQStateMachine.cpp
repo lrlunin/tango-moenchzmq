@@ -225,6 +225,22 @@ bool MoenchZMQ::is_split_pumped_allowed(TANGO_UNUSED(Tango::AttReqType type))
 	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::split_pumpedStateAllowed_READ
 	return true;
 }
+//--------------------------------------------------------
+/**
+ *	Method      : MoenchZMQ::is_acquired_frames_allowed()
+ * Description:  Execution allowed for acquired_frames attribute
+ */
+//--------------------------------------------------------
+bool MoenchZMQ::is_acquired_frames_allowed(TANGO_UNUSED(Tango::AttReqType type))
+{
+
+	//	Not any excluded states for acquired_frames attribute in read access.
+	/*----- PROTECTED REGION ID(MoenchZMQ::acquired_framesStateAllowed_READ) ENABLED START -----*/
+	/* clang-format on */
+	/* clang-format off */
+	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::acquired_framesStateAllowed_READ
+	return true;
+}
 
 //--------------------------------------------------------
 /**
