@@ -74,15 +74,18 @@ public:
 //	Attribute data members
 public:
 	Tango::DevULong	*attr_file_index_read;
-	Tango::DevString	*attr_filename_read;
+	Tango::DevString	*attr_file_name_read;
 	Tango::DevString	*attr_file_root_path_read;
 	Tango::DevBoolean	*attr_normalize_read;
 	Tango::DevDouble	*attr_threshold_read;
 	Tango::DevDouble	*attr_counting_sigma_read;
 	Tango::DevLong	*attr_live_period_read;
 	Tango::DevBoolean	*attr_process_pedestal_read;
+	Tango::DevBoolean	*attr_split_pumped_read;
 	Tango::DevFloat	*attr_analog_img_read;
 	Tango::DevFloat	*attr_counting_img_read;
+	Tango::DevFloat	*attr_analog_img_pumped_read;
+	Tango::DevFloat	*attr_counting_img_pumped_read;
 
 //	Constructors and destructors
 public:
@@ -166,15 +169,15 @@ public:
 	virtual void write_file_index(Tango::WAttribute &attr);
 	virtual bool is_file_index_allowed(Tango::AttReqType type);
 /**
- *	Attribute filename related methods
+ *	Attribute file_name related methods
  *
  *
  *	Data type:  Tango::DevString
  *	Attr type:	Scalar
  */
-	virtual void read_filename(Tango::Attribute &attr);
-	virtual void write_filename(Tango::WAttribute &attr);
-	virtual bool is_filename_allowed(Tango::AttReqType type);
+	virtual void read_file_name(Tango::Attribute &attr);
+	virtual void write_file_name(Tango::WAttribute &attr);
+	virtual bool is_file_name_allowed(Tango::AttReqType type);
 /**
  *	Attribute file_root_path related methods
  *
@@ -234,6 +237,16 @@ public:
 	virtual void read_process_pedestal(Tango::Attribute &attr);
 	virtual bool is_process_pedestal_allowed(Tango::AttReqType type);
 /**
+ *	Attribute split_pumped related methods
+ *
+ *
+ *	Data type:  Tango::DevBoolean
+ *	Attr type:	Scalar
+ */
+	virtual void read_split_pumped(Tango::Attribute &attr);
+	virtual void write_split_pumped(Tango::WAttribute &attr);
+	virtual bool is_split_pumped_allowed(Tango::AttReqType type);
+/**
  *	Attribute analog_img related methods
  *
  *
@@ -251,6 +264,24 @@ public:
  */
 	virtual void read_counting_img(Tango::Attribute &attr);
 	virtual bool is_counting_img_allowed(Tango::AttReqType type);
+/**
+ *	Attribute analog_img_pumped related methods
+ *
+ *
+ *	Data type:  Tango::DevFloat
+ *	Attr type:	Image max = 400 x 400
+ */
+	virtual void read_analog_img_pumped(Tango::Attribute &attr);
+	virtual bool is_analog_img_pumped_allowed(Tango::AttReqType type);
+/**
+ *	Attribute counting_img_pumped related methods
+ *
+ *
+ *	Data type:  Tango::DevFloat
+ *	Attr type:	Image max = 400 x 400
+ */
+	virtual void read_counting_img_pumped(Tango::Attribute &attr);
+	virtual bool is_counting_img_pumped_allowed(Tango::AttReqType type);
 
 
 	//--------------------------------------------------------
@@ -294,6 +325,13 @@ public:
 	 */
 	virtual void reset_pedestal();
 	virtual bool is_reset_pedestal_allowed(const CORBA::Any &any);
+	/**
+	 *	Command push_images_change related method
+	 *
+	 *
+	 */
+	virtual void push_images_change();
+	virtual bool is_push_images_change_allowed(const CORBA::Any &any);
 
 
 	//--------------------------------------------------------

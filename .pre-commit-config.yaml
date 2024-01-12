@@ -6,7 +6,7 @@ repos:
   - repo: local
     hooks:
       - id: previews
-        name: update previews
+        name: Generate Preview to data.hpp
         entry: scripts/generate_previews.sh
         language: script
         pass_filenames: false

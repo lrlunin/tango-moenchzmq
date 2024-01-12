@@ -62,23 +62,23 @@ bool MoenchZMQ::is_file_index_allowed(TANGO_UNUSED(Tango::AttReqType type))
 
 //--------------------------------------------------------
 /**
- *	Method      : MoenchZMQ::is_filename_allowed()
- * Description:  Execution allowed for filename attribute
+ *	Method      : MoenchZMQ::is_file_name_allowed()
+ * Description:  Execution allowed for file_name attribute
  */
 //--------------------------------------------------------
-bool MoenchZMQ::is_filename_allowed(TANGO_UNUSED(Tango::AttReqType type))
+bool MoenchZMQ::is_file_name_allowed(TANGO_UNUSED(Tango::AttReqType type))
 {
-	//	Not any excluded states for filename attribute in Write access.
-	/*----- PROTECTED REGION ID(MoenchZMQ::filenameStateAllowed_WRITE) ENABLED START -----*/
+	//	Not any excluded states for file_name attribute in Write access.
+	/*----- PROTECTED REGION ID(MoenchZMQ::file_nameStateAllowed_WRITE) ENABLED START -----*/
 	/* clang-format on */
 	/* clang-format off */
-	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::filenameStateAllowed_WRITE
+	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::file_nameStateAllowed_WRITE
 
-	//	Not any excluded states for filename attribute in read access.
-	/*----- PROTECTED REGION ID(MoenchZMQ::filenameStateAllowed_READ) ENABLED START -----*/
+	//	Not any excluded states for file_name attribute in read access.
+	/*----- PROTECTED REGION ID(MoenchZMQ::file_nameStateAllowed_READ) ENABLED START -----*/
 	/* clang-format on */
 	/* clang-format off */
-	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::filenameStateAllowed_READ
+	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::file_nameStateAllowed_READ
 	return true;
 }
 
@@ -206,6 +206,28 @@ bool MoenchZMQ::is_process_pedestal_allowed(TANGO_UNUSED(Tango::AttReqType type)
 
 //--------------------------------------------------------
 /**
+ *	Method      : MoenchZMQ::is_split_pumped_allowed()
+ * Description:  Execution allowed for split_pumped attribute
+ */
+//--------------------------------------------------------
+bool MoenchZMQ::is_split_pumped_allowed(TANGO_UNUSED(Tango::AttReqType type))
+{
+	//	Not any excluded states for split_pumped attribute in Write access.
+	/*----- PROTECTED REGION ID(MoenchZMQ::split_pumpedStateAllowed_WRITE) ENABLED START -----*/
+	/* clang-format on */
+	/* clang-format off */
+	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::split_pumpedStateAllowed_WRITE
+
+	//	Not any excluded states for split_pumped attribute in read access.
+	/*----- PROTECTED REGION ID(MoenchZMQ::split_pumpedStateAllowed_READ) ENABLED START -----*/
+	/* clang-format on */
+	/* clang-format off */
+	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::split_pumpedStateAllowed_READ
+	return true;
+}
+
+//--------------------------------------------------------
+/**
  *	Method      : MoenchZMQ::is_analog_img_allowed()
  * Description:  Execution allowed for analog_img attribute
  */
@@ -235,6 +257,40 @@ bool MoenchZMQ::is_counting_img_allowed(TANGO_UNUSED(Tango::AttReqType type))
 	/* clang-format on */
 	/* clang-format off */
 	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::counting_imgStateAllowed_READ
+	return true;
+}
+
+//--------------------------------------------------------
+/**
+ *	Method      : MoenchZMQ::is_analog_img_pumped_allowed()
+ * Description:  Execution allowed for analog_img_pumped attribute
+ */
+//--------------------------------------------------------
+bool MoenchZMQ::is_analog_img_pumped_allowed(TANGO_UNUSED(Tango::AttReqType type))
+{
+
+	//	Not any excluded states for analog_img_pumped attribute in read access.
+	/*----- PROTECTED REGION ID(MoenchZMQ::analog_img_pumpedStateAllowed_READ) ENABLED START -----*/
+	/* clang-format on */
+	/* clang-format off */
+	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::analog_img_pumpedStateAllowed_READ
+	return true;
+}
+
+//--------------------------------------------------------
+/**
+ *	Method      : MoenchZMQ::is_counting_img_pumped_allowed()
+ * Description:  Execution allowed for counting_img_pumped attribute
+ */
+//--------------------------------------------------------
+bool MoenchZMQ::is_counting_img_pumped_allowed(TANGO_UNUSED(Tango::AttReqType type))
+{
+
+	//	Not any excluded states for counting_img_pumped attribute in read access.
+	/*----- PROTECTED REGION ID(MoenchZMQ::counting_img_pumpedStateAllowed_READ) ENABLED START -----*/
+	/* clang-format on */
+	/* clang-format off */
+	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::counting_img_pumpedStateAllowed_READ
 	return true;
 }
 
@@ -304,6 +360,22 @@ bool MoenchZMQ::is_reset_pedestal_allowed(TANGO_UNUSED(const CORBA::Any &any))
 	/* clang-format on */
 	/* clang-format off */
 	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::reset_pedestalStateAllowed
+	return true;
+}
+
+//--------------------------------------------------------
+/**
+ *	Method      : MoenchZMQ::is_push_images_change_allowed()
+ * Description:  Execution allowed for push_images_change attribute
+ */
+//--------------------------------------------------------
+bool MoenchZMQ::is_push_images_change_allowed(TANGO_UNUSED(const CORBA::Any &any))
+{
+	//	Not any excluded states for push_images_change command.
+	/*----- PROTECTED REGION ID(MoenchZMQ::push_images_changeStateAllowed) ENABLED START -----*/
+	/* clang-format on */
+	/* clang-format off */
+	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::push_images_changeStateAllowed
 	return true;
 }
 

@@ -26,7 +26,7 @@ ComputationBackend::ComputationBackend(string save_root_path):save_root_path(sav
 }
 void ComputationBackend::initThreads(){
     for (int x = 0; x < THREAD_AMOIUNT; ++x){
-           threads.push_back(move(thread(&ComputationBackend::threadTask, this)));
+           threads.push_back(thread(&ComputationBackend::threadTask, this));
     }
 }
 std::filesystem::path ComputationBackend::getFullFilepath(){

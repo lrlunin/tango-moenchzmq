@@ -130,7 +130,7 @@ void MoenchZMQ::delete_device()
 	/* clang-format off */
 	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::delete_device
 	delete[] attr_file_index_read;
-	delete[] attr_filename_read;
+	delete[] attr_file_name_read;
 	delete[] attr_file_root_path_read;
 	delete[] attr_normalize_read;
 	delete[] attr_threshold_read;
@@ -162,13 +162,14 @@ void MoenchZMQ::init_device()
 	get_device_property();
 
 	attr_file_index_read = new Tango::DevULong[1];
-	attr_filename_read = new Tango::DevString[1];
+	attr_file_name_read = new Tango::DevString[1];
 	attr_file_root_path_read = new Tango::DevString[1];
 	attr_normalize_read = new Tango::DevBoolean[1];
 	attr_threshold_read = new Tango::DevDouble[1];
 	attr_counting_sigma_read = new Tango::DevDouble[1];
 	attr_live_period_read = new Tango::DevLong[1];
 	attr_process_pedestal_read = new Tango::DevBoolean[1];
+	attr_split_pumped_read = new Tango::DevBoolean[1];
 	attr_analog_img_read = new Tango::DevFloat[400*400];
 	attr_counting_img_read = new Tango::DevFloat[400*400];
 	//	No longer if mandatory property not set.
@@ -202,6 +203,15 @@ void MoenchZMQ::get_device_property()
 	mandatoryNotDefined = false;
 	Tango::DbData dev_prop{Tango::DbDatum("ZMQ_RX_IP"), Tango::DbDatum("ZMQ_RX_PORT"), Tango::DbDatum("SAVE_ROOT_PATH")};
 	get_db_device()->get_property(dev_prop);
+	// if any of the properties is empty, mark the device as not initialized
+	for (auto &prop : dev_prop)
+	{
+		if (prop.is_empty())
+		{
+			ERROR_STREAM << "Property " << prop.name << " not set" << std::endl;
+			mandatoryNotDefined = true;
+		}
+	}
 	dev_prop[0] >> ZMQ_RX_IP;
 	dev_prop[1] >> ZMQ_RX_PORT;
 	dev_prop[2] >> SAVE_ROOT_PATH;
@@ -344,14 +354,14 @@ void MoenchZMQ::write_file_index(Tango::WAttribute &attr)
  *	Attr type:	Scalar
  */
 //--------------------------------------------------------
-void MoenchZMQ::read_filename(Tango::Attribute &attr)
+void MoenchZMQ::read_file_name(Tango::Attribute &attr)
 {
 	DEBUG_STREAM << "MoenchZMQ::read_filename(Tango::Attribute &attr) entering... " << std::endl;
 	/*----- PROTECTED REGION ID(MoenchZMQ::read_filename) ENABLED START -----*/
 	/* clang-format on */
 	//	Set the attribute value
-	*attr_filename_read = Tango::string_dup(zmq_listener_ptr->comp_backend_ptr->filename);
-	attr.set_value(attr_filename_read);
+	*attr_file_name_read = Tango::string_dup(zmq_listener_ptr->comp_backend_ptr->filename);
+	attr.set_value(attr_file_name_read);
 	/* clang-format off */
 	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::read_filename
 }
@@ -364,7 +374,7 @@ void MoenchZMQ::read_filename(Tango::Attribute &attr)
  *	Attr type:	Scalar
  */
 //--------------------------------------------------------
-void MoenchZMQ::write_filename(Tango::WAttribute &attr)
+void MoenchZMQ::write_file_name(Tango::WAttribute &attr)
 {
 	DEBUG_STREAM << "MoenchZMQ::write_filename(Tango::WAttribute &attr) entering... " << std::endl;
 	//	Retrieve write value
@@ -497,6 +507,44 @@ void MoenchZMQ::read_counting_sigma(Tango::Attribute &attr)
 }
 //--------------------------------------------------------
 /**
+ *	Read attribute analog_img_pumped related method
+ *
+ *
+ *	Data type:	Tango::DevFloat
+ *	Attr type:	Image max = 400 x 400
+ */
+//--------------------------------------------------------
+void MoenchZMQ::read_analog_img_pumped(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "MoenchZMQ::read_analog_img_pumped(Tango::Attribute &attr) entering... " << std::endl;
+	/*----- PROTECTED REGION ID(MoenchZMQ::read_analog_img_pumped) ENABLED START -----*/
+	/* clang-format on */
+	//	Set the attribute value
+	attr.set_value(attr_analog_img_pumped_read, analog_img_pumpedAttrib::X_DATA_SIZE, analog_img_pumpedAttrib::Y_DATA_SIZE);
+	/* clang-format off */
+	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::read_analog_img_pumped
+}
+//--------------------------------------------------------
+/**
+ *	Read attribute counting_img_pumped related method
+ *
+ *
+ *	Data type:	Tango::DevFloat
+ *	Attr type:	Image max = 400 x 400
+ */
+//--------------------------------------------------------
+void MoenchZMQ::read_counting_img_pumped(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "MoenchZMQ::read_counting_img_pumped(Tango::Attribute &attr) entering... " << std::endl;
+	/*----- PROTECTED REGION ID(MoenchZMQ::read_counting_img_pumped) ENABLED START -----*/
+	/* clang-format on */
+	//	Set the attribute value
+	attr.set_value(attr_counting_img_pumped_read, counting_img_pumpedAttrib::X_DATA_SIZE, counting_img_pumpedAttrib::Y_DATA_SIZE);
+	/* clang-format off */
+	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::read_counting_img_pumped
+}
+//--------------------------------------------------------
+/**
  *	Write attribute counting_sigma related method
  *
  *
@@ -576,7 +624,46 @@ void MoenchZMQ::read_process_pedestal(Tango::Attribute &attr)
 	/* clang-format off */
 	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::read_process_pedestal
 }
-
+//--------------------------------------------------------
+/**
+ *	Read attribute split_pumped related method
+ *
+ *
+ *	Data type:	Tango::DevBoolean
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void MoenchZMQ::read_split_pumped(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "MoenchZMQ::read_split_pumped(Tango::Attribute &attr) entering... " << std::endl;
+	/*----- PROTECTED REGION ID(MoenchZMQ::read_split_pumped) ENABLED START -----*/
+	/* clang-format on */
+	//	Set the attribute value
+	attr.set_value(attr_split_pumped_read);
+	/* clang-format off */
+	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::read_split_pumped
+}
+//--------------------------------------------------------
+/**
+ *	Write attribute split_pumped related method
+ *
+ *
+ *	Data type:	Tango::DevBoolean
+ *	Attr type:	Scalar
+ */
+//--------------------------------------------------------
+void MoenchZMQ::write_split_pumped(Tango::WAttribute &attr)
+{
+	DEBUG_STREAM << "MoenchZMQ::write_split_pumped(Tango::WAttribute &attr) entering... " << std::endl;
+	//	Retrieve write value
+	Tango::DevBoolean	w_val;
+	attr.get_write_value(w_val);
+	/*----- PROTECTED REGION ID(MoenchZMQ::write_split_pumped) ENABLED START -----*/
+	/* clang-format on */
+	//	Add your own code
+	/* clang-format off */
+	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::write_split_pumped
+}
 void MoenchZMQ::write_process_pedestal(Tango::WAttribute &attr)
 {
 	Tango::DevBoolean	w_val;
@@ -720,6 +807,25 @@ void MoenchZMQ::reset_pedestal()
 
 	/* clang-format off */
 	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::reset_pedestal
+}
+//--------------------------------------------------------
+/**
+ *	Command push_images_change related method
+ *
+ *
+ */
+//--------------------------------------------------------
+void MoenchZMQ::push_images_change()
+{
+	DEBUG_STREAM << "MoenchZMQ::push_images_change()  - " << device_name << std::endl;
+	/*----- PROTECTED REGION ID(MoenchZMQ::push_images_change) ENABLED START -----*/
+	/* clang-format on */
+	push_change_event("analog_img", attr_counting_img_read, analog_imgAttrib::X_DATA_SIZE, analog_imgAttrib::Y_DATA_SIZE);
+	push_change_event("counting_img", attr_counting_img_read, counting_imgAttrib::X_DATA_SIZE, counting_imgAttrib::Y_DATA_SIZE);
+	push_change_event("analog_img_pumped", attr_analog_img_pumped_read, analog_img_pumpedAttrib::X_DATA_SIZE, analog_img_pumpedAttrib::Y_DATA_SIZE);
+	push_change_event("counting_img_pumped", attr_counting_img_pumped_read, counting_img_pumpedAttrib::X_DATA_SIZE, counting_img_pumpedAttrib::Y_DATA_SIZE);
+	/* clang-format off */
+	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::push_images_change
 }
 //--------------------------------------------------------
 /**

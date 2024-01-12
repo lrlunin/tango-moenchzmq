@@ -61,19 +61,19 @@ public:
 		{return (static_cast<MoenchZMQ *>(dev))->is_file_index_allowed(ty);}
 };
 
-//	Attribute filename class definition
-class filenameAttrib: public Tango::Attr
+//	Attribute file_name class definition
+class file_nameAttrib: public Tango::Attr
 {
 public:
-	filenameAttrib():Attr("filename",
+	file_nameAttrib():Attr("file_name",
 			Tango::DEV_STRING, Tango::READ_WRITE) {};
-	~filenameAttrib() {};
+	~file_nameAttrib() {};
 	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
-		{(static_cast<MoenchZMQ *>(dev))->read_filename(att);}
+		{(static_cast<MoenchZMQ *>(dev))->read_file_name(att);}
 	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
-		{(static_cast<MoenchZMQ *>(dev))->write_filename(att);}
+		{(static_cast<MoenchZMQ *>(dev))->write_file_name(att);}
 	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
-		{return (static_cast<MoenchZMQ *>(dev))->is_filename_allowed(ty);}
+		{return (static_cast<MoenchZMQ *>(dev))->is_file_name_allowed(ty);}
 };
 
 //	Attribute file_root_path class definition
@@ -162,6 +162,21 @@ public:
 		{return (static_cast<MoenchZMQ *>(dev))->is_process_pedestal_allowed(ty);}
 };
 
+//	Attribute split_pumped class definition
+class split_pumpedAttrib: public Tango::Attr
+{
+public:
+	split_pumpedAttrib():Attr("split_pumped",
+			Tango::DEV_BOOLEAN, Tango::READ_WRITE) {};
+	~split_pumpedAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<MoenchZMQ *>(dev))->read_split_pumped(att);}
+	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
+		{(static_cast<MoenchZMQ *>(dev))->write_split_pumped(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<MoenchZMQ *>(dev))->is_split_pumped_allowed(ty);}
+};
+
 //	Attribute analog_img class definition
 class analog_imgAttrib: public Tango::ImageAttr
 {
@@ -192,6 +207,38 @@ public:
 		{(static_cast<MoenchZMQ *>(dev))->read_counting_img(att);}
 	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
 		{return (static_cast<MoenchZMQ *>(dev))->is_counting_img_allowed(ty);}
+};
+
+//	Attribute analog_img_pumped class definition
+class analog_img_pumpedAttrib: public Tango::ImageAttr
+{
+public:
+	// Constants for analog_img_pumped attribute
+	constexpr static long X_DATA_SIZE = 400;
+	constexpr static long Y_DATA_SIZE = 400;
+	analog_img_pumpedAttrib():ImageAttr("analog_img_pumped",
+			Tango::DEV_FLOAT, Tango::READ, analog_img_pumpedAttrib::X_DATA_SIZE, analog_img_pumpedAttrib::Y_DATA_SIZE) {};
+	~analog_img_pumpedAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<MoenchZMQ *>(dev))->read_analog_img_pumped(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<MoenchZMQ *>(dev))->is_analog_img_pumped_allowed(ty);}
+};
+
+//	Attribute counting_img_pumped class definition
+class counting_img_pumpedAttrib: public Tango::ImageAttr
+{
+public:
+	// Constants for counting_img_pumped attribute
+	constexpr static long X_DATA_SIZE = 400;
+	constexpr static long Y_DATA_SIZE = 400;
+	counting_img_pumpedAttrib():ImageAttr("counting_img_pumped",
+			Tango::DEV_FLOAT, Tango::READ, counting_img_pumpedAttrib::X_DATA_SIZE, counting_img_pumpedAttrib::Y_DATA_SIZE) {};
+	~counting_img_pumpedAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<MoenchZMQ *>(dev))->read_counting_img_pumped(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<MoenchZMQ *>(dev))->is_counting_img_pumped_allowed(ty);}
 };
 
 
@@ -288,6 +335,29 @@ public:
 	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
 	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
 	{return (static_cast<MoenchZMQ *>(dev))->is_reset_pedestal_allowed(any);}
+};
+
+//	Command push_images_change class definition
+class push_images_changeClass : public Tango::Command
+{
+public:
+	push_images_changeClass(const char   *cmd_name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out,
+				   const char        *in_desc,
+				   const char        *out_desc,
+				   Tango::DispLevel  level)
+	:Command(cmd_name,in,out,in_desc,out_desc, level)	{};
+
+	push_images_changeClass(const char   *cmd_name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out)
+	:Command(cmd_name,in,out)	{};
+	~push_images_changeClass() {};
+
+	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
+	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
+	{return (static_cast<MoenchZMQ *>(dev))->is_push_images_change_allowed(any);}
 };
 
 

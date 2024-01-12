@@ -61,6 +61,10 @@ constexpr long analog_imgAttrib::X_DATA_SIZE;
 constexpr long analog_imgAttrib::Y_DATA_SIZE;
 constexpr long counting_imgAttrib::X_DATA_SIZE;
 constexpr long counting_imgAttrib::Y_DATA_SIZE;
+constexpr long analog_img_pumpedAttrib::X_DATA_SIZE;
+constexpr long analog_img_pumpedAttrib::Y_DATA_SIZE;
+constexpr long counting_img_pumpedAttrib::X_DATA_SIZE;
+constexpr long counting_img_pumpedAttrib::Y_DATA_SIZE;
 //--------------------------------------------------------
 /**
  * method : 		MoenchZMQClass::MoenchZMQClass(std::string &s)
@@ -217,6 +221,23 @@ CORBA::Any *reset_pedestalClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED
 {
 	TANGO_LOG_INFO << "reset_pedestalClass::execute(): arrived" << std::endl;
 	((static_cast<MoenchZMQ *>(device))->reset_pedestal());
+	return new CORBA::Any();
+}
+//--------------------------------------------------------
+/**
+ * method : 		push_images_changeClass::execute()
+ * description : 	method to trigger the execution of the command.
+ *
+ * @param	device	The device on which the command must be executed
+ * @param	in_any	The command input data
+ *
+ *	returns The command output data (packed in the Any object)
+ */
+//--------------------------------------------------------
+CORBA::Any *push_images_changeClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED(const CORBA::Any &in_any))
+{
+	TANGO_LOG_INFO << "push_images_changeClass::execute(): arrived" << std::endl;
+	((static_cast<MoenchZMQ *>(device))->push_images_change());
 	return new CORBA::Any();
 }
 
@@ -443,28 +464,28 @@ void MoenchZMQClass::attribute_factory(std::vector<Tango::Attr *> &att_list)
 	//	Not Memorized
 	att_list.push_back(file_index);
 
-	//	Attribute : filename
-	filenameAttrib	*filename = new filenameAttrib();
-	Tango::UserDefaultAttrProp	filename_prop;
-	//	description	not set for filename
-	//	label	not set for filename
-	//	unit	not set for filename
-	//	standard_unit	not set for filename
-	//	display_unit	not set for filename
-	//	format	not set for filename
-	//	max_value	not set for filename
-	//	min_value	not set for filename
-	//	max_alarm	not set for filename
-	//	min_alarm	not set for filename
-	//	max_warning	not set for filename
-	//	min_warning	not set for filename
-	//	delta_t	not set for filename
-	//	delta_val	not set for filename
-	filename->set_default_properties(filename_prop);
+	//	Attribute : file_name
+	file_nameAttrib	*file_name = new file_nameAttrib();
+	Tango::UserDefaultAttrProp	file_name_prop;
+	//	description	not set for file_name
+	//	label	not set for file_name
+	//	unit	not set for file_name
+	//	standard_unit	not set for file_name
+	//	display_unit	not set for file_name
+	//	format	not set for file_name
+	//	max_value	not set for file_name
+	//	min_value	not set for file_name
+	//	max_alarm	not set for file_name
+	//	min_alarm	not set for file_name
+	//	max_warning	not set for file_name
+	//	min_warning	not set for file_name
+	//	delta_t	not set for file_name
+	//	delta_val	not set for file_name
+	file_name->set_default_properties(file_name_prop);
 	//	Not Polled
-	filename->set_disp_level(Tango::OPERATOR);
+	file_name->set_disp_level(Tango::OPERATOR);
 	//	Not Memorized
-	att_list.push_back(filename);
+	att_list.push_back(file_name);
 
 	//	Attribute : file_root_path
 	file_root_pathAttrib	*file_root_path = new file_root_pathAttrib();
@@ -605,6 +626,29 @@ void MoenchZMQClass::attribute_factory(std::vector<Tango::Attr *> &att_list)
 	//	Not Memorized
 	att_list.push_back(process_pedestal);
 
+	//	Attribute : split_pumped
+	split_pumpedAttrib	*split_pumped = new split_pumpedAttrib();
+	Tango::UserDefaultAttrProp	split_pumped_prop;
+	//	description	not set for split_pumped
+	//	label	not set for split_pumped
+	//	unit	not set for split_pumped
+	//	standard_unit	not set for split_pumped
+	//	display_unit	not set for split_pumped
+	//	format	not set for split_pumped
+	//	max_value	not set for split_pumped
+	//	min_value	not set for split_pumped
+	//	max_alarm	not set for split_pumped
+	//	min_alarm	not set for split_pumped
+	//	max_warning	not set for split_pumped
+	//	min_warning	not set for split_pumped
+	//	delta_t	not set for split_pumped
+	//	delta_val	not set for split_pumped
+	split_pumped->set_default_properties(split_pumped_prop);
+	//	Not Polled
+	split_pumped->set_disp_level(Tango::OPERATOR);
+	//	Not Memorized
+	att_list.push_back(split_pumped);
+
 	//	Attribute : analog_img
 	analog_imgAttrib	*analog_img = new analog_imgAttrib();
 	Tango::UserDefaultAttrProp	analog_img_prop;
@@ -650,8 +694,56 @@ void MoenchZMQClass::attribute_factory(std::vector<Tango::Attr *> &att_list)
 	//	Not Polled
 	counting_img->set_disp_level(Tango::OPERATOR);
 	//	Not Memorized
+	counting_img->set_change_event(true, false);
 	att_list.push_back(counting_img);
 
+//	Attribute : analog_img_pumped
+	analog_img_pumpedAttrib	*analog_img_pumped = new analog_img_pumpedAttrib();
+	Tango::UserDefaultAttrProp	analog_img_pumped_prop;
+	//	description	not set for analog_img_pumped
+	//	label	not set for analog_img_pumped
+	//	unit	not set for analog_img_pumped
+	//	standard_unit	not set for analog_img_pumped
+	//	display_unit	not set for analog_img_pumped
+	//	format	not set for analog_img_pumped
+	//	max_value	not set for analog_img_pumped
+	//	min_value	not set for analog_img_pumped
+	//	max_alarm	not set for analog_img_pumped
+	//	min_alarm	not set for analog_img_pumped
+	//	max_warning	not set for analog_img_pumped
+	//	min_warning	not set for analog_img_pumped
+	//	delta_t	not set for analog_img_pumped
+	//	delta_val	not set for analog_img_pumped
+	analog_img_pumped->set_default_properties(analog_img_pumped_prop);
+	//	Not Polled
+	analog_img_pumped->set_disp_level(Tango::OPERATOR);
+	//	Not Memorized
+	analog_img_pumped->set_change_event(true, false);
+	att_list.push_back(analog_img_pumped);
+
+	//	Attribute : counting_img_pumped
+	counting_img_pumpedAttrib	*counting_img_pumped = new counting_img_pumpedAttrib();
+	Tango::UserDefaultAttrProp	counting_img_pumped_prop;
+	//	description	not set for counting_img_pumped
+	//	label	not set for counting_img_pumped
+	//	unit	not set for counting_img_pumped
+	//	standard_unit	not set for counting_img_pumped
+	//	display_unit	not set for counting_img_pumped
+	//	format	not set for counting_img_pumped
+	//	max_value	not set for counting_img_pumped
+	//	min_value	not set for counting_img_pumped
+	//	max_alarm	not set for counting_img_pumped
+	//	min_alarm	not set for counting_img_pumped
+	//	max_warning	not set for counting_img_pumped
+	//	min_warning	not set for counting_img_pumped
+	//	delta_t	not set for counting_img_pumped
+	//	delta_val	not set for counting_img_pumped
+	counting_img_pumped->set_default_properties(counting_img_pumped_prop);
+	//	Not Polled
+	counting_img_pumped->set_disp_level(Tango::OPERATOR);
+	//	Not Memorized
+	counting_img_pumped->set_change_event(true, false);
+	att_list.push_back(counting_img_pumped);
 
 	//	Create a list of static attributes
 	create_static_attribute_list(get_class_attr()->get_attr_list());
@@ -732,6 +824,15 @@ void MoenchZMQClass::command_factory()
 			"",
 			Tango::OPERATOR);
 	command_list.push_back(preset_pedestalCmd);
+
+	//	Command push_images_change
+	push_images_changeClass	*ppush_images_changeCmd =
+		new push_images_changeClass("push_images_change",
+			Tango::DEV_VOID, Tango::DEV_VOID,
+			"",
+			"",
+			Tango::EXPERT);
+	command_list.push_back(ppush_images_changeCmd);
 
 	/*----- PROTECTED REGION ID(MoenchZMQClass::command_factory_after) ENABLED START -----*/
 	/* clang-format on */
