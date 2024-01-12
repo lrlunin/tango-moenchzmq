@@ -97,12 +97,18 @@ public:
     void threadTask();
     void processFrame(FullFrame *ptr);
     
+    UnorderedFrame<float, consts::LENGTH> pedestal_counter_counting;
+    UnorderedFrame<float, consts::LENGTH> pedestal_sum_counting;
+    UnorderedFrame<float, consts::LENGTH> pedestal_squared_sum_counting;
+
     UnorderedFrame<float, consts::LENGTH> pedestal_counter;
     UnorderedFrame<float, consts::LENGTH> pedestal_sum;
     UnorderedFrame<float, consts::LENGTH> pedestal_squared_sum;
+
     OrderedFrame<float, consts::LENGTH> analog_sum;
     OrderedFrame<float, consts::LENGTH> analog_sum_pumped;
     OrderedFrame<float, consts::LENGTH> thresholded_sum;
+    OrderedFrame<float, consts::LENGTH> thresholded_sum_pumped;
     OrderedFrame<int, consts::LENGTH> counting_sum;
     OrderedFrame<int, consts::LENGTH> counting_sum_pumped;
     std::atomic_bool isSplitPumped = false;

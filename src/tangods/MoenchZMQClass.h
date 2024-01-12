@@ -187,7 +187,7 @@ class acquired_framesAttrib: public Tango::Attr
 {
 public:
 	acquired_framesAttrib():Attr("acquired_frames",
-			Tango::DEV_LONG64, Tango::READ) {};
+			Tango::DEV_LONG, Tango::READ) {};
 	~acquired_framesAttrib() {};
 	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
 		{(static_cast<MoenchZMQ *>(dev))->read_acquired_frames(att);}

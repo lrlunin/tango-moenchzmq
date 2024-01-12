@@ -46,9 +46,9 @@ void ComputationBackend::resetAccumulators(){
     processed_frames_amount = 0;
 }
 void ComputationBackend::resetPedestalAndRMS(){
-    pedestal_counter.zero();
-    pedestal_sum.zero();
-    pedestal_squared_sum.zero();
+    pedestal_counter_counting.zero();
+    pedestal_sum_counting.zero();
+    pedestal_squared_sum_counting.zero();
 }
 void ComputationBackend::dumpAccumulators(){
     
@@ -132,10 +132,10 @@ void ComputationBackend::processFrame(FullFrame *ff_ptr){
 void ComputationBackend::loadPedestalAndRMS(UnorderedFrame<float, consts::LENGTH> &pedestal, UnorderedFrame<float, consts::LENGTH> &pedestal_rms){
     for (int y = 0; y < consts::FRAME_HEIGHT; y++){
         for (int x = 0; x < consts::FRAME_WIDTH; x++){
-            const int counter = pedestal_counter(y, x);
+            const int counter = pedestal_counter_counting(y, x);
             if (counter != 0) {
-                pedestal(y, x) = pedestal_sum(y, x) / counter;
-                pedestal_rms(y, x) = sqrt(pedestal_squared_sum(y, x) / counter - pow((pedestal_sum(y, x) / counter), 2));
+                pedestal(y, x) = pedestal_sum_counting(y, x) / counter;
+                pedestal_rms(y, x) = sqrt(pedestal_squared_sum_counting(y, x) / counter - pow((pedestal_sum_counting(y, x) / counter), 2));
             }
         }
     }
@@ -155,14 +155,14 @@ void ComputationBackend::updatePedestal(UnorderedFrame<unsigned short, consts::L
     for (int y = 0; y < consts::FRAME_HEIGHT; y++){
         for (int x = 0; x < consts::FRAME_WIDTH; x++){
             if (!isPedestal && frame_classes(y, x) != 0) continue;
-            if (pedestal_counter(y, x) < consts::PEDESTAL_BUFFER_SIZE){
-                pedestal_counter(y, x)++;
-                pedestal_sum(y, x) = pedestal_sum(y, x) + raw_frame(y, x);
-                pedestal_squared_sum(y, x) = pedestal_squared_sum(y, x) + pow(raw_frame(y, x), 2);
+            if (pedestal_counter_counting(y, x) < consts::PEDESTAL_BUFFER_SIZE){
+                pedestal_counter_counting(y, x)++;
+                pedestal_sum_counting(y, x) = pedestal_sum_counting(y, x) + raw_frame(y, x);
+                pedestal_squared_sum_counting(y, x) = pedestal_squared_sum_counting(y, x) + pow(raw_frame(y, x), 2);
             } 
             else {
-                pedestal_sum(y, x) = pedestal_sum(y, x) + raw_frame(y, x) - pedestal_sum(y, x) / consts::PEDESTAL_BUFFER_SIZE;
-                pedestal_squared_sum(y, x) = pedestal_squared_sum(y,x) + pow(raw_frame(y, x), 2) - pedestal_squared_sum(y, x) / consts::PEDESTAL_BUFFER_SIZE;
+                pedestal_sum_counting(y, x) = pedestal_sum_counting(y, x) + raw_frame(y, x) - pedestal_sum_counting(y, x) / consts::PEDESTAL_BUFFER_SIZE;
+                pedestal_squared_sum_counting(y, x) = pedestal_squared_sum_counting(y,x) + pow(raw_frame(y, x), 2) - pedestal_squared_sum_counting(y, x) / consts::PEDESTAL_BUFFER_SIZE;
             }
         }
     }

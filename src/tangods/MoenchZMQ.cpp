@@ -161,10 +161,12 @@ void MoenchZMQ::init_device()
 	//	Get the device properties from database
 	set_state(Tango::INIT);
 	get_device_property();
+	zmq_listener_ptr = std::make_unique<ZMQListener>(ZMQ_RX_IP, ZMQ_RX_PORT);
 
 	attr_file_index_read = new Tango::DevULong[1];
 	attr_file_name_read = new Tango::DevString[1];
 	attr_file_root_path_read = new Tango::DevString[1];
+	attr_acquired_frames_read = new Tango::DevLong[1];
 	attr_normalize_read = new Tango::DevBoolean[1];
 	attr_threshold_read = new Tango::DevDouble[1];
 	attr_counting_sigma_read = new Tango::DevDouble[1];
@@ -181,7 +183,7 @@ void MoenchZMQ::init_device()
 	*attr_live_period_read = 0;
 	*attr_normalize_read = false;
 	load_images_previews();
-	zmq_listener_ptr = std::make_unique<ZMQListener>(ZMQ_RX_IP, ZMQ_RX_PORT, SAVE_ROOT_PATH);
+	
 	
 	set_state(Tango::ON);
 	/*----- PROTECTED REGION ID(MoenchZMQ::init_device) ENABLED START -----*/
@@ -684,6 +686,7 @@ void MoenchZMQ::read_acquired_frames(Tango::Attribute &attr)
 	/*----- PROTECTED REGION ID(MoenchZMQ::read_acquired_frames) ENABLED START -----*/
 	/* clang-format on */
 	//	Set the attribute value
+	*attr_acquired_frames_read = zmq_listener_ptr->received_frames_amount.load();
 	attr.set_value(attr_acquired_frames_read);
 	/* clang-format off */
 	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::read_acquired_frames

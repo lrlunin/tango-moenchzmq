@@ -6,7 +6,7 @@
 
 using namespace std;
 
-ZMQListener::ZMQListener(std::string socket_addr, std::string socket_port, std::string save_root_path){
+ZMQListener::ZMQListener(std::string socket_addr, std::string socket_port){
     if (!socket_addr.starts_with("tcp://")){
         socket_addr = "tcp://" + socket_addr;
     }
