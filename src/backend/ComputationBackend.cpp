@@ -20,6 +20,8 @@ ComputationBackend::ComputationBackend():frame_ptr_queue(5000){
     file_path = fmt::format("{:%Y%m%d}_run", now);
     file_name = file_path;
     file_index = 0;
+    hdfWriter = make_unique<HDFWriter>();
+    hdfWriter->getFullFilePath();
     initThreads();
 };
 void ComputationBackend::initThreads(){

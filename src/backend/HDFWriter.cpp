@@ -3,13 +3,14 @@
 
 #include "HDFWriter.hpp"
 #include "ComputationBackend.hpp"
+
 std::string HDFWriter::getFullFilePath(){
     std::filesystem::path full_file_path = this->root_path;
     full_file_path /= fmt::format("{}_{:06d}.{}", this->file_name, this->file_index, this->file_extension);
     return full_file_path.lexically_normal();
 }
-
-void HDFWriter::writeFrame(std::string frame_name, OrderedFrame<float, consts::LENGTH> *frame){
+template <typename T, unsigned int V>
+void HDFWriter::writeFrame(std::string frame_name, OrderedFrame<T, V> *frame){
     const std::string group_name = "images";
     const H5::DataType image_datatype(H5::PredType::NATIVE_FLOAT);
     const hsize_t image_dimension[2] = {400, 400};
@@ -28,4 +29,4 @@ void HDFWriter::writeFrame(std::string frame_name, OrderedFrame<float, consts::L
     // H5::Attribute attribute = dataset.createAttribute("Class", datatype, dataspace);
     // string str2 = "NXentry";
     // attribute.write(datatype, str2);
-}
+};

@@ -5,7 +5,7 @@
 #include <shared_mutex>
 #include <vector>
 #include <filesystem>
-
+#include "HDFWriter.hpp"
 
 namespace consts{
     constexpr int FRAME_WIDTH = 400;
@@ -14,7 +14,7 @@ namespace consts{
     constexpr float PEDESTAL_BUFFER_SIZE = 1000;
     #include "remap_array.hpp"
 }
-template <typename T = unsigned short, unsigned int V = 400 * 400>
+template <typename T, unsigned int V>
 struct UnorderedFrame{
     T arr[V];
     T& operator()(int y, int x) {
@@ -24,7 +24,7 @@ struct UnorderedFrame{
         std::fill(arr, arr + V, 0);
     }
 };
-template <typename T = unsigned short, unsigned int V = consts::FRAME_WIDTH*consts::FRAME_HEIGHT>
+template <typename T, unsigned int V>
 struct OrderedFrame{
     T arr[V];
     T& operator()(int y, int x) {
@@ -114,4 +114,6 @@ public:
     std::atomic_bool isSplitPumped = false;
     std::atomic_bool isPedestal = true;
     std::atomic_bool threads_sleep = true;
+private:
+    std::unique_ptr<HDFWriter> hdfWriter;
 };
