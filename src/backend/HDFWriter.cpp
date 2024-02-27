@@ -30,3 +30,5 @@ void HDFWriter::writeFrame(std::string frame_name, OrderedFrame<T, V> *frame){
     // string str2 = "NXentry";
     // attribute.write(datatype, str2);
 };
+
+template void HDFWriter::writeFrame<float, consts::LENGTH>(std::string frame_name, OrderedFrame<float, consts::LENGTH> *frame);
