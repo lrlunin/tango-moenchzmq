@@ -5,12 +5,11 @@
 #include <shared_mutex>
 #include <vector>
 #include <filesystem>
-#include "HDFWriter.hpp"
 
 namespace consts{
     constexpr int FRAME_WIDTH = 400;
     constexpr int FRAME_HEIGHT = 400;
-    constexpr int LENGTH = FRAME_HEIGHT * FRAME_WIDTH;
+    constexpr unsigned int LENGTH = FRAME_HEIGHT * FRAME_WIDTH;
     constexpr float PEDESTAL_BUFFER_SIZE = 1000;
     #include "remap_array.hpp"
 }
@@ -67,11 +66,12 @@ struct FullFrame{
     Metadata m;
     UnorderedFrame<unsigned short, consts::LENGTH> f;
 };
-
+class HDFWriter;
 class ComputationBackend{
 public:
     typedef boost::singleton_pool<FullFrame, sizeof(FullFrame)> memory_pool;
     ComputationBackend();
+    ~ComputationBackend();
     std::string save_root_path, file_path, file_name;
     std::atomic<long> file_index;
     boost::lockfree::queue<FullFrame*> frame_ptr_queue;
@@ -114,6 +114,7 @@ public:
     std::atomic_bool isSplitPumped = false;
     std::atomic_bool isPedestal = true;
     std::atomic_bool threads_sleep = true;
+
 private:
     std::unique_ptr<HDFWriter> hdfWriter;
 };

@@ -12,6 +12,8 @@
 #include <tracy/Tracy.hpp>
 #endif
 #include <chrono>
+#include "HDFWriter.hpp"
+
 using namespace std;
 
 ComputationBackend::ComputationBackend():frame_ptr_queue(5000){
@@ -24,6 +26,11 @@ ComputationBackend::ComputationBackend():frame_ptr_queue(5000){
     hdfWriter->getFullFilePath();
     initThreads();
 };
+
+ComputationBackend::~ComputationBackend(){
+    
+};
+
 void ComputationBackend::initThreads(){
     for (int x = 0; x < THREAD_AMOIUNT; ++x){
            threads.push_back(thread(&ComputationBackend::threadTask, this));
@@ -53,7 +60,10 @@ void ComputationBackend::resetPedestalAndRMS(){
     pedestal_squared_sum_counting.zero();
 }
 void ComputationBackend::dumpAccumulators(){
-    
+    hdfWriter->root_path = save_root_path;
+    hdfWriter->file_name = file_name;
+    hdfWriter->file_index = file_index;
+    hdfWriter->writeFrame<float, consts::LENGTH>("analog_sum", analog_sum);    
 };
 void ComputationBackend::processFrame(FullFrame *ff_ptr){
     #ifdef NDEBUG
