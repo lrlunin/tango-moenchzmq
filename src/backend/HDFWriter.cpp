@@ -10,7 +10,7 @@ std::string HDFWriter::getFullFilePath(){
     return full_file_path.lexically_normal();
 }
 template <typename T, unsigned int V>
-void HDFWriter::writeFrame(std::string frame_name, OrderedFrame<T, V> *frame){
+void HDFWriter::writeFrame(const std::string frame_name, OrderedFrame<T, V> &frame){
     const std::string group_name = "images";
     const H5::DataType image_datatype(H5::PredType::NATIVE_FLOAT);
     const hsize_t image_dimension[2] = {400, 400};
@@ -21,7 +21,7 @@ void HDFWriter::writeFrame(std::string frame_name, OrderedFrame<T, V> *frame){
     if (!h5_file.exists(group_name)) h5_file.createGroup(group_name);
     std::string image_path = fmt::format("{}/{}", group_name, frame_name);
     H5::DataSet dataset = h5_file.createDataSet(image_path, image_datatype, image_dataspace);
-    dataset.write(frame->arr, image_datatype, image_dataspace);
+    dataset.write(frame.arr, image_datatype, image_dataspace);
     
     // H5::DataSet dataset = file.createDataSet(DATASET_NAME, datatype, dataspace);
     // dataset.write(str, datatype);
@@ -31,4 +31,4 @@ void HDFWriter::writeFrame(std::string frame_name, OrderedFrame<T, V> *frame){
     // attribute.write(datatype, str2);
 };
 
-template void HDFWriter::writeFrame<float, consts::LENGTH>(std::string frame_name, OrderedFrame<float, consts::LENGTH> *frame);
+template void HDFWriter::writeFrame<float, consts::LENGTH>(const std::string frame_name, OrderedFrame<float, consts::LENGTH> &frame);
