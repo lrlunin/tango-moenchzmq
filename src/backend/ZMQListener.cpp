@@ -22,7 +22,7 @@ ZMQListener::ZMQListener(std::string socket_addr, std::string socket_port){
 }
 void ZMQListener::listen_socket(){
     zmq::message_t json_zmq_msg, data_zmq_msg;
-    rapidjson::Document d;
+    rapidjson::GenericDocument<rapidjson::UTF8<>, rapidjson::CrtAllocator> d;
     while (true){
         if (socket.recv(json_zmq_msg)){
             if (d.Parse(static_cast<char*>(json_zmq_msg.data()), json_zmq_msg.size()).HasParseError()){
@@ -61,6 +61,7 @@ void ZMQListener::stop_receive(){
         abort_wait = false;
         comp_backend_ptr->pause();
         // save data etc
+        comp_backend_ptr->dumpAccumulators();
         comp_backend_ptr->file_index++;
     }
 }

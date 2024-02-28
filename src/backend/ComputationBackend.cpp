@@ -49,6 +49,7 @@ void ComputationBackend::resume(){
     threads_sleep = false;
 }
 void ComputationBackend::resetAccumulators(){
+    memory_pool::release_memory();
     analog_sum.zero();
     thresholded_sum.zero();
     counting_sum.zero();
