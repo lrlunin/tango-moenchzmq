@@ -15,7 +15,6 @@ ZMQListener::ZMQListener(std::string socket_addr, std::string socket_port){
     socket = zmq::socket_t(context, ZMQ_SUB);
     socket.connect(full_address.c_str());
     socket.set(zmq::sockopt::subscribe, "");
-    comp_backend_ptr = std::make_unique<ComputationBackend>();
     receive_data = false;
     abort_wait = false;
     zmq_listener_thread = std::thread(&ZMQListener::listen_socket, this);

@@ -162,6 +162,8 @@ void MoenchZMQ::init_device()
 	set_state(Tango::INIT);
 	get_device_property();
 	zmq_listener_ptr = std::make_unique<ZMQListener>(ZMQ_RX_IP, ZMQ_RX_PORT);
+	zmq_listener_ptr->comp_backend_ptr = std::make_unique<ComputationBackend>("/home/lrlunin");
+
 
 	attr_file_index_read = new Tango::DevULong[1];
 	attr_file_name_read = new Tango::DevString[1];

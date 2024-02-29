@@ -16,14 +16,13 @@
 
 using namespace std;
 
-ComputationBackend::ComputationBackend():frame_ptr_queue(5000){
+ComputationBackend::ComputationBackend(std::string save_root_path):save_root_path(save_root_path), frame_ptr_queue(5000){
     const auto now = chrono::system_clock::now();
     // 20240109_run like folder and file name
     file_path = fmt::format("{:%Y%m%d}_run", now);
     file_name = file_path;
-    file_index = 0;
-    hdfWriter = make_unique<HDFWriter>();
-    hdfWriter->getFullFilePath();
+    hdfWriter = make_unique<HDFWriter>(save_root_path, file_name);
+    file_index = hdfWriter->file_index;
     initThreads();
 };
 
