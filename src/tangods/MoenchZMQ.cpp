@@ -28,6 +28,8 @@
 #include "MoenchZMQ.h"
 #include "MoenchZMQClass.h"
 #include "data.hpp"
+#include "../backend/FileWriter.hpp"
+#include "../backend/HDFWriter.hpp"
 /* clang-format off */
 /*----- PROTECTED REGION END -----*/	//	MoenchZMQ.cpp
 
@@ -161,8 +163,10 @@ void MoenchZMQ::init_device()
 	//	Get the device properties from database
 	set_state(Tango::INIT);
 	get_device_property();
+
+	FileWriter* fileWriter = new HDFWriter(0, SAVE_ROOT_PATH);
 	zmq_listener_ptr = std::make_unique<ZMQListener>(ZMQ_RX_IP, ZMQ_RX_PORT);
-	zmq_listener_ptr->comp_backend_ptr = std::make_unique<ComputationBackend>("/home/lrlunin");
+	zmq_listener_ptr->comp_backend_ptr = std::make_unique<ComputationBackend>(fileWriter);
 
 
 	attr_file_index_read = new Tango::DevULong[1];
@@ -210,7 +214,7 @@ void MoenchZMQ::get_device_property()
 	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::get_device_property_before
 
 	mandatoryNotDefined = false;
-	Tango::DbData dev_prop{Tango::DbDatum("ZMQ_RX_IP"), Tango::DbDatum("ZMQ_RX_PORT")};
+	Tango::DbData dev_prop{Tango::DbDatum("ZMQ_RX_IP"), Tango::DbDatum("ZMQ_RX_PORT"), Tango::DbDatum("SAVE_ROOT_PATH")};
 	get_db_device()->get_property(dev_prop);
 	// if any of the properties is empty, mark the device as not initialized
 	for (auto &prop : dev_prop)
@@ -223,6 +227,7 @@ void MoenchZMQ::get_device_property()
 	}
 	dev_prop[0] >> ZMQ_RX_IP;
 	dev_prop[1] >> ZMQ_RX_PORT;
+	dev_prop[2] >> SAVE_ROOT_PATH;
 
 	/*----- PROTECTED REGION ID(MoenchZMQ::get_device_property_after) ENABLED START -----*/
 	/* clang-format on */

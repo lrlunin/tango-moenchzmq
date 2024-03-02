@@ -12,17 +12,11 @@
 #include <tracy/Tracy.hpp>
 #endif
 #include <chrono>
-#include "HDFWriter.hpp"
+#include "FileWriter.hpp"
 
 using namespace std;
 
-ComputationBackend::ComputationBackend(std::string save_root_path):save_root_path(save_root_path), frame_ptr_queue(5000){
-    const auto now = chrono::system_clock::now();
-    // 20240109_run like folder and file name
-    file_path = fmt::format("{:%Y%m%d}_run", now);
-    file_name = file_path;
-    hdfWriter = make_unique<HDFWriter>(save_root_path, file_name);
-    file_index = hdfWriter->file_index;
+ComputationBackend::ComputationBackend(FileWriter* fileWriter):frame_ptr_queue(5000), hdfWriter(fileWriter){
     initThreads();
 };
 
@@ -60,10 +54,7 @@ void ComputationBackend::resetPedestalAndRMS(){
     pedestal_squared_sum_counting.zero();
 }
 void ComputationBackend::dumpAccumulators(){
-    hdfWriter->root_path = save_root_path;
-    hdfWriter->file_name = file_name;
-    hdfWriter->file_index = file_index;
-    hdfWriter->writeFrame<float, consts::LENGTH>("analog_sum", analog_sum);    
+    hdfWriter->writeFrame("analog_sum", analog_sum);
 };
 void ComputationBackend::processFrame(FullFrame *ff_ptr){
     #ifdef NDEBUG
