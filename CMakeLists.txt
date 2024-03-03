@@ -12,6 +12,10 @@ find_package(Boost REQUIRED)
 find_package(HDF5 REQUIRED COMPONENTS CXX)
 # maybe use h5cpp instead of native HDF5 lib...
 # find_package(h5cpp REQUIRED)
+if (CUDA_ENABLED)
+    enable_language(CUDA)
+    find_package(CUDAToolkit)
+endif()
 if (OPENMP_ENABLED)
     find_package(OpenMP)
     if (OpenMP_CXX_FOUND)
@@ -34,6 +38,11 @@ include_directories(${HDF5_INCLUDE_DIRS})
 add_subdirectory(src/backend)
 add_subdirectory(src/tangods)
 
+if (CUDA_ENABLED)
+    add_library(cuda_processing STATIC
+    CUDA_SRC_FILES
+    )
+endif()
 #Add your executable
 add_executable(MoenchZMQ ${MOENCH_SRC_FILES} ${TANGO_SRC_FILES} ${DEBUG_SRC_FILES})
 #add_executable(napi_test_cpp-hdf5 ${NEXUS_SRC_FILES})
