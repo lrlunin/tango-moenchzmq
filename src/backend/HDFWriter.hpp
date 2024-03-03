@@ -9,9 +9,11 @@
 
 class HDFWriter : public FileWriter {
 protected:
-    std::string buildFullFilePath() override;
+    std::filesystem::path buildFullFilePath() override;
+    std::filesystem::path buildFullDirectoryPath() override;
 public:
     HDFWriter(int file_index, std::filesystem::path root_path);
+    HDFWriter(std::filesystem::path root_path);
     ~HDFWriter() {};
     void writeFrame(const std::string frame_name, OrderedFrame<float, consts::LENGTH> &frame) override;
 private:

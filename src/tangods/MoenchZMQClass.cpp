@@ -488,7 +488,7 @@ void MoenchZMQClass::attribute_factory(std::vector<Tango::Attr *> &att_list)
 	att_list.push_back(file_name);
 
 	//	Attribute : file_root_path
-	file_root_pathAttrib	*file_root_path = new file_root_pathAttrib();
+	file_session_directoryAttrib	*file_root_path = new file_session_directoryAttrib();
 	Tango::UserDefaultAttrProp	file_root_path_prop;
 	//	description	not set for file_root_path
 	//	label	not set for file_root_path

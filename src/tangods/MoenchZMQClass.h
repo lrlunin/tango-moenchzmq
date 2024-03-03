@@ -78,18 +78,18 @@ public:
 
 
 //	Attribute file_root_path class definition
-class file_root_pathAttrib: public Tango::Attr
+class file_session_directoryAttrib: public Tango::Attr
 {
 public:
-	file_root_pathAttrib():Attr("file_root_path",
+	file_session_directoryAttrib():Attr("session_directory",
 			Tango::DEV_STRING, Tango::READ_WRITE) {};
-	~file_root_pathAttrib() {};
+	~file_session_directoryAttrib() {};
 	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
-		{(static_cast<MoenchZMQ *>(dev))->read_file_root_path(att);}
+		{(static_cast<MoenchZMQ *>(dev))->read_session_directory(att);}
 	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
-		{(static_cast<MoenchZMQ *>(dev))->write_file_root_path(att);}
+		{(static_cast<MoenchZMQ *>(dev))->write_session_directory(att);}
 	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
-		{return (static_cast<MoenchZMQ *>(dev))->is_file_root_path_allowed(ty);}
+		{return (static_cast<MoenchZMQ *>(dev))->is_session_directory_allowed(ty);}
 };
 
 //	Attribute normalize class definition

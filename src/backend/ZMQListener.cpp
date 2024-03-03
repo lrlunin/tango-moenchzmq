@@ -61,7 +61,7 @@ void ZMQListener::stop_receive(){
         comp_backend_ptr->pause();
         // save data etc
         comp_backend_ptr->dumpAccumulators();
-        comp_backend_ptr->file_index++;
+        comp_backend_ptr->fileWriter->file_index++;
     }
 }
 void ZMQListener::abort_receive(){

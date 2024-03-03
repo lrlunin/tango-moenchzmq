@@ -133,7 +133,7 @@ void MoenchZMQ::delete_device()
 	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::delete_device
 	delete[] attr_file_index_read;
 	delete[] attr_file_name_read;
-	delete[] attr_file_root_path_read;
+	delete[] attr_session_directory_read;
 	delete[] attr_normalize_read;
 	delete[] attr_threshold_read;
 	delete[] attr_counting_sigma_read;
@@ -164,14 +164,14 @@ void MoenchZMQ::init_device()
 	set_state(Tango::INIT);
 	get_device_property();
 
-	FileWriter* fileWriter = new HDFWriter(0, SAVE_ROOT_PATH);
+	file_writer_ptr = std::make_unique<HDFWriter>(SAVE_ROOT_PATH);
 	zmq_listener_ptr = std::make_unique<ZMQListener>(ZMQ_RX_IP, ZMQ_RX_PORT);
-	zmq_listener_ptr->comp_backend_ptr = std::make_unique<ComputationBackend>(fileWriter);
+	zmq_listener_ptr->comp_backend_ptr = std::make_unique<ComputationBackend>(file_writer_ptr.get());
 
 
 	attr_file_index_read = new Tango::DevULong[1];
 	attr_file_name_read = new Tango::DevString[1];
-	attr_file_root_path_read = new Tango::DevString[1];
+	attr_session_directory_read = new Tango::DevString[1];
 	attr_acquired_frames_read = new Tango::DevLong[1];
 	attr_normalize_read = new Tango::DevBoolean[1];
 	attr_threshold_read = new Tango::DevDouble[1];
@@ -338,7 +338,7 @@ void MoenchZMQ::read_file_index(Tango::Attribute &attr)
 	/*----- PROTECTED REGION ID(MoenchZMQ::read_file_index) ENABLED START -----*/
 	/* clang-format on */
 	//	Set the attribute value
-	*attr_file_index_read = zmq_listener_ptr->comp_backend_ptr->file_index;
+	*attr_file_index_read = file_writer_ptr->file_index;
 	attr.set_value(attr_file_index_read);
 	/* clang-format off */
 	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::read_file_index
@@ -361,7 +361,7 @@ void MoenchZMQ::write_file_index(Tango::WAttribute &attr)
 	/*----- PROTECTED REGION ID(MoenchZMQ::write_file_index) ENABLED START -----*/
 	/* clang-format on */
 	*attr_file_index_read = w_val;
-	zmq_listener_ptr->comp_backend_ptr->file_index = w_val;
+	file_writer_ptr->file_index = w_val;
 	/* clang-format off */
 	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::write_file_index
 }
@@ -380,7 +380,7 @@ void MoenchZMQ::read_file_name(Tango::Attribute &attr)
 	/*----- PROTECTED REGION ID(MoenchZMQ::read_filename) ENABLED START -----*/
 	/* clang-format on */
 	//	Set the attribute value
-	*attr_file_name_read = Tango::string_dup(zmq_listener_ptr->comp_backend_ptr->file_name);
+	*attr_file_name_read = Tango::string_dup(file_writer_ptr->file_name);
 	attr.set_value(attr_file_name_read);
 	/* clang-format off */
 	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::read_filename
@@ -402,7 +402,8 @@ void MoenchZMQ::write_file_name(Tango::WAttribute &attr)
 	attr.get_write_value(w_val);
 	/*----- PROTECTED REGION ID(MoenchZMQ::write_filename) ENABLED START -----*/
 	/* clang-format on */
-	//	Add your own code
+	*attr_file_name_read = w_val;
+	file_writer_ptr->file_name = w_val;
 	/* clang-format off */
 	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::write_filename
 }
@@ -415,14 +416,14 @@ void MoenchZMQ::write_file_name(Tango::WAttribute &attr)
  *	Attr type:	Scalar
  */
 //--------------------------------------------------------
-void MoenchZMQ::read_file_root_path(Tango::Attribute &attr)
+void MoenchZMQ::read_session_directory(Tango::Attribute &attr)
 {
-	DEBUG_STREAM << "MoenchZMQ::read_file_root_path(Tango::Attribute &attr) entering... " << std::endl;
-	/*----- PROTECTED REGION ID(MoenchZMQ::read_file_root_path) ENABLED START -----*/
+	DEBUG_STREAM << "MoenchZMQ::read_session_directory(Tango::Attribute &attr) entering... " << std::endl;
+	/*----- PROTECTED REGION ID(MoenchZMQ::read_session_directory) ENABLED START -----*/
 	/* clang-format on */
 	//	Set the attribute value
-	*attr_file_root_path_read = Tango::string_dup(zmq_listener_ptr->comp_backend_ptr->save_root_path);
-	attr.set_value(attr_file_root_path_read);
+	*attr_session_directory_read = Tango::string_dup(file_writer_ptr->session_directory);
+	attr.set_value(attr_session_directory_read);
 	/* clang-format off */
 	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::read_file_root_path
 }
@@ -435,18 +436,18 @@ void MoenchZMQ::read_file_root_path(Tango::Attribute &attr)
  *	Attr type:	Scalar
  */
 //--------------------------------------------------------
-void MoenchZMQ::write_file_root_path(Tango::WAttribute &attr)
+void MoenchZMQ::write_session_directory(Tango::WAttribute &attr)
 {
-	DEBUG_STREAM << "MoenchZMQ::write_file_root_path(Tango::WAttribute &attr) entering... " << std::endl;
+	DEBUG_STREAM << "MoenchZMQ::write_session_directory(Tango::WAttribute &attr) entering... " << std::endl;
 	//	Retrieve write value
 	Tango::DevString	w_val;
 	attr.get_write_value(w_val);
-	/*----- PROTECTED REGION ID(MoenchZMQ::write_file_root_path) ENABLED START -----*/
+	/*----- PROTECTED REGION ID(MoenchZMQ::write_session_directory) ENABLED START -----*/
 	/* clang-format on */
-	*attr_file_root_path_read = w_val;
-	zmq_listener_ptr->comp_backend_ptr->save_root_path = w_val;
+	*attr_session_directory_read = w_val;
+	file_writer_ptr->session_directory = w_val;
 	/* clang-format off */
-	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::write_file_root_path
+	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::write_session_directory
 }
 //--------------------------------------------------------
 /**

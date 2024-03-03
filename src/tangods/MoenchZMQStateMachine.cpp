@@ -84,11 +84,11 @@ bool MoenchZMQ::is_file_name_allowed(TANGO_UNUSED(Tango::AttReqType type))
 
 //--------------------------------------------------------
 /**
- *	Method      : MoenchZMQ::is_file_root_path_allowed()
+ *	Method      : MoenchZMQ::is_session_directory_allowed()
  * Description:  Execution allowed for file_root_path attribute
  */
 //--------------------------------------------------------
-bool MoenchZMQ::is_file_root_path_allowed(TANGO_UNUSED(Tango::AttReqType type))
+bool MoenchZMQ::is_session_directory_allowed(TANGO_UNUSED(Tango::AttReqType type))
 {
 	//	Not any excluded states for file_root_path attribute in Write access.
 	/*----- PROTECTED REGION ID(MoenchZMQ::file_root_pathStateAllowed_WRITE) ENABLED START -----*/

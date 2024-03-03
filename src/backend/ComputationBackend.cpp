@@ -16,7 +16,7 @@
 
 using namespace std;
 
-ComputationBackend::ComputationBackend(FileWriter* fileWriter):frame_ptr_queue(5000), hdfWriter(fileWriter){
+ComputationBackend::ComputationBackend(FileWriter* fileWriter):frame_ptr_queue(5000), fileWriter(fileWriter){
     initThreads();
 };
 
@@ -29,12 +29,6 @@ void ComputationBackend::initThreads(){
            threads.push_back(thread(&ComputationBackend::threadTask, this));
     }
 }
-std::filesystem::path ComputationBackend::getFullFilepath(){
-    std::filesystem::path full_filepath(save_root_path);
-    full_filepath/=file_path;
-    full_filepath/=file_name;
-    return full_filepath.lexically_normal();
-};
 void ComputationBackend::pause(){
     threads_sleep = true;
 }
@@ -54,7 +48,7 @@ void ComputationBackend::resetPedestalAndRMS(){
     pedestal_squared_sum_counting.zero();
 }
 void ComputationBackend::dumpAccumulators(){
-    hdfWriter->writeFrame("analog_sum", analog_sum);
+    fileWriter->writeFrame("analog_sum", analog_sum);
 };
 void ComputationBackend::processFrame(FullFrame *ff_ptr){
     #ifdef NDEBUG

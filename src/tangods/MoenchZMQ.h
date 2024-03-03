@@ -26,6 +26,7 @@
 
 #include <tango/tango.h>
 #include "../backend/ZMQListener.hpp"
+#include "../backend/FileWriter.hpp"
 /* clang-format off */
 /*----- PROTECTED REGION END -----*/	//	MoenchZMQ.h
 
@@ -74,9 +75,10 @@ public:
 //	Attribute data members
 public:
 	std::unique_ptr<ZMQListener> zmq_listener_ptr;
+	std::unique_ptr<FileWriter> file_writer_ptr;
 	Tango::DevULong	*attr_file_index_read;
 	Tango::DevString	*attr_file_name_read;
-	Tango::DevString	*attr_file_root_path_read;
+	Tango::DevString	*attr_session_directory_read;
 	Tango::DevBoolean	*attr_normalize_read;
 	Tango::DevDouble	*attr_threshold_read;
 	Tango::DevDouble	*attr_counting_sigma_read;
@@ -187,9 +189,9 @@ public:
  *	Data type:  Tango::DevString
  *	Attr type:	Scalar
  */
-	virtual void read_file_root_path(Tango::Attribute &attr);
-	virtual void write_file_root_path(Tango::WAttribute &attr);
-	virtual bool is_file_root_path_allowed(Tango::AttReqType type);
+	virtual void read_session_directory(Tango::Attribute &attr);
+	virtual void write_session_directory(Tango::WAttribute &attr);
+	virtual bool is_session_directory_allowed(Tango::AttReqType type);
 /**
  *	Attribute normalize related methods
  *

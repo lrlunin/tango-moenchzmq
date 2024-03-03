@@ -6,13 +6,13 @@
 #include <vector>
 #include <filesystem>
 #include "Frames.hpp"
+#include "FileWriter.hpp"
 
-class FileWriter;
 class ComputationBackend{
 public:
     typedef boost::singleton_pool<FullFrame, sizeof(FullFrame)> memory_pool;
     ComputationBackend(std::string save_root_path);
-    ComputationBackend(FileWriter *hdfWriter);
+    ComputationBackend(FileWriter *fileWriter);
     ~ComputationBackend();
     std::string save_root_path, file_path, file_name;
     std::atomic<long> file_index;
@@ -26,7 +26,6 @@ public:
 
     int THREAD_AMOIUNT = 10;
     void initThreads();
-    std::filesystem::path getFullFilepath();
     void pause();
     void resume();
     void resetAccumulators();
@@ -56,7 +55,5 @@ public:
     std::atomic_bool isSplitPumped = false;
     std::atomic_bool isPedestal = true;
     std::atomic_bool threads_sleep = true;
-
-private:
-    std::unique_ptr<FileWriter> hdfWriter;
+    std::unique_ptr<FileWriter> fileWriter;
 };
