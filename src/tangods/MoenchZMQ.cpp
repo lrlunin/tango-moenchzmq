@@ -166,7 +166,7 @@ void MoenchZMQ::init_device()
 
 	file_writer_ptr = std::make_unique<HDFWriter>(SAVE_ROOT_PATH);
 	zmq_listener_ptr = std::make_unique<ZMQListener>(ZMQ_RX_IP, ZMQ_RX_PORT);
-	zmq_listener_ptr->comp_backend_ptr = std::make_unique<ComputationBackend>(file_writer_ptr.get());
+	zmq_listener_ptr->comp_backend_ptr = std::make_unique<CPUComputationBackend>(file_writer_ptr.get());
 
 
 	attr_file_index_read = new Tango::DevULong[1];

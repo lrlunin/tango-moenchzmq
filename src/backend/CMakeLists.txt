@@ -1,6 +1,6 @@
 # source files
 set(MOENCH_SRC_FILES ${SRC_FILES}
-    ${CMAKE_CURRENT_SOURCE_DIR}/ComputationBackend.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/CPUComputationBackend.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/ZMQListener.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/HDFWriter.cpp
     PARENT_SCOPE)

@@ -15,7 +15,8 @@ public:
     HDFWriter(int file_index, std::filesystem::path root_path);
     HDFWriter(std::filesystem::path root_path);
     ~HDFWriter() {};
-    void writeFrame(const std::string frame_name, OrderedFrame<float, consts::LENGTH> &frame) override;
+    void writeFrame(const std::string group_name, const std::string frame_name, OrderedFrame<float, consts::LENGTH> &frame) override;
+    void writeFrameStack(const std::string group_name, const std::string frame_stack_name, float* frame_stack_ptr, int frame_stack_length) override;
 private:
     static constexpr char file_extension[] = "h5";
     // format string like {file_name}_{file_index:06d}.h5 with file_name and file_index as arguments as constexpr

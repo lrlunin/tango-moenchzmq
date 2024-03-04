@@ -14,7 +14,7 @@
 #include <condition_variable>
 #include <boost/lockfree/queue.hpp>
 #include <boost/pool/singleton_pool.hpp>
-#include "ComputationBackend.hpp"
+#include "CPUComputationBackend.hpp"
 
 class ZMQListener {
     public:
@@ -24,7 +24,7 @@ class ZMQListener {
         void stop_receive();
         void abort_receive();
         std::atomic<long> received_frames_amount;
-        std::unique_ptr<ComputationBackend> comp_backend_ptr;
+        std::unique_ptr<CPUComputationBackend> comp_backend_ptr;
     private:
         zmq::context_t context;
         zmq::socket_t socket;
