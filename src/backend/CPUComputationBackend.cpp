@@ -91,7 +91,9 @@ void CPUComputationBackend::processFrame(FullFrame *ff_ptr){
     if (saveIndividualFrames){
         int frameindex = ff_ptr->m.frameIndex;
         if (frameindex < individual_storage_capacity){
-            std::memcpy(individual_analog_storage_ptr+frameindex*consts::LENGTH, no_bkgd.arr, sizeof(OrderedFrame<float, consts::LENGTH>::arr));
+            float* frame_ptr = individual_analog_storage_ptr+frameindex*consts::LENGTH;
+            no_bkgd.copy_to_buffer<float*>(frame_ptr, true);
+            //std::memcpy(individual_analog_storage_ptr+frameindex*consts::LENGTH, no_bkgd.arr, sizeof(OrderedFrame<float, consts::LENGTH>::arr));
         }
     }
     processed_frames_amount++;

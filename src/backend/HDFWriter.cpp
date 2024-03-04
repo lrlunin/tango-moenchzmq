@@ -64,7 +64,7 @@ void HDFWriter::writeFrame(const std::string group_name, const std::string frame
 
 void HDFWriter::writeFrameStack(const std::string group_name, const std::string frame_stack_name, float* frame_stack_ptr, int frame_stack_length){   
     const H5::DataType image_datatype(H5::PredType::NATIVE_FLOAT);
-    const hsize_t image_stack_dimension[3] = {frame_stack_length, consts::FRAME_HEIGHT, consts::FRAME_WIDTH};
+    const hsize_t image_stack_dimension[3] = {static_cast<hsize_t>(frame_stack_length), consts::FRAME_HEIGHT, consts::FRAME_WIDTH};
     const H5::DataSpace image_stack_dataspace(3, image_stack_dimension);
     
     const hsize_t image_single_dimension[3] = {1, consts::FRAME_HEIGHT, consts::FRAME_WIDTH};
