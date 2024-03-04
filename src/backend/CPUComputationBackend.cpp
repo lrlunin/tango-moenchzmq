@@ -40,6 +40,14 @@ void CPUComputationBackend::resume(){
 void CPUComputationBackend::allocateIndividualStorage(){
     delete[] individual_analog_storage_ptr;
     individual_analog_storage_ptr = new float[individual_storage_capacity*consts::LENGTH];
+    #ifdef NDEBUG
+    delete[] pedestal_storage_ptr;
+    pedestal_storage_ptr = new float[individual_storage_capacity*consts::LENGTH];
+    delete[] pedestal_rms_storage_ptr;
+    pedestal_rms_storage_ptr = new float[individual_storage_capacity*consts::LENGTH];
+    delete[] frame_classes_storage_ptr;
+    frame_classes_storage_ptr = new char[individual_storage_capacity*consts::LENGTH];
+    #endif
 }
 
 void CPUComputationBackend::resetAccumulators(){
@@ -58,6 +66,11 @@ void CPUComputationBackend::dumpAccumulators(){
     fileWriter->writeFrame("images_sum", "analog", analog_sum);
     if (saveIndividualFrames){
         fileWriter->writeFrameStack("individual_frames", "analog", individual_analog_storage_ptr, individual_storage_capacity);
+        #ifdef NDEBUG
+        fileWriter->writeFrameStack("individual_frames", "pedestal", pedestal_storage_ptr, individual_storage_capacity);
+        fileWriter->writeFrameStack("individual_frames", "pedestal_rms", pedestal_rms_storage_ptr, individual_storage_capacity);
+        fileWriter->writeFrameStack("individual_frames", "frame_classes", frame_classes_storage_ptr, individual_storage_capacity);
+        #endif
     }
 };
 void CPUComputationBackend::processFrame(FullFrame *ff_ptr){
@@ -93,6 +106,11 @@ void CPUComputationBackend::processFrame(FullFrame *ff_ptr){
         if (frameindex < individual_storage_capacity){
             float* frame_ptr = individual_analog_storage_ptr+frameindex*consts::LENGTH;
             no_bkgd.copy_to_buffer<float*>(frame_ptr, true);
+            #ifdef NDEBUG
+            std::memcpy(pedestal_storage_ptr+frameindex*consts::LENGTH, pedestal_current.arr, sizeof(OrderedFrame<float, consts::LENGTH>::arr));
+            std::memcpy(pedestal_rms_storage_ptr+frameindex*consts::LENGTH, pedestal_rms_current.arr, sizeof(OrderedFrame<float, consts::LENGTH>::arr));
+            std::memcpy(frame_classes_storage_ptr+frameindex*consts::LENGTH, frame_classes.arr, sizeof(OrderedFrame<char, consts::LENGTH>::arr));
+            #endif
             //std::memcpy(individual_analog_storage_ptr+frameindex*consts::LENGTH, no_bkgd.arr, sizeof(OrderedFrame<float, consts::LENGTH>::arr));
         }
     }
@@ -101,7 +119,8 @@ void CPUComputationBackend::processFrame(FullFrame *ff_ptr){
 }
 
  OrderedFrame<char, consts::LENGTH> CPUComputationBackend::classifyFrame(OrderedFrame<float, consts::LENGTH> &input, UnorderedFrame<float, consts::LENGTH> &pedestal_rms){
-    int nsigma = 3;
+    //TODO: configurable parameter
+    int nsigma = 5;
     char cluster_size = 3;
     OrderedFrame<char, consts::LENGTH> class_mask;
     int c2 = (cluster_size + 1 ) / 2;
@@ -116,7 +135,7 @@ void CPUComputationBackend::processFrame(FullFrame *ff_ptr){
             for (int ir = -cluster_size / 2; ir < cluster_size / 2 + 1; ir++){
                 for (int ic = -cluster_size / 2; ic < cluster_size / 2 + 1; ic++){
                     const int y_sub = iy + ir;
-                    const int x_sub = ix + ix;
+                    const int x_sub = ix + ic;
                     if (y_sub >= 0 && y_sub < consts::FRAME_HEIGHT && x_sub >= 0 && x_sub < consts::FRAME_WIDTH){
                         const int value = input(y_sub, x_sub);
                         tot += value;
@@ -139,6 +158,8 @@ void CPUComputationBackend::processFrame(FullFrame *ff_ptr){
                 if (main_pixel_value == max_value){
                     class_mask(iy, ix) = 2;
                 }
+            } else {
+                class_mask(iy, ix) = 0;
             }
         }
     }

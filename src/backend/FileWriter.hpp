@@ -31,5 +31,5 @@ public:
     virtual ~FileWriter() {};
     virtual void writeFrame(const std::string group_name, const std::string frame_name, OrderedFrame<float, consts::LENGTH> &frame) = 0;
     virtual void writeFrameStack(const std::string group_name, const std::string frame_stack_name, float* frame_stack_ptr, int frame_stack_length) = 0;
-
+    virtual void writeFrameStack(const std::string group_name, const std::string frame_stack_name, char* frame_stack_ptr, int frame_stack_length) = 0;
 };

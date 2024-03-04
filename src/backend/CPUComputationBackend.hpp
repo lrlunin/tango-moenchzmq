@@ -59,5 +59,10 @@ public:
     std::atomic_bool threads_sleep = true;
     std::atomic_bool saveIndividualFrames = true;
     float* individual_analog_storage_ptr = nullptr;
+    #ifdef NDEBUG
+    float* pedestal_storage_ptr = nullptr;
+    float* pedestal_rms_storage_ptr = nullptr;
+    char* frame_classes_storage_ptr = nullptr;
+    #endif
     std::unique_ptr<FileWriter> fileWriter;
 };
