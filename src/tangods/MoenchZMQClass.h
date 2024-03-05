@@ -107,6 +107,20 @@ public:
 		{return (static_cast<MoenchZMQ *>(dev))->is_normalize_allowed(ty);}
 };
 
+class updatePedestalAttrib: public Tango::Attr
+{
+public:
+	updatePedestalAttrib():Attr("update_pedestal",
+			Tango::DEV_BOOLEAN, Tango::READ_WRITE) {};
+	~updatePedestalAttrib() {};
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<MoenchZMQ *>(dev))->read_update_pedestal(att);}
+	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
+		{(static_cast<MoenchZMQ *>(dev))->write_update_pedestal(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<MoenchZMQ *>(dev))->is_update_pedestal_allowed(ty);}
+};
+
 //	Attribute threshold class definition
 class thresholdAttrib: public Tango::Attr
 {
@@ -127,7 +141,7 @@ class counting_sigmaAttrib: public Tango::Attr
 {
 public:
 	counting_sigmaAttrib():Attr("counting_sigma",
-			Tango::DEV_DOUBLE, Tango::READ_WRITE) {};
+			Tango::DEV_FLOAT, Tango::READ_WRITE) {};
 	~counting_sigmaAttrib() {};
 	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
 		{(static_cast<MoenchZMQ *>(dev))->read_counting_sigma(att);}

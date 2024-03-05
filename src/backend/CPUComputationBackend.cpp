@@ -18,10 +18,16 @@ using namespace std;
 
 CPUComputationBackend::CPUComputationBackend(FileWriter* fileWriter):frame_ptr_queue(5000), fileWriter(fileWriter){
     initThreads();
+    resetAccumulators();
 };
 
 CPUComputationBackend::~CPUComputationBackend(){
-    
+    delete[] individual_analog_storage_ptr;
+    #ifdef SINGLE_FRAMES_DEBUG
+    delete[] pedestal_storage_ptr;
+    delete[] pedestal_rms_storage_ptr;
+    delete[] frame_classes_storage_ptr;
+    #endif
 };
 
 void CPUComputationBackend::initThreads(){
@@ -63,8 +69,8 @@ void CPUComputationBackend::resetPedestalAndRMS(){
     pedestal_squared_sum_counting.zero();
 }
 void CPUComputationBackend::dumpAccumulators(){
-    fileWriter->writeFrame("images_sum", "analog", analog_sum);
     fileWriter->openFile();
+    fileWriter->writeFrame("images_sum", "analog", analog_sum);
     if (saveIndividualFrames){
         fileWriter->writeFrameStack("individual_frames", "analog", individual_analog_storage_ptr, individual_frame_buffer_capacity);
         #ifdef SINGLE_FRAMES_DEBUG
@@ -73,6 +79,7 @@ void CPUComputationBackend::dumpAccumulators(){
         fileWriter->writeFrameStack("individual_frames", "frame_classes", frame_classes_storage_ptr, individual_frame_buffer_capacity);
         #endif
     }
+    fileWriter->closeFile();
 };
 void CPUComputationBackend::processFrame(FullFrame *ff_ptr){
     #ifdef NDEBUG
@@ -126,7 +133,6 @@ void CPUComputationBackend::processFrame(FullFrame *ff_ptr){
 
  OrderedFrame<char, consts::LENGTH> CPUComputationBackend::classifyFrame(OrderedFrame<float, consts::LENGTH> &input, UnorderedFrame<float, consts::LENGTH> &pedestal_rms){
     //TODO: configurable parameter
-    int nsigma = 5;
     char cluster_size = 3;
     OrderedFrame<char, consts::LENGTH> class_mask;
     int c2 = (cluster_size + 1 ) / 2;
@@ -155,11 +161,11 @@ void CPUComputationBackend::processFrame(FullFrame *ff_ptr){
                     }
                 }
             }
-            if (main_pixel_value < -nsigma * rms) {
+            if (main_pixel_value < -counting_sigma * rms) {
                 class_mask(iy, ix) = 3;
-            } else if (max_value > nsigma*rms || 
-                       std::max({bl, br, tl, tr}) > c2 * nsigma * rms ||
-                       tot > c3*nsigma*rms){
+            } else if (max_value > counting_sigma*rms || 
+                       std::max({bl, br, tl, tr}) > c2 * counting_sigma * rms ||
+                       tot > c3*counting_sigma*rms){
                 class_mask(iy, ix) = 1;
                 if (main_pixel_value == max_value){
                     class_mask(iy, ix) = 2;

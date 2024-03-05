@@ -60,7 +60,7 @@
 //  file_root_path    |  Tango::DevString	Scalar
 //  normalize         |  Tango::DevBoolean	Scalar
 //  threshold         |  Tango::DevDouble	Scalar
-//  counting_sigma    |  Tango::DevDouble	Scalar
+//  counting_sigma    |  Tango::DevFloat	Scalar
 //  live_period       |  Tango::DevLong	Scalar
 //  process_pedestal  |  Tango::DevBoolean	Scalar
 //  analog_img        |  Tango::DevFloat	Image  ( max = 400 x 400)
@@ -135,6 +135,7 @@ void MoenchZMQ::delete_device()
 	delete[] attr_file_name_read;
 	delete[] attr_session_directory_read;
 	delete[] attr_normalize_read;
+	delete[] attr_update_pedestal_read;
 	delete[] attr_threshold_read;
 	delete[] attr_counting_sigma_read;
 	delete[] attr_live_period_read;
@@ -142,6 +143,8 @@ void MoenchZMQ::delete_device()
 	delete[] attr_analog_img_read;
 	delete[] attr_counting_img_read;
 	delete[] attr_analog_img_pumped_read;
+	delete[] attr_counting_img_pumped_read;
+	delete[] attr_split_pumped_read;
 }
 
 //--------------------------------------------------------
@@ -174,8 +177,9 @@ void MoenchZMQ::init_device()
 	attr_session_directory_read = new Tango::DevString[1];
 	attr_acquired_frames_read = new Tango::DevLong[1];
 	attr_normalize_read = new Tango::DevBoolean[1];
+	attr_update_pedestal_read = new Tango::DevBoolean[1];
 	attr_threshold_read = new Tango::DevDouble[1];
-	attr_counting_sigma_read = new Tango::DevDouble[1];
+	attr_counting_sigma_read = new Tango::DevFloat[1];
 	attr_live_period_read = new Tango::DevLong[1];
 	attr_process_pedestal_read = new Tango::DevBoolean[1];
 	attr_split_pumped_read = new Tango::DevBoolean[1];
@@ -489,6 +493,31 @@ void MoenchZMQ::write_normalize(Tango::WAttribute &attr)
 	/* clang-format off */
 	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::write_normalize
 }
+
+void MoenchZMQ::read_update_pedestal(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "MoenchZMQ::read_update_pedestal(Tango::Attribute &attr) entering... " << std::endl;
+	/*----- PROTECTED REGION ID(MoenchZMQ::read_normalize) ENABLED START -----*/
+	/* clang-format on */
+	//	Set the attribute value
+	*attr_update_pedestal_read = zmq_listener_ptr->comp_backend_ptr->updatePedestal.load();
+	attr.set_value(attr_update_pedestal_read);
+}
+
+void MoenchZMQ::write_update_pedestal(Tango::WAttribute &attr)
+{
+	DEBUG_STREAM << "MoenchZMQ::write_update_pedestal(Tango::WAttribute &attr) entering... " << std::endl;
+	//	Retrieve write value
+	Tango::DevBoolean	w_val;
+	attr.get_write_value(w_val);
+	/*----- PROTECTED REGION ID(MoenchZMQ::write_update_pedestal) ENABLED START -----*/
+	/* clang-format on */
+	*attr_update_pedestal_read = w_val;
+	zmq_listener_ptr->comp_backend_ptr->updatePedestal = w_val;
+	/* clang-format off */
+	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::write_update_pedestal
+}
+
 void MoenchZMQ::write_threshold(Tango::WAttribute &attr)
 {
 	DEBUG_STREAM << "MoenchZMQ::write_threshold(Tango::WAttribute &attr) entering... " << std::endl;
@@ -535,6 +564,7 @@ void MoenchZMQ::read_counting_sigma(Tango::Attribute &attr)
 	/*----- PROTECTED REGION ID(MoenchZMQ::read_counting_sigma) ENABLED START -----*/
 	/* clang-format on */
 	//	Set the attribute value
+	*attr_counting_sigma_read = zmq_listener_ptr->comp_backend_ptr->counting_sigma.load();
 	attr.set_value(attr_counting_sigma_read);
 	/* clang-format off */
 	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::read_counting_sigma
@@ -590,11 +620,12 @@ void MoenchZMQ::write_counting_sigma(Tango::WAttribute &attr)
 {
 	DEBUG_STREAM << "MoenchZMQ::write_counting_sigma(Tango::WAttribute &attr) entering... " << std::endl;
 	//	Retrieve write value
-	Tango::DevDouble	w_val;
+	Tango::DevFloat	w_val;
 	attr.get_write_value(w_val);
 	/*----- PROTECTED REGION ID(MoenchZMQ::write_counting_sigma) ENABLED START -----*/
 	/* clang-format on */
 	*attr_counting_sigma_read = w_val;
+	zmq_listener_ptr->comp_backend_ptr->counting_sigma = w_val;
 	/* clang-format off */
 	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::write_counting_sigma
 }

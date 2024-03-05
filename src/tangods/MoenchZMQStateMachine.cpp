@@ -125,6 +125,27 @@ bool MoenchZMQ::is_normalize_allowed(TANGO_UNUSED(Tango::AttReqType type))
 	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::normalizeStateAllowed_READ
 	return true;
 }
+//--------------------------------------------------------
+/**
+ *	Method      : MoenchZMQ::is_update_pedestal_allowed()
+ * Description:  Execution allowed for update_pedestal attribute
+ */
+//--------------------------------------------------------
+bool MoenchZMQ::is_update_pedestal_allowed(TANGO_UNUSED(Tango::AttReqType type))
+{
+	//	Not any excluded states for update_pedestal attribute in Write access.
+	/*----- PROTECTED REGION ID(MoenchZMQ::normalizeStateAllowed_WRITE) ENABLED START -----*/
+	/* clang-format on */
+	/* clang-format off */
+	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::normalizeStateAllowed_WRITE
+
+	//	Not any excluded states for normalize attribute in read access.
+	/*----- PROTECTED REGION ID(MoenchZMQ::normalizeStateAllowed_READ) ENABLED START -----*/
+	/* clang-format on */
+	/* clang-format off */
+	/*----- PROTECTED REGION END -----*/	//	MoenchZMQ::normalizeStateAllowed_READ
+	return true;
+}
 
 //--------------------------------------------------------
 /**

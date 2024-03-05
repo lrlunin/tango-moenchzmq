@@ -80,8 +80,9 @@ public:
 	Tango::DevString	*attr_file_name_read;
 	Tango::DevString	*attr_session_directory_read;
 	Tango::DevBoolean	*attr_normalize_read;
+	Tango::DevBoolean    *attr_update_pedestal_read;
 	Tango::DevDouble	*attr_threshold_read;
-	Tango::DevDouble	*attr_counting_sigma_read;
+	Tango::DevFloat	*attr_counting_sigma_read;
 	Tango::DevLong	*attr_live_period_read;
 	Tango::DevBoolean	*attr_process_pedestal_read;
 	Tango::DevBoolean	*attr_split_pumped_read;
@@ -202,6 +203,16 @@ public:
 	virtual void read_normalize(Tango::Attribute &attr);
 	virtual void write_normalize(Tango::WAttribute &attr);
 	virtual bool is_normalize_allowed(Tango::AttReqType type);
+/**
+ *	Attribute update_pedestal related methods
+ *
+ *
+ *	Data type:  Tango::DevBoolean
+ *	Attr type:	Scalar
+ */
+	virtual void read_update_pedestal(Tango::Attribute &attr);
+	virtual void write_update_pedestal(Tango::WAttribute &attr);
+	virtual bool is_update_pedestal_allowed(Tango::AttReqType type);
 /**
  *	Attribute threshold related methods
  *

@@ -15,6 +15,7 @@ public:
     CPUComputationBackend(FileWriter *fileWriter);
     ~CPUComputationBackend();
     std::string save_root_path, file_path, file_name;
+    std::atomic<float> counting_sigma = 4;
     std::atomic<long> file_index;
     size_t individual_frame_buffer_capacity = 300;
     boost::lockfree::queue<FullFrame*> frame_ptr_queue;
