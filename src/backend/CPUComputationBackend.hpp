@@ -16,7 +16,7 @@ public:
     ~CPUComputationBackend();
     std::string save_root_path, file_path, file_name;
     std::atomic<long> file_index;
-    int individual_storage_capacity = 300;
+    size_t individual_frame_buffer_capacity = 300;
     boost::lockfree::queue<FullFrame*> frame_ptr_queue;
     std::vector<std::thread> threads;
     std::shared_mutex pedestal_share;
@@ -36,7 +36,7 @@ public:
     void loadPedestalAndRMS(UnorderedFrame<float, consts::LENGTH> &pedestal, UnorderedFrame<float, consts::LENGTH> &pedestal_rms);
     OrderedFrame<char, consts::LENGTH> classifyFrame(OrderedFrame<float, consts::LENGTH> &input, UnorderedFrame<float, consts::LENGTH> &pedestal_rms);
     OrderedFrame<float, consts::LENGTH> subtractPedestal(UnorderedFrame<unsigned short, consts::LENGTH> &raw_frame, UnorderedFrame<float, consts::LENGTH> &pedestal);
-    void updatePedestal(UnorderedFrame<unsigned short, consts::LENGTH> &raw_frame, OrderedFrame<char, consts::LENGTH> &frame_classes, bool isPedestal);
+    void updatePedestalMovingAverage(UnorderedFrame<unsigned short, consts::LENGTH> &raw_frame, OrderedFrame<char, consts::LENGTH> &frame_classes, bool isPedestal);
     void threadTask();
     void processFrame(FullFrame *ptr);
     
@@ -56,10 +56,11 @@ public:
     OrderedFrame<int, consts::LENGTH> counting_sum_pumped;
     std::atomic_bool isSplitPumped = false;
     std::atomic_bool isPedestal = true;
+    std::atomic_bool updatePedestal = true;
     std::atomic_bool threads_sleep = true;
     std::atomic_bool saveIndividualFrames = true;
     float* individual_analog_storage_ptr = nullptr;
-    #ifdef NDEBUG
+    #ifdef SINGLE_FRAMES_DEBUG
     float* pedestal_storage_ptr = nullptr;
     float* pedestal_rms_storage_ptr = nullptr;
     char* frame_classes_storage_ptr = nullptr;

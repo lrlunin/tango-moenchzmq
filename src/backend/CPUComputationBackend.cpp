@@ -39,14 +39,14 @@ void CPUComputationBackend::resume(){
 
 void CPUComputationBackend::allocateIndividualStorage(){
     delete[] individual_analog_storage_ptr;
-    individual_analog_storage_ptr = new float[individual_storage_capacity*consts::LENGTH];
-    #ifdef NDEBUG
+    individual_analog_storage_ptr = new float[individual_frame_buffer_capacity*consts::LENGTH];
+    #ifdef SINGLE_FRAMES_DEBUG
     delete[] pedestal_storage_ptr;
-    pedestal_storage_ptr = new float[individual_storage_capacity*consts::LENGTH];
+    pedestal_storage_ptr = new float[individual_frame_buffer_capacity*consts::LENGTH];
     delete[] pedestal_rms_storage_ptr;
-    pedestal_rms_storage_ptr = new float[individual_storage_capacity*consts::LENGTH];
+    pedestal_rms_storage_ptr = new float[individual_frame_buffer_capacity*consts::LENGTH];
     delete[] frame_classes_storage_ptr;
-    frame_classes_storage_ptr = new char[individual_storage_capacity*consts::LENGTH];
+    frame_classes_storage_ptr = new char[individual_frame_buffer_capacity*consts::LENGTH];
     #endif
 }
 
@@ -64,12 +64,13 @@ void CPUComputationBackend::resetPedestalAndRMS(){
 }
 void CPUComputationBackend::dumpAccumulators(){
     fileWriter->writeFrame("images_sum", "analog", analog_sum);
+    fileWriter->openFile();
     if (saveIndividualFrames){
-        fileWriter->writeFrameStack("individual_frames", "analog", individual_analog_storage_ptr, individual_storage_capacity);
-        #ifdef NDEBUG
-        fileWriter->writeFrameStack("individual_frames", "pedestal", pedestal_storage_ptr, individual_storage_capacity);
-        fileWriter->writeFrameStack("individual_frames", "pedestal_rms", pedestal_rms_storage_ptr, individual_storage_capacity);
-        fileWriter->writeFrameStack("individual_frames", "frame_classes", frame_classes_storage_ptr, individual_storage_capacity);
+        fileWriter->writeFrameStack("individual_frames", "analog", individual_analog_storage_ptr, individual_frame_buffer_capacity);
+        #ifdef SINGLE_FRAMES_DEBUG
+        fileWriter->writeFrameStack("individual_frames", "pedestal", pedestal_storage_ptr, individual_frame_buffer_capacity);
+        fileWriter->writeFrameStack("individual_frames", "pedestal_rms", pedestal_rms_storage_ptr, individual_frame_buffer_capacity);
+        fileWriter->writeFrameStack("individual_frames", "frame_classes", frame_classes_storage_ptr, individual_frame_buffer_capacity);
         #endif
     }
 };
@@ -86,9 +87,9 @@ void CPUComputationBackend::processFrame(FullFrame *ff_ptr){
     // 0 - pedestal pixel, 1 - photon pixel, 2 - max in cluster
     // better to create 3 different masks for easier assigment in sum frames...
     OrderedFrame<char, consts::LENGTH> frame_classes = CPUComputationBackend::classifyFrame(no_bkgd, pedestal_rms_current);
-    if (isPedestal){
+    if (updatePedestal){
         pedestal_share.lock();
-        updatePedestal(ff_ptr->f, frame_classes, isPedestal);
+        updatePedestalMovingAverage(ff_ptr->f, frame_classes, isPedestal);
         pedestal_share.unlock();
     }
     // it's very important that the prcoessed_frames amount will be increased at the very last moment
@@ -103,10 +104,15 @@ void CPUComputationBackend::processFrame(FullFrame *ff_ptr){
     }
     if (saveIndividualFrames){
         int frameindex = ff_ptr->m.frameIndex;
-        if (frameindex < individual_storage_capacity){
+        /*
+        safe comparasion of signed int and unsigned size_t would be
+        std::cmp_less(frameindex, individual_frame_buffer_capacity)
+        but we assume that frameindex is never negative
+        */
+        if (frameindex < individual_frame_buffer_capacity){
             float* frame_ptr = individual_analog_storage_ptr+frameindex*consts::LENGTH;
             no_bkgd.copy_to_buffer<float*>(frame_ptr, true);
-            #ifdef NDEBUG
+            #ifdef SINGLE_FRAMES_DEBUG
             std::memcpy(pedestal_storage_ptr+frameindex*consts::LENGTH, pedestal_current.arr, sizeof(OrderedFrame<float, consts::LENGTH>::arr));
             std::memcpy(pedestal_rms_storage_ptr+frameindex*consts::LENGTH, pedestal_rms_current.arr, sizeof(OrderedFrame<float, consts::LENGTH>::arr));
             std::memcpy(frame_classes_storage_ptr+frameindex*consts::LENGTH, frame_classes.arr, sizeof(OrderedFrame<char, consts::LENGTH>::arr));
@@ -188,7 +194,7 @@ OrderedFrame<float, consts::LENGTH> CPUComputationBackend::subtractPedestal(Unor
     return result_frame;
 };
 
-void CPUComputationBackend::updatePedestal(UnorderedFrame<unsigned short, consts::LENGTH> &raw_frame, OrderedFrame<char, consts::LENGTH> &frame_classes, bool isPedestal = false){
+void CPUComputationBackend::updatePedestalMovingAverage(UnorderedFrame<unsigned short, consts::LENGTH> &raw_frame, OrderedFrame<char, consts::LENGTH> &frame_classes, bool isPedestal = false){
     for (int y = 0; y < consts::FRAME_HEIGHT; y++){
         for (int x = 0; x < consts::FRAME_WIDTH; x++){
             if (!isPedestal && frame_classes(y, x) != 0) continue;

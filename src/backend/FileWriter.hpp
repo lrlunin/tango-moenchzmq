@@ -29,7 +29,9 @@ public:
     virtual std::filesystem::path buildFullFilePath() = 0;
     virtual std::filesystem::path buildFullDirectoryPath() = 0;
     virtual ~FileWriter() {};
+    virtual void openFile() = 0;
+    virtual void closeFile() = 0;
     virtual void writeFrame(const std::string group_name, const std::string frame_name, OrderedFrame<float, consts::LENGTH> &frame) = 0;
-    virtual void writeFrameStack(const std::string group_name, const std::string frame_stack_name, float* frame_stack_ptr, int frame_stack_length) = 0;
-    virtual void writeFrameStack(const std::string group_name, const std::string frame_stack_name, char* frame_stack_ptr, int frame_stack_length) = 0;
+    virtual void writeFrameStack(const std::string group_name, const std::string frame_stack_name, float* frame_stack_ptr, size_t frame_stack_length) = 0;
+    virtual void writeFrameStack(const std::string group_name, const std::string frame_stack_name, char* frame_stack_ptr, size_t frame_stack_length) = 0;
 };

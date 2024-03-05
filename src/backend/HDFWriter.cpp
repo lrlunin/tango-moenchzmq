@@ -37,10 +37,17 @@ std::filesystem::path HDFWriter::buildFullDirectoryPath() {
 std::filesystem::path HDFWriter::buildFullFilePath() {
     std::filesystem::path full_file_path = buildFullDirectoryPath();
     full_file_path /= fmt::format(fmt::runtime(file_format), fmt::arg("file_name", file_name), fmt::arg("file_index", file_index));
-    if (!std::filesystem::exists(full_file_path)) H5::H5File h5_file(full_file_path, H5F_ACC_TRUNC);
-    return full_file_path.lexically_normal();
+    return full_file_path;
 };
-
+void HDFWriter::openFile(){
+    current_file.close();
+    std::filesystem::path full_file_path = buildFullFilePath();
+    unsigned int open_flag = (std::filesystem::exists(full_file_path)) ? H5F_ACC_RDWR : H5F_ACC_TRUNC;
+    current_file = H5::H5File(full_file_path, open_flag);
+};
+void HDFWriter::closeFile(){
+    current_file.close();
+};
 void HDFWriter::writeFrame(const std::string group_name, const std::string frame_name, OrderedFrame<float, consts::LENGTH> &frame) {
     std::unique_ptr<float[]> flipped_buffer(new float[consts::LENGTH]);
     float* buf_ptr = flipped_buffer.get();
@@ -62,7 +69,7 @@ void HDFWriter::writeFrame(const std::string group_name, const std::string frame
     // attribute.write(datatype, str2);
 };
 
-void HDFWriter::writeFrameStack(const std::string group_name, const std::string frame_stack_name, float* frame_stack_ptr, int frame_stack_length){   
+void HDFWriter::writeFrameStack(const std::string group_name, const std::string frame_stack_name, float* frame_stack_ptr, size_t frame_stack_length){   
     const H5::DataType image_datatype(H5::PredType::NATIVE_FLOAT);
     const hsize_t image_stack_dimension[3] = {static_cast<hsize_t>(frame_stack_length), consts::FRAME_HEIGHT, consts::FRAME_WIDTH};
     const H5::DataSpace image_stack_dataspace(3, image_stack_dimension);
@@ -85,7 +92,7 @@ void HDFWriter::writeFrameStack(const std::string group_name, const std::string 
     //     dataset.write(buf_ptr, image_datatype, image_single_dataspace, dataset_dataspace); 
     // }
 };
-void HDFWriter::writeFrameStack(const std::string group_name, const std::string frame_stack_name, char* frame_stack_ptr, int frame_stack_length){   
+void HDFWriter::writeFrameStack(const std::string group_name, const std::string frame_stack_name, char* frame_stack_ptr, size_t frame_stack_length){   
     const H5::DataType image_datatype(H5::PredType::NATIVE_CHAR);
     const hsize_t image_stack_dimension[3] = {static_cast<hsize_t>(frame_stack_length), consts::FRAME_HEIGHT, consts::FRAME_WIDTH};
     const H5::DataSpace image_stack_dataspace(3, image_stack_dimension);

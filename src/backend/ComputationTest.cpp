@@ -95,14 +95,7 @@ int main() {
     // image_dataset.write(frame->arr, image_datatype, image_dataspace);
     // delete frame;
 
-    std::vector<std::string> files = {"20230825_run_000122.h5", "20230825_run_000123.h5", "20230825_run_000124.h5", "20230825_run_.h5"};
-    std::regex file_name("^\\w+_(\\d*)\\.h5"); 
-    
-    for (std::string file : files){
-        std::smatch match;
-        if (std::regex_search(file, match, file_name)){
-            std::cout << match[1] << std::endl;
-        }
-    }
+    H5::H5File file;
+    file.close();
     return 0;
 }
