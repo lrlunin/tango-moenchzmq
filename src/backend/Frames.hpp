@@ -11,18 +11,7 @@ namespace consts{
     constexpr int FRAME_HEIGHT = 400;
     constexpr unsigned int LENGTH = FRAME_HEIGHT * FRAME_WIDTH;
     constexpr float PEDESTAL_BUFFER_SIZE = 1000;
-    #include "remap_array.hpp"
 }
-template <typename T, unsigned int V>
-struct UnorderedFrame{
-    T arr[V];
-    T& operator()(int y, int x) {
-        return arr[consts::reorder_map[y][x]];
-    }
-    void zero(){
-        std::fill(arr, arr + V, 0);
-    }
-};
 template <typename T, unsigned int V>
 struct OrderedFrame{
     T arr[V];
@@ -46,6 +35,19 @@ struct OrderedFrame{
     OrderedFrame& operator+=(const OrderedFrame& rhs){
         for (unsigned int i = 0; i < V; i++){
             arr[i] += rhs.arr[i];
+        }
+        return *this;
+    }
+    OrderedFrame<float, consts::LENGTH> operator-(const OrderedFrame<float, consts::LENGTH>& rhs){
+        OrderedFrame<float, consts::LENGTH> result;
+        for (unsigned int i = 0; i < V; i++){
+            result.arr[i] = static_cast<float>(arr[i]) - rhs.arr[i];
+        }
+        return result;
+    }
+    OrderedFrame& operator-=(const OrderedFrame& rhs){
+        for (unsigned int i = 0; i < V; i++){
+            arr[i] -= rhs.arr[i];
         }
         return *this;
     }

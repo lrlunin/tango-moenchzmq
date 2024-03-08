@@ -31,20 +31,20 @@ public:
     void resetAccumulators();
     void resetPedestalAndRMS();
     void dumpAccumulators();
-    void loadPedestalAndRMS(UnorderedFrame<float, consts::LENGTH> &pedestal, UnorderedFrame<float, consts::LENGTH> &pedestal_rms);
-    OrderedFrame<char, consts::LENGTH> classifyFrame(OrderedFrame<float, consts::LENGTH> &input, UnorderedFrame<float, consts::LENGTH> &pedestal_rms);
-    OrderedFrame<float, consts::LENGTH> subtractPedestal(UnorderedFrame<unsigned short, consts::LENGTH> &raw_frame, UnorderedFrame<float, consts::LENGTH> &pedestal);
-    void updatePedestalMovingAverage(UnorderedFrame<unsigned short, consts::LENGTH> &raw_frame, OrderedFrame<char, consts::LENGTH> &frame_classes, bool isPedestal);
+    void loadPedestalAndRMS(OrderedFrame<float, consts::LENGTH> &pedestal, OrderedFrame<float, consts::LENGTH> &pedestal_rms);
+    OrderedFrame<char, consts::LENGTH> classifyFrame(OrderedFrame<float, consts::LENGTH> &input, OrderedFrame<float, consts::LENGTH> &pedestal_rms);
+    OrderedFrame<float, consts::LENGTH> subtractPedestal(OrderedFrame<unsigned short, consts::LENGTH> &raw_frame, OrderedFrame<float, consts::LENGTH> &pedestal);
+    void updatePedestalMovingAverage(OrderedFrame<unsigned short, consts::LENGTH> &raw_frame, OrderedFrame<char, consts::LENGTH> &frame_classes, bool isPedestal);
     void threadTask();
     void processFrame(FullFrame *ptr);
     
-    UnorderedFrame<float, consts::LENGTH> pedestal_counter_counting;
-    UnorderedFrame<float, consts::LENGTH> pedestal_sum_counting;
-    UnorderedFrame<float, consts::LENGTH> pedestal_squared_sum_counting;
+    OrderedFrame<float, consts::LENGTH> pedestal_counter_counting;
+    OrderedFrame<float, consts::LENGTH> pedestal_sum_counting;
+    OrderedFrame<float, consts::LENGTH> pedestal_squared_sum_counting;
 
-    UnorderedFrame<float, consts::LENGTH> pedestal_counter;
-    UnorderedFrame<float, consts::LENGTH> pedestal_sum;
-    UnorderedFrame<float, consts::LENGTH> pedestal_squared_sum;
+    OrderedFrame<float, consts::LENGTH> pedestal_counter;
+    OrderedFrame<float, consts::LENGTH> pedestal_sum;
+    OrderedFrame<float, consts::LENGTH> pedestal_squared_sum;
 
     OrderedFrame<float, consts::LENGTH> analog_sum;
     OrderedFrame<float, consts::LENGTH> analog_sum_pumped;
