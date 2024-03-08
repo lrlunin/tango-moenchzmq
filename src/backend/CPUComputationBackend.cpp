@@ -70,7 +70,8 @@ void CPUComputationBackend::resetPedestalAndRMS(){
 }
 void CPUComputationBackend::dumpAccumulators(){
     fileWriter->openFile();
-    fileWriter->writeFrame("images_sum", "analog", analog_sum);
+    fileWriter->writeFrame("images_sum", "analog_sum", analog_sum);
+    fileWriter->writeFrame("images_sum", "counting_sum", counting_sum);
     if (saveIndividualFrames){
         fileWriter->writeFrameStack("individual_frames", "analog", individual_analog_storage_ptr, individual_frame_buffer_capacity);
         #ifdef SINGLE_FRAMES_DEBUG
@@ -132,7 +133,6 @@ void CPUComputationBackend::processFrame(FullFrame *ff_ptr){
 }
 
  OrderedFrame<char, consts::LENGTH> CPUComputationBackend::classifyFrame(OrderedFrame<float, consts::LENGTH> &input, UnorderedFrame<float, consts::LENGTH> &pedestal_rms){
-    //TODO: configurable parameter
     char cluster_size = 3;
     OrderedFrame<char, consts::LENGTH> class_mask;
     int c2 = (cluster_size + 1 ) / 2;
@@ -149,23 +149,23 @@ void CPUComputationBackend::processFrame(FullFrame *ff_ptr){
                     const int y_sub = iy + ir;
                     const int x_sub = ix + ic;
                     if (y_sub >= 0 && y_sub < consts::FRAME_HEIGHT && x_sub >= 0 && x_sub < consts::FRAME_WIDTH){
-                        const int value = input(y_sub, x_sub);
+                        const float value = input(y_sub, x_sub);
                         tot += value;
                         if (ir <= 0 && ic <=0) bl+= value;
                         if (ir <= 0 && ic >=0) br+= value;
                         if (ir >= 0 && ic <=0) tl+= value;
                         if (ir >= 0 && ic >=0) tr+= value;
                         // or
-                        // max_value = std::max(max_value, value);
-                        if (value > max_value) max_value = value;
+                        max_value = std::max(max_value, value);
+                        //if (value > max_value) max_value = value;
                     }
                 }
             }
             if (main_pixel_value < -counting_sigma * rms) {
                 class_mask(iy, ix) = 3;
-            } else if (max_value > counting_sigma*rms || 
+            } else if (max_value > counting_sigma * rms || 
                        std::max({bl, br, tl, tr}) > c2 * counting_sigma * rms ||
-                       tot > c3*counting_sigma*rms){
+                       tot > c3 * counting_sigma * rms){
                 class_mask(iy, ix) = 1;
                 if (main_pixel_value == max_value){
                     class_mask(iy, ix) = 2;

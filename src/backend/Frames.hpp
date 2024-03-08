@@ -51,7 +51,7 @@ struct OrderedFrame{
     }
     void addClass(OrderedFrame<char, V>& classes, const char class_nr){
         for (unsigned int i = 0; i < V; i++){
-            arr[i] = (classes.arr[i] == class_nr);
+            arr[i] += (classes.arr[i] == class_nr);
         }
     }
     void zero(){
@@ -64,5 +64,5 @@ struct Metadata{
 };
 struct FullFrame{
     Metadata m;
-    UnorderedFrame<unsigned short, consts::LENGTH> f;
+    OrderedFrame<unsigned short, consts::LENGTH> f;
 };

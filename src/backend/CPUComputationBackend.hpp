@@ -53,7 +53,7 @@ public:
     OrderedFrame<float, consts::LENGTH> analog_sum_pumped;
     OrderedFrame<float, consts::LENGTH> thresholded_sum;
     OrderedFrame<float, consts::LENGTH> thresholded_sum_pumped;
-    OrderedFrame<int, consts::LENGTH> counting_sum;
+    OrderedFrame<float, consts::LENGTH> counting_sum;
     OrderedFrame<int, consts::LENGTH> counting_sum_pumped;
     std::atomic_bool isSplitPumped = false;
     std::atomic_bool isPedestal = true;
