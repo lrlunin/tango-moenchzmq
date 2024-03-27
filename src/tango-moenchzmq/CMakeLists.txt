@@ -49,3 +49,5 @@ target_link_libraries(MoenchZMQ debug Tracy::TracyClient)
 
 target_link_libraries(ComputationTest zmq fmt ${Boost_LIBRARIES} ${HDF5_LIBRARIES})
 target_link_libraries(ComputationTest debug Tracy::TracyClient)
+
+install(TARGETS MoenchZMQ DESTINATION bin)
