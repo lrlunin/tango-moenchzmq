@@ -20,12 +20,17 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+    - name: Get number of CPU cores
+      uses: SimenB/github-actions-cpu-cores@v2
+      id: cpu-cores
+    - name: Set coer counter
+      run: echo "CPU_CORES=${{ steps.cpu-cores.outputs.count }}" >> $GITHUB_ENV
     - name: Install both own, tango and slsDetectorPackage dependencies
       run: sudo apt-get install -y libzmq3-dev libtiff-dev libhdf5-dev libfmt-dev rapidjson-dev libboost-dev libmariadb-dev zlib1g-dev libomniorb4-dev libcos4-dev omniidl
     - name: Download and extract tango
       run: wget https://gitlab.com/api/v4/projects/24125890/packages/generic/TangoSourceDistribution/9.3.5/tango-9.3.5.tar.gz
     - name: Untar, cd, configure, compile and install
-      run: tar xzvf tango-9.3.5.tar.gz && cd tango-9.3.5 && ./configure --prefix=/usr/local/tango && make && sudo make install
+      run: tar xzvf tango-9.3.5.tar.gz && cd tango-9.3.5 && ./configure --prefix=/usr/local/tango && make -j$CPU_CORES && sudo make install
     - name: Fetch slsDetectorPackage
       uses: actions/checkout@v4
       with:
@@ -39,7 +44,7 @@ jobs:
 
     - name: Build slsDetectorPackage
       # Build your program with the given configuration
-      run: cmake --build ${{github.workspace}}/build -j2 --config ${{env.BUILD_TYPE}}
+      run: cmake --build ${{github.workspace}}/build -j$CPU_CORES --config ${{env.BUILD_TYPE}}
 
     - name: Install slsDetectorPackage
       # Install the config
@@ -55,5 +60,5 @@ jobs:
       
     - name: Build our repository
       # Build your program with the given configuration
-      run: cmake --build ${{github.workspace}}/build -j2 --config ${{env.BUILD_TYPE}}
+      run: cmake --build ${{github.workspace}}/build -j$CPU_CORES --config ${{env.BUILD_TYPE}}
  
