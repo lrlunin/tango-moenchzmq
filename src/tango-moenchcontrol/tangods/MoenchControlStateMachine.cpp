@@ -376,6 +376,38 @@ bool MoenchControl::is_rx_zmq_data_stream_allowed(TANGO_UNUSED(Tango::AttReqType
 //		Commands Allowed Methods
 //=================================================
 
+//--------------------------------------------------------
+/**
+ *	Method      : MoenchControl::is_start_acquire_allowed()
+ * Description:  Execution allowed for start_acquire attribute
+ */
+//--------------------------------------------------------
+bool MoenchControl::is_start_acquire_allowed(TANGO_UNUSED(const CORBA::Any &any))
+{
+	//	Not any excluded states for start_acquire command.
+	/*----- PROTECTED REGION ID(MoenchControl::start_acquireStateAllowed) ENABLED START -----*/
+	/* clang-format on */
+	/* clang-format off */
+	/*----- PROTECTED REGION END -----*/	//	MoenchControl::start_acquireStateAllowed
+	return true;
+}
+
+//--------------------------------------------------------
+/**
+ *	Method      : MoenchControl::is_stop_acquire_allowed()
+ * Description:  Execution allowed for stop_acquire attribute
+ */
+//--------------------------------------------------------
+bool MoenchControl::is_stop_acquire_allowed(TANGO_UNUSED(const CORBA::Any &any))
+{
+	//	Not any excluded states for stop_acquire command.
+	/*----- PROTECTED REGION ID(MoenchControl::stop_acquireStateAllowed) ENABLED START -----*/
+	/* clang-format on */
+	/* clang-format off */
+	/*----- PROTECTED REGION END -----*/	//	MoenchControl::stop_acquireStateAllowed
+	return true;
+}
+
 
 /*----- PROTECTED REGION ID(MoenchControl::MoenchControlStateAllowed.AdditionalMethods) ENABLED START -----*/
 /* clang-format on */

@@ -37,6 +37,9 @@
 #include <tango/tango.h>
 
 /* clang-format off */
+#include "sls/Receiver.h"
+#include "sls/Detector.h"
+#include "sls/sls_detector_defs.h"
 /*----- PROTECTED REGION END -----*/	//	MoenchControl.h
 
 #ifdef TANGO_LOG
@@ -61,7 +64,8 @@ enum class _timing_modeEnum : short {
 	_AUTO_TIMING,
 	_TRIGGER_EXPOSURE,
 } ;
-typedef _timing_modeEnum timing_modeEnum;
+using floatsec = std::chrono::duration<float>; 
+typedef slsDetectorDefs::timingMode timing_modeEnum;
 
 enum class _gain_modeEnum : short {
 	_G1_HIGHGAIN,
@@ -73,14 +77,14 @@ enum class _gain_modeEnum : short {
 	_G4_HIGHGAIN,
 	_G4_LOWGAIN,
 } ;
-typedef _gain_modeEnum gain_modeEnum;
+typedef slsDetectorDefs::gainMode gain_modeEnum;
 
 enum class _rx_discard_policyEnum : short {
 	_NO_DISCARD,
 	_DISCARD_EMPTY_FRAMES,
 	_DISCARD_PARTIAL_FRAMES,
 } ;
-typedef _rx_discard_policyEnum rx_discard_policyEnum;
+typedef slsDetectorDefs::frameDiscardPolicy rx_discard_policyEnum;
 
 enum class _detector_statusEnum : short {
 	_IDLE,
@@ -91,7 +95,7 @@ enum class _detector_statusEnum : short {
 	_RUNNING,
 	_STOPPED,
 } ;
-typedef _detector_statusEnum detector_statusEnum;
+typedef slsDetectorDefs::runStatus detector_statusEnum;
 
 /*----- PROTECTED REGION ID(MoenchControl::Additional Class Declarations) ENABLED START -----*/
 /* clang-format on */
@@ -104,7 +108,9 @@ class MoenchControl : public TANGO_BASE_CLASS
 
 /*----- PROTECTED REGION ID(MoenchControl::Data Members) ENABLED START -----*/
 /* clang-format on */
-//	Add your own data members
+private:
+	std::unique_ptr<sls::Receiver> receiver_ptr;
+	std::unique_ptr<sls::Detector> detector_ptr;
 /* clang-format off */
 /*----- PROTECTED REGION END -----*/	//	MoenchControl::Data Members
 
@@ -131,6 +137,9 @@ public:
 	//	MOENCHZMQ_DEVICE:	FQDN of Moenchzmq TangoDS,
 	//  default: rsxs/moenchZmq/bchip286
 	std::string	mOENCHZMQ_DEVICE;
+	//	DETECTOR_CONFIG_PATH:	Path to the config file for the detector,
+	//  default: /home/moench/.../moench03.config
+	std::string	dETECTOR_CONFIG_PATH;
 
 	bool	mandatoryNotDefined;
 
@@ -145,7 +154,7 @@ public:
 	gain_modeEnum	*attr_gain_mode_read;
 	Tango::DevFloat	*attr_period_read;
 	Tango::DevString	*attr_zmq_rx_ip_read;
-	Tango::DevLong64	*attr_zmq_rx_port_read;
+	Tango::DevUShort	*attr_zmq_rx_port_read;
 	rx_discard_policyEnum	*attr_rx_discard_policy_read;
 	Tango::DevString	*attr_rx_hostname_read;
 	Tango::DevLong64	*attr_rx_tcp_port_read;
@@ -317,7 +326,7 @@ public:
  *	Attribute zmq_rx_port related methods
  *
  *
- *	Data type:  Tango::DevLong64
+ *	Data type:  Tango::DevUShort
  *	Attr type:	Scalar
  */
 	virtual void read_zmq_rx_port(Tango::Attribute &attr);
@@ -387,6 +396,22 @@ public:
 
 //	Command related methods
 public:
+	/**
+	 *	Command start_acquire related method
+	 *
+	 *
+	 */
+	virtual void start_acquire();
+	virtual bool is_start_acquire_allowed(const CORBA::Any &any);
+	/**
+	 *	Command stop_acquire related method
+	 *
+	 *
+	 */
+	virtual void stop_acquire();
+	virtual bool is_stop_acquire_allowed(const CORBA::Any &any);
+
+	virtual void check_stop_in_backgroud();
 
 
 	//--------------------------------------------------------

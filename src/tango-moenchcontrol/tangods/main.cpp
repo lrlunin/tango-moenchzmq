@@ -41,7 +41,6 @@
 #  define DECLARE_CRASH_HANDLER
 #  define INSTALL_CRASH_HANDLER
 #endif
-#include "sls/Receiver.h"
 
 DECLARE_CRASH_HANDLER
 

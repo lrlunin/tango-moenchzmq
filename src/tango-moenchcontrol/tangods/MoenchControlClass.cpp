@@ -154,6 +154,42 @@ MoenchControlClass *MoenchControlClass::instance()
 //===================================================================
 //	Command execution method calls
 //===================================================================
+//--------------------------------------------------------
+/**
+ * method : 		start_acquireClass::execute()
+ * description : 	method to trigger the execution of the command.
+ *
+ * @param	device	The device on which the command must be executed
+ * @param	in_any	The command input data
+ *
+ *	returns The command output data (packed in the Any object)
+ */
+//--------------------------------------------------------
+CORBA::Any *start_acquireClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED(const CORBA::Any &in_any))
+{
+	TANGO_LOG_INFO << "start_acquireClass::execute(): arrived" << std::endl;
+	((static_cast<MoenchControl *>(device))->start_acquire());
+	return new CORBA::Any();
+}
+
+//--------------------------------------------------------
+/**
+ * method : 		stop_acquireClass::execute()
+ * description : 	method to trigger the execution of the command.
+ *
+ * @param	device	The device on which the command must be executed
+ * @param	in_any	The command input data
+ *
+ *	returns The command output data (packed in the Any object)
+ */
+//--------------------------------------------------------
+CORBA::Any *stop_acquireClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED(const CORBA::Any &in_any))
+{
+	TANGO_LOG_INFO << "stop_acquireClass::execute(): arrived" << std::endl;
+	((static_cast<MoenchControl *>(device))->stop_acquire());
+	return new CORBA::Any();
+}
+
 
 //===================================================================
 //	Properties management
@@ -301,6 +337,19 @@ void MoenchControlClass::set_default_property()
 	}
 	else
 		add_wiz_dev_prop(prop_name, prop_desc);
+	prop_name = "DETECTOR_CONFIG_PATH";
+	prop_desc = "Path to the config file for the detector,\ndefault: /home/moench/.../moench03.config";
+	prop_def  = "";
+	vect_data.clear();
+	if (prop_def.length()>0)
+	{
+		Tango::DbDatum	data(prop_name);
+		data << vect_data ;
+		dev_def_prop.push_back(data);
+		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
+	}
+	else
+		add_wiz_dev_prop(prop_name, prop_desc);
 }
 
 //--------------------------------------------------------
@@ -414,9 +463,9 @@ void MoenchControlClass::attribute_factory(std::vector<Tango::Attr *> &att_list)
 	exposure_prop.set_unit("s");
 	//	standard_unit	not set for exposure
 	//	display_unit	not set for exposure
-	//	format	not set for exposure
+	exposure_prop.set_format("%.3e");
 	//	max_value	not set for exposure
-	//	min_value	not set for exposure
+	exposure_prop.set_min_value("100E-9");
 	//	max_alarm	not set for exposure
 	//	min_alarm	not set for exposure
 	//	max_warning	not set for exposure
@@ -438,7 +487,7 @@ void MoenchControlClass::attribute_factory(std::vector<Tango::Attr *> &att_list)
 	delay_prop.set_unit("s");
 	//	standard_unit	not set for delay
 	//	display_unit	not set for delay
-	//	format	not set for delay
+	delay_prop.set_format("%.3e");
 	//	max_value	not set for delay
 	//	min_value	not set for delay
 	//	max_alarm	not set for delay
@@ -494,7 +543,7 @@ void MoenchControlClass::attribute_factory(std::vector<Tango::Attr *> &att_list)
 	//	display_unit	not set for triggers
 	//	format	not set for triggers
 	//	max_value	not set for triggers
-	//	min_value	not set for triggers
+	triggers_prop.set_min_value("1");
 	//	max_alarm	not set for triggers
 	//	min_alarm	not set for triggers
 	//	max_warning	not set for triggers
@@ -518,7 +567,7 @@ void MoenchControlClass::attribute_factory(std::vector<Tango::Attr *> &att_list)
 	//	display_unit	not set for frames
 	//	format	not set for frames
 	//	max_value	not set for frames
-	//	min_value	not set for frames
+	frames_prop.set_min_value("1");
 	//	max_alarm	not set for frames
 	//	min_alarm	not set for frames
 	//	max_warning	not set for frames
@@ -600,7 +649,7 @@ void MoenchControlClass::attribute_factory(std::vector<Tango::Attr *> &att_list)
 	period_prop.set_unit("s");
 	//	standard_unit	not set for period
 	//	display_unit	not set for period
-	//	format	not set for period
+	period_prop.set_format("%.3e");
 	//	max_value	not set for period
 	//	min_value	not set for period
 	//	max_alarm	not set for period
@@ -845,6 +894,24 @@ void MoenchControlClass::command_factory()
 	/* clang-format off */
 	/*----- PROTECTED REGION END -----*/	//	MoenchControlClass::command_factory_before
 
+
+	//	Command start_acquire
+	start_acquireClass	*pstart_acquireCmd =
+		new start_acquireClass("start_acquire",
+			Tango::DEV_VOID, Tango::DEV_VOID,
+			"",
+			"",
+			Tango::OPERATOR);
+	command_list.push_back(pstart_acquireCmd);
+
+	//	Command stop_acquire
+	stop_acquireClass	*pstop_acquireCmd =
+		new stop_acquireClass("stop_acquire",
+			Tango::DEV_VOID, Tango::DEV_VOID,
+			"",
+			"",
+			Tango::OPERATOR);
+	command_list.push_back(pstop_acquireCmd);
 
 	/*----- PROTECTED REGION ID(MoenchControlClass::command_factory_after) ENABLED START -----*/
 	/* clang-format on */

@@ -200,7 +200,7 @@ class zmq_rx_portAttrib: public Tango::Attr
 {
 public:
 	zmq_rx_portAttrib():Attr("zmq_rx_port",
-			Tango::DEV_LONG64, Tango::READ_WRITE) {};
+			Tango::DEV_USHORT, Tango::READ_WRITE) {};
 	~zmq_rx_portAttrib() {};
 	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
 		{(static_cast<MoenchControl *>(dev))->read_zmq_rx_port(att);}
@@ -285,6 +285,56 @@ public:
 		{(static_cast<MoenchControl *>(dev))->write_rx_zmq_data_stream(att);}
 	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
 		{return (static_cast<MoenchControl *>(dev))->is_rx_zmq_data_stream_allowed(ty);}
+};
+
+
+//=========================================
+//	Define classes for commands
+//=========================================
+//	Command start_acquire class definition
+class start_acquireClass : public Tango::Command
+{
+public:
+	start_acquireClass(const char   *cmd_name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out,
+				   const char        *in_desc,
+				   const char        *out_desc,
+				   Tango::DispLevel  level)
+	:Command(cmd_name,in,out,in_desc,out_desc, level)	{};
+
+	start_acquireClass(const char   *cmd_name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out)
+	:Command(cmd_name,in,out)	{};
+	~start_acquireClass() {};
+
+	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
+	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
+	{return (static_cast<MoenchControl *>(dev))->is_start_acquire_allowed(any);}
+};
+
+//	Command stop_acquire class definition
+class stop_acquireClass : public Tango::Command
+{
+public:
+	stop_acquireClass(const char   *cmd_name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out,
+				   const char        *in_desc,
+				   const char        *out_desc,
+				   Tango::DispLevel  level)
+	:Command(cmd_name,in,out,in_desc,out_desc, level)	{};
+
+	stop_acquireClass(const char   *cmd_name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out)
+	:Command(cmd_name,in,out)	{};
+	~stop_acquireClass() {};
+
+	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
+	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
+	{return (static_cast<MoenchControl *>(dev))->is_stop_acquire_allowed(any);}
 };
 
 
