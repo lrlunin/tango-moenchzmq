@@ -37,6 +37,9 @@
 
 #include "MoenchControl.h"
 #include "MoenchControlClass.h"
+
+#include <chrono>
+#include <thread>
 /* clang-format off */
 /*----- PROTECTED REGION END -----*/	//	MoenchControl.cpp
 
