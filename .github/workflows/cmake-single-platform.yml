@@ -21,7 +21,7 @@ jobs:
     
     steps:
     - name: Install both own and slsDetectorPackage dependencies
-      run: sudo apt-get install -y libzmq3-dev libtiff-dev libhdf5-dev libfmt-dev rapidjson-dev libtango-dev
+      run: sudo apt-get install -y libzmq3-dev libtiff-dev libhdf5-dev libfmt-dev rapidjson-dev libtango-dev libboost-dev
 
     - name: Fetch slsDetectorPackage
       uses: actions/checkout@v4
