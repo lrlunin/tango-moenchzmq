@@ -10,3 +10,4 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 set(DEBUG_SRC_FILES "")
 
 add_subdirectory(src/tango-moenchzmq)
+add_subdirectory(src/tango-moenchcontrol)
